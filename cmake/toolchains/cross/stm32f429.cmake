@@ -9,37 +9,28 @@
 # script when you are configuring the build output directory#
 #############################################################
 
-##################################
-#      Definition validations    #
-##################################
-
-# Check if the 'executable' target is defined
-if (NOT TARGET ${executable})
-    message(FATAL_ERROR "The executable target '${executable}' is not defined. Please ensure that the target is correctly created before this point.")
+# CMake includes the toolchain file multiple times when configuring the build,
+# which causes errors for some flags (e.g., --specs=nano.specs).
+# We prevent this with an include guard.
+if(ARM_CORTEX_M4_TOOLCHAIN_INCLUDED)
+	return()
 endif()
 
-# Check if 'bsp_linker' (linkerPath) is provided
-if (NOT DEFINED bsp_linker)
-    message(FATAL_ERROR "The variable 'bsp_linker' (linker path) is not defined. Please provide a valid path to the linker script.")
-endif()
+set(ARM_CORTEX_M4_TOOLCHAIN_INCLUDED true)
+
+message(STATUS "CMAKE_CROSSCOMPILING: ${CMAKE_CROSSCOMPILING}")
+message(STATUS "Cross compiling for a CORTEX M4")
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
 #############################
 #   General definitions     #
 #############################
 # Name of the operating system which CMake is to build (generic is for bare metal system).
-set(CMAKE_SYSTEM_NAME Generic)
-                                
+set(CMAKE_SYSTEM_NAME Generic)                                
 set(CMAKE_SYSTEM_PROCESSOR arm)
 set(CPU_NAME cortex-m4)
 set(targetToolChainPath /home/renato/renato/toolchains/arm_bare_metal/arm-gnu-toolchain-13.2.rel1-x86_64-arm-none-eabi/arm-gnu-toolchain-13.2.Rel1-x86_64-arm-none-eabi/bin)
 # This path comes from the cmakelists thats using this .cmake file, and should be provided by the user.
-set(linkerPath ${bsp_linker}) 
-set(cpu_parameters 
-    -mcpu=cortex-m4
-    -mthumb
-    -mfpu=fpv4-sp-d16
-    -mfloat-abi=hard
-)
 
 #############################
 #   binutils definitions    #
@@ -56,68 +47,11 @@ set(SIZE ${targetToolChainPath}/arm-none-eabi-size)
 #############################
 #       CMake related       #
 #############################
-set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
-set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
-set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
-set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
+#set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+#set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+#set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+#set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 
 # Test compiles will use static libraries, so we won't need to define linker flags
 # and scripts for linking to succeed
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
-
-#############################
-#     Compiler flags        #
-#############################
-target_compile_options(${executable} PRIVATE
-    ${cpu_parameters}
-    -Wall
-    -Wextra
-    -Werror
-    -Wpedantic
-    -Wshadow
-    --specs=nano.specs
-    -Wdouble-promotion
-    -Wformat=2 -Wformat-truncation
-    -Wundef
-    -fno-common
-    -Wno-unused-parameter
-    -ffunction-sections
-    -fdata-sections
-    -fstack-usage
-    $<$<COMPILE_LANGUAGE:CXX>:
-        -Wconversion
-        -Wno-volatile
-        -Wold-style-cast
-        -Wuseless-cast
-        -Wsuggest-override
-        -std=gnu++17
-        -fno-exceptions
-        -fno-rtti
-        -fno-use-cxa-atexit>
-    $<$<CONFIG:Debug>:-Og -g3 -ggdb>
-    $<$<CONFIG:Release>:-Og -g0>
-)
-
-target_compile_definitions(${executable} PRIVATE
-    -DSTM32F429xx # If using ST HAL
-) 
-
-#############################
-#      Linker flags         #
-#############################
-target_link_options(${executable} PRIVATE
-    -T${bsp_linker}
-    --specs=nosys.specs
-    ${cpu_parameters}
-    -Wl,-Map=${executable}.map
-    -Wl,--gc-sections 
-    -static
-    --specs=nano.specs
-    -Wl,--start-group
-    -lc
-    -lm
-    -lstdc++
-    -lsupc++
-    -Wl,--end-group
-    -Wl,--print-memory-usage
-)

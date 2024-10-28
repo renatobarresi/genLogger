@@ -1,13 +1,16 @@
 ##########################################################
 #   Main CMakeList for the genLogger CESE final project  #
 ##########################################################
-cmake_minimum_required(VERSION 3.30)
-
 ##########################################################
 #              Global definitions                        #
 ##########################################################
-set(projectName genLogger)
+cmake_minimum_required(VERSION 3.30)
 
+set(projectName genLogger)
+set(toolchain_cmake_path ${CMAKE_CURRENT_SOURCE_DIR}/cmake/toolchains/cross)
+set(dependencies_path ${CMAKE_SOURCE_DIR}/build/_deps)          # this variable is used by the components that need to know the include path of the _deps folder
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 ##########################################################
 #              Project main definitions                  #
 ##########################################################
@@ -16,15 +19,12 @@ project(${projectName}
         VERSION 1.0.0
         LANGUAGES C CXX ASM)   
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS yes) # for clangd "compile_comands.json"
 include(CMakePrintHelpers)
 
 ##########################################################
 #                  Sub directories                       #
 ##########################################################
-add_subdirectory(source)
-add_subdirectory(test)
-add_subdirectory(testProjects)
+add_subdirectory(prototypes)
 
 ##########################################################
 #              Dependencies management                   #
@@ -39,38 +39,38 @@ add_subdirectory(testProjects)
 include(cmake/CPM.cmake)
 
 CPMAddPackage(
-    NAME stm32f4xx_hal_driver
-    GITHUB_REPOSITORY STMicroelectronics/stm32f4xx_hal_driver
-    GIT_TAG v1.8.3
-    DOWNLOAD_ONLY ON # Prevent CMake from trying to configure the project
+    NAME STM32CubeF4
+    GITHUB_REPOSITORY STMicroelectronics/STM32CubeF4
+    GIT_TAG v1.28.1
+    DOWNLOAD_ONLY ON 
 )
 
 #[[CPMAddPackage(
     NAME little-FS
     GITHUB_REPOSITORY littlefs-project/littlefs    
     GIT_TAG v2.9.3
-    DOWNLOAD_ONLY ON # Prevent CMake from trying to configure the project
+    DOWNLOAD_ONLY ON 
 )
 
 CPMAddPackage(
     NAME googletest
     GITHUB_REPOSITORY google/googletest
     GIT_TAG v1.15.2
-    DOWNLOAD_ONLY ON # Prevent CMake from trying to configure the project
+    DOWNLOAD_ONLY ON
 )
 
 CPMAddPackage(
     NAME lwIP
     GIT_REPOSITORY https://git.savannah.nongnu.org/git/lwip
     GIT_TAG STABLE-2_2_0_RELEASE
-    DOWNLOAD_ONLY ON # Prevent CMake from trying to configure the project
+    DOWNLOAD_ONLY ON 
 )
 
 CPMAddPackage(
     NAME nuttX
     GITHUB_REPOSITORY apache/nuttx
     GIT_TAG nuttx-12.6.0
-    DOWNLOAD_ONLY ON # Prevent CMake from trying to configure the project
+    DOWNLOAD_ONLY ON 
 )]]
 
 # Documentation

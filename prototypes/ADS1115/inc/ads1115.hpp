@@ -1,14 +1,24 @@
 #pragma once
+/**
+ * @file ads1115.hpp
+ * @author Renato Barresi (renatobarresi@gmail.com)
+ * @brief
+ * @version 0.1
+ * @date 2024-10-30
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
 
 /***************
-*   Includes   *
-***************/
+ *   Includes   *
+ ***************/
 
 #include <cstdint>
 
 /***************
-*   Class      *
-***************/
+ *   Class      *
+ ***************/
 
 /**
  * @name ADS1115
@@ -16,85 +26,106 @@
  */
 class ADS1115
 {
-    public:
-    /**
-     * @brief 
-     */
-    typedef enum
-    {
-        ADS1115_errorFatal,
-        ADS1115_noError
-    } ADS1115_error_t;
+  public:
+	/**
+	 * @brief
+	 */
+	typedef enum
+	{
+		errorFatal,
+		noError
+	} error_t;
 
-    /**
-     * @brief 
-     */
-    typedef enum
-    {
-        ADS1115_singleShot,
-        ADS1115_continousMode
-    } ADS1115_mode_t;
+	/**
+	 * @brief
+	 */
+	typedef enum
+	{
+		singleShot,
+		continousMode
+	} mode_t;
 
-    /**
-     * @brief Construct a new ADS1115 object
-     */
-    ADS1115();
+	typedef enum
+	{
 
-    /**
-     * @name 
-     * @brief
-     * @return ADS1115_error_t 
-     */
-    ADS1115_error_t init();
+	} compareChannel_t;
 
-    /**
-     * @name 
-     * @brief
-     * @return ADS1115_error_t 
-     */
-    ADS1115_error_t setMode(ADS1115_mode_t mode);
+	typedef enum
+	{
+		range_6144,
+		range_4096,
+		range_2048,
+		range_1024,
+		range_0512,
+		range_0256
+	} voltageRange_t;
 
-    /**
-     * @name 
-     * @brief
-     * @return ADS1115_error_t 
-     */
-    ADS1115_error_t setVoltRange();
+	uint16_t devAddress;
 
-    /**
-     * @name 
-     * @brief
-     * @return ADS1115_error_t 
-     */
-    ADS1115_error_t setCompChannel(uint8_t compChannel);
+	/**
+	 * @brief Construct a new ADS1115 object
+	 */
+	ADS1115();
 
-    /**
-     * @name 
-     * @brief
-     * @return ADS1115_error_t 
-     */
-    void startSingleMeasurement();
+	/**
+	 * @name
+	 * @brief
+	 * @return error_t
+	 */
+	error_t init();
 
-    /**
-     * @name 
-     * @brief
-     * @return ADS1115_error_t 
-     */
-    float getVoltage();
+	/**
+	 * @name
+	 * @brief
+	 * @return error_t
+	 */
+	error_t setMode(mode_t mode);
 
-    private:
+	/**
+	 * @name
+	 * @brief
+	 * @return error_t
+	 */
+	error_t setVoltRange(voltageRange_t range);
 
-    /**
-     * @name 
-     * @brief
-     * @return ADS1115_error_t 
-     */
-    ADS1115_error_t writeConfigRegister();
+	/**
+	 * @name
+	 * @brief
+	 * @return error_t
+	 */
+	error_t setCompChannel(compareChannel_t compChannel);
 
-    /**
-     * @name 
-     * @brief
-     * @return ADS1115_error_t 
-     */
-    ADS1115_error_t readConvRegister();
+	/**
+	 * @name
+	 * @brief
+	 * @return error_t
+	 */
+	void startSingleMeasurement();
+
+	/**
+	 * @name
+	 * @brief
+	 * @return error_t
+	 */
+	float getVoltage();
+
+  protected:
+	virtual int i2cTx(uint16_t memAddr, uint8_t* pData, uint16_t size) = 0;
+	virtual int i2cRx(uint16_t memAddr, uint8_t* pBuf, uint16_t size) = 0;
+
+  private:
+	ads1115I2cInterface i2cInterface;
+	/**
+	 * @name
+	 * @brief
+	 * @return error_t
+	 */
+	error_t writeConfigRegister();
+
+	/**
+	 * @name
+	 * @brief
+	 * @return error_t
+	 */
+	error_t readConvRegister();
 };

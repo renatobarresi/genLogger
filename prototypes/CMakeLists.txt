@@ -2,4 +2,5 @@
 #                prototypes CMakeLists.txt              #
 ##########################################################
 
-add_subdirectory(nucleo-f429zi_blink)
+#add_subdirectory(bareMetal_f429zi_blink)
+#add_subdirectory(ADS1115)

@@ -6,11 +6,11 @@
 ##########################################################
 cmake_minimum_required(VERSION 3.30)
 
-set(projectName genLogger)
-set(toolchain_cmake_path ${CMAKE_CURRENT_SOURCE_DIR}/cmake/toolchains/cross)
-set(dependencies_path ${CMAKE_SOURCE_DIR}/build/_deps)          # this variable is used by the components that need to know the include path of the _deps folder
-
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
+set(projectName genLogger)
+set(arm_gcc_toolchain_path ${CMAKE_CURRENT_SOURCE_DIR}/cmake/toolchains/cross)        # Path to the arm toolchain path
+set(dependencies_path ${CMAKE_SOURCE_DIR}/build/_deps)                                # this variable is used by the components that need to know the include path of the _deps folder
+
 ##########################################################
 #              Project main definitions                  #
 ##########################################################
@@ -29,10 +29,12 @@ add_subdirectory(prototypes)
 ##########################################################
 #              Dependencies management                   #
 ##########################################################
-# Dependencies for this project are: lwIP, ST HAL, NuttX, googleTest
+# Dependencies for this project are: lwIP, ST HAL, googleTest
 # We use CPM for CMake dependency managment (https://github.com/cpm-cmake/CPM.cmake)
+#
 # ST HAL repo: https://github.com/STMicroelectronics/stm32f4xx_hal_driver.git
 # lwIP repo: https://git.savannah.nongnu.org/git/lwip.git
+# FreeRTOS repo: https://github.com/FreeRTOS/FreeRTOS-Kernel
 # googleTest: https://github.com/google/googletest.git
 # little-FS: https://github.com/littlefs-project/littlefs.git
 ##########################################################
@@ -45,7 +47,14 @@ CPMAddPackage(
     DOWNLOAD_ONLY ON 
 )
 
-#[[CPMAddPackage(
+CPMAddPackage(
+    NAME freeRTOS
+    GITHUB_REPOSITORY FreeRTOS/FreeRTOS-Kernel
+    GIT_TAG V11.1.0
+    DOWNLOAD_ONLY ON 
+)
+
+CPMAddPackage(
     NAME little-FS
     GITHUB_REPOSITORY littlefs-project/littlefs    
     GIT_TAG v2.9.3
@@ -65,13 +74,6 @@ CPMAddPackage(
     GIT_TAG STABLE-2_2_0_RELEASE
     DOWNLOAD_ONLY ON 
 )
-
-CPMAddPackage(
-    NAME nuttX
-    GITHUB_REPOSITORY apache/nuttx
-    GIT_TAG nuttx-12.6.0
-    DOWNLOAD_ONLY ON 
-)]]
 
 # Documentation
 #find_program(DOXYGEN doxygen)

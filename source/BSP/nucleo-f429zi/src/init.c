@@ -1,9 +1,15 @@
+#include "spi_drv.h"
 #include "init.h"
 #include "stm32f4xx_hal.h"
+#include "i2c_drv.h"
 
 void SystemClock_Config(void);
 void MX_GPIO_Init(void);
 void HAL_MspInit(void);
+
+static I2C_HandleTypeDef hi2c1;
+
+static i2c_dev_t i2c1Device;
 
 int stm32f429_init()
 {
@@ -15,6 +21,11 @@ int stm32f429_init()
 
     // Init peripherals
     MX_GPIO_Init();
+    
+    i2c1Device.i2cHandle = hi2c1;
+    i2c1Device.i2cInstance = I2C1;
+
+    stm32f429_i2cInit(&i2c1Device);
 
     return 1;
 }

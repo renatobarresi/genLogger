@@ -47,11 +47,6 @@ set(SIZE ${targetToolChainPath}/arm-none-eabi-size)
 #############################
 #       CMake related       #
 #############################
-#set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
-#set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
-#set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
-#set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
-
 # Test compiles will use static libraries, so we won't need to define linker flags
 # and scripts for linking to succeed
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)

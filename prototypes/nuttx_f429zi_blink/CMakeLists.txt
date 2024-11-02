@@ -1,53 +1,72 @@
 ##########################################################
-#                BLINK CMakeLists.txt                    #
+#                BLINK CMakeLists.txt                    
 ##########################################################
 
 #############################
-#     Main variables        #
+#     Main variables        
 #############################
-set(executable blinkTarget)
-set(bsp_path ${CMAKE_CURRENT_SOURCE_DIR}/../../source/BSP/nucleo-f429zi)
-set(bsp_linker ${bsp_path}/link/STM32F429ZITX_FLASH.ld)
+set(executable nuttx_blink)
+#set(bsp_path ${CMAKE_CURRENT_SOURCE_DIR}/../../source/BSP/nucleo-f429zi)
 
 ##########################################################
-#           Sources & include definitions                #
+#           Sources & include definitions                
 ##########################################################
-set(blink_sources
+set(${executable}_sources
     src/main.cpp
-    src/blinkInterface.cpp
+    src/helloWorld.cpp
 )
 
-set(blink_includes
+set(${executable}_includes
     inc
 )
 
 ##########################################################
-#              Components definition                     #
+#              Components definition                     
 ##########################################################
-# TODO: define an appropiate output folder for the output files.
-add_subdirectory(
-    ${bsp_path}
-    ${CMAKE_BINARY_DIR}/BSP/nucleo-f429zi
-    EXCLUDE_FROM_ALL
+set(nuttx_path ${CMAKE_SOURCE_DIR}/nuttx)
+
+set(nuttx_includes
+    ${nuttx_path}/include
+    ${nuttx_path}/include/libcxx
+    ${nuttx_path}/arch/chip
 )
 
+link_directories(${executable} 
+    ${nuttx_path}/libs
+)
+
+set(bsp_linker ${nuttx_path}/scripts/ld.script)
 ##########################################################
-#              Target definition                         #
+#              Target definition                         
 ##########################################################
 add_executable(${executable}
-    ${blink_sources}
+    ${${executable}_sources}
 )
 
 target_include_directories(${executable} PRIVATE
-    ${blink_includes}    
+    ${${executable}_includes}    
 )
 
 target_link_libraries(${executable} PRIVATE 
-    f429ziComponent
+    #--start-group
+    sched
+    drivers
+    boards
+    c
+    mm
+    arch
+    xx
+    apps
+    fs
+    binfmt
+    board
+    gcc
+    supc++
+    #--end-group
 )
 
 #############################
-#     Compiler flags        #
+#     Compiler flags        
 #############################
 set(CPU_PARAMETERS
     -mcpu=cortex-m4
@@ -55,8 +74,10 @@ set(CPU_PARAMETERS
     -mfpu=fpv4-sp-d16
     -mfloat-abi=hard)
 
-message(STATUS "bsp_linker: ${bsp_linker}")
-message(STATUS "CPU_PARAMETERS: ${CPU_PARAMETERS}")
+target_compile_definitions(${executable} PRIVATE
+    -DCONFIG_WCHAR_BUILTIN
+)
+
 target_compile_options(${executable} PRIVATE
     ${CPU_PARAMETERS}
     -Wall
@@ -80,15 +101,19 @@ target_compile_options(${executable} PRIVATE
         -Wuseless-cast
         -Wsuggest-override
         -std=gnu++17
+        -fno-strict-aliasing
         -fno-exceptions
         -fno-rtti
+        -fcheck-new
+        -pedantic
+        -nostdinc++
         -fno-use-cxa-atexit>
     $<$<CONFIG:Debug>:-g3 -ggdb>
     $<$<CONFIG:Release>:-Og -g0>
 )
 
 #############################
-#      Linker flags         #
+#      Linker flags         
 #############################
 target_link_options(${executable} PRIVATE
     -T${bsp_linker}
@@ -109,22 +134,19 @@ target_link_options(${executable} PRIVATE
 )
 
 #############################
-#    Post build commands    #
+#    Post build commands    
 #############################
-# Post-build message
-set(Objdump_path /home/renato/renato/toolchains/arm_bare_metal/arm-gnu-toolchain-13.2.rel1-x86_64-arm-none-eabi/arm-gnu-toolchain-13.2.Rel1-x86_64-arm-none-eabi/bin)
-
 # Assuming 'executable' is the name of your target
 set(output_file "${CMAKE_CURRENT_BINARY_DIR}/${executable}.objdump")
 
 # Objdump
 add_custom_command(TARGET ${executable} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E echo "Build complete. Generating objdump file."
-    COMMAND ${Objdump_path}/arm-none-eabi-objdump -h ${CMAKE_CURRENT_BINARY_DIR}/${executable} > ${executable}_objdump.txt
+    COMMAND ${OBJDUMP} -h ${CMAKE_CURRENT_BINARY_DIR}/${executable} > ${executable}_objdump.txt
 )
 
 # Objdump
 add_custom_command(TARGET ${executable} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E echo "Generating dissasemble file."
-    COMMAND ${Objdump_path}/arm-none-eabi-objdump -d ${CMAKE_CURRENT_BINARY_DIR}/${executable} > ${executable}_dissasemble.txt
+    COMMAND ${OBJDUMP} -d ${CMAKE_CURRENT_BINARY_DIR}/${executable} > ${executable}_dissasemble.txt
 )

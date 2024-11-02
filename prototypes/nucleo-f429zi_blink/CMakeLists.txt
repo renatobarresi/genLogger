@@ -1,72 +1,53 @@
 ##########################################################
-#                BLINK CMakeLists.txt                    
+#                BLINK CMakeLists.txt                    #
 ##########################################################
 
 #############################
-#     Main variables        
+#     Main variables        #
 #############################
-set(executable nuttx_blink)
-#set(bsp_path ${CMAKE_CURRENT_SOURCE_DIR}/../../source/BSP/nucleo-f429zi)
+set(executable blinkTarget)
+set(bsp_path ${CMAKE_CURRENT_SOURCE_DIR}/../../source/BSP/nucleo-f429zi)
+set(bsp_linker ${bsp_path}/link/STM32F429ZITX_FLASH.ld)
 
 ##########################################################
-#           Sources & include definitions                
+#           Sources & include definitions                #
 ##########################################################
-set(${executable}_sources
+set(blink_sources
     src/main.cpp
-    src/helloWorld.cpp
+    src/blinkInterface.cpp
 )
 
-set(${executable}_includes
+set(blink_includes
     inc
 )
 
 ##########################################################
-#              Components definition                     
+#              Components definition                     #
 ##########################################################
-set(nuttx_path ${CMAKE_SOURCE_DIR}/nuttx)
-
-set(nuttx_includes
-    ${nuttx_path}/include
-    ${nuttx_path}/include/libcxx
-    ${nuttx_path}/arch/chip
+# TODO: define an appropiate output folder for the output files.
+add_subdirectory(
+    ${bsp_path}
+    ${CMAKE_BINARY_DIR}/BSP/nucleo-f429zi
+    EXCLUDE_FROM_ALL
 )
 
-link_directories(${executable} 
-    ${nuttx_path}/libs
-)
-
-set(bsp_linker ${nuttx_path}/scripts/ld.script)
 ##########################################################
-#              Target definition                         
+#              Target definition                         #
 ##########################################################
 add_executable(${executable}
-    ${${executable}_sources}
+    ${blink_sources}
 )
 
 target_include_directories(${executable} PRIVATE
-    ${${executable}_includes}    
+    ${blink_includes}    
 )
 
 target_link_libraries(${executable} PRIVATE 
-    #--start-group
-    sched
-    drivers
-    boards
-    c
-    mm
-    arch
-    xx
-    apps
-    fs
-    binfmt
-    board
-    gcc
-    supc++
-    #--end-group
+    f429ziComponent
 )
 
 #############################
-#     Compiler flags        
+#     Compiler flags        #
 #############################
 set(CPU_PARAMETERS
     -mcpu=cortex-m4
@@ -74,10 +55,8 @@ set(CPU_PARAMETERS
     -mfpu=fpv4-sp-d16
     -mfloat-abi=hard)
 
-target_compile_definitions(${executable} PRIVATE
-    -DCONFIG_WCHAR_BUILTIN
-)
-
+message(STATUS "bsp_linker: ${bsp_linker}")
+message(STATUS "CPU_PARAMETERS: ${CPU_PARAMETERS}")
 target_compile_options(${executable} PRIVATE
     ${CPU_PARAMETERS}
     -Wall
@@ -101,19 +80,15 @@ target_compile_options(${executable} PRIVATE
         -Wuseless-cast
         -Wsuggest-override
         -std=gnu++17
-        -fno-strict-aliasing
         -fno-exceptions
         -fno-rtti
-        -fcheck-new
-        -pedantic
-        -nostdinc++
         -fno-use-cxa-atexit>
     $<$<CONFIG:Debug>:-g3 -ggdb>
     $<$<CONFIG:Release>:-Og -g0>
 )
 
 #############################
-#      Linker flags         
+#      Linker flags         #
 #############################
 target_link_options(${executable} PRIVATE
     -T${bsp_linker}

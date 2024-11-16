@@ -8,7 +8,6 @@ cmake_minimum_required(VERSION 3.30)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 set(projectName genLogger)
-set(arm_gcc_toolchain_path ${CMAKE_CURRENT_SOURCE_DIR}/cmake/toolchains/cross)        # Path to the arm toolchain path
 set(dependencies_path ${CMAKE_SOURCE_DIR}/build/_deps)                                # this variable is used by the components that need to know the include path of the _deps folder
 
 ##########################################################
@@ -24,7 +23,8 @@ include(CMakePrintHelpers)
 ##########################################################
 #                  Sub directories                       #
 ##########################################################
-add_subdirectory(prototypes)
+#add_subdirectory(prototypes)
+add_subdirectory(source)
 
 ##########################################################
 #              Dependencies management                   #

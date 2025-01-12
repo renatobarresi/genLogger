@@ -1,35 +1,47 @@
-#include "posixThreads.hpp"
-#include "rtosFactory.hpp"
-#include <stdio.h>
+/**
+ * @file main.cpp
+ * @author Renato Barresi (renatobarresi@gmail.com)
+ * @brief genLogger main application source file
+ *
+ * genLogger (generic datalogger) is a datalogger
+ *
+ * The application has five main subsystems:
+ *	1) Configuration subsystem
+ *	2) Sensor management subsystem
+ *  3) Processing subsystem
+ *	4) Storage susbsystem
+ *	5) Network subsystem
+ *
+ * The macro TARGET_MICRO must be passed as a compiler definition if
+ * the build type is for the target microcontroller. When its defined,
+ * components related to the target board are included.
+ *
+ * @version 0.1
+ * @date 2025-01-12
+ *
+ * @copyright Copyright (c) 2025
+ *
+ */
+#include "configuration_subsystem.hpp"
 
-void* commManagerThread(void* args)
-{
-	printf("Starting from comm thread\r\n");
-	while(1)
-	{
-		printf("Running comm thread\r\n");
-	}
-}
+// Includes related to the used board
+#ifdef TARGET_MICRO
+#include "init.h"
+#endif
 
-void* sensorManagerThread(void* args)
-{
-	printf("Starting from sensor thread\r\n");
-	while(1)
-	{
-		printf("Running sensor thread\r\n");
-	}
-}
+configManager stationConfigManager;
 
 int main()
 {
-	rtosFactory* myFactory = new posixThreadsFactory();
-	rtosAdapter* myRTOS = myFactory->factory();
+#ifdef TARGET_MICRO
+	stm32f429_init();
+#endif
 
-	myRTOS->threadCreate("test thread", &commManagerThread, 1024, 0, nullptr);
-	myRTOS->startScheduler();
+	stationConfigManager.init();
 
-	delete myRTOS;
-	delete myFactory;
+	while(1)
+	{
+	}
 
 	return 0;
 }

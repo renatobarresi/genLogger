@@ -40,7 +40,8 @@ set(st_hal_sources
     ${stm32f4_hal_path}/Src/stm32f4xx_hal_cortex.c
     ${stm32f4_hal_path}/Src/stm32f4xx_hal_rcc.c
     ${stm32f4_hal_path}/Src/stm32f4xx_hal_gpio.c
-    #${stm32f4_hal_path}/Src/stm32f4xx_hal_dma.c
+    ${stm32f4_hal_path}/Src/stm32f4xx_hal_dma.c
+    ${stm32f4_hal_path}/Src/stm32f4xx_hal_uart.c
     ${stm32f4_hal_path}/Src/stm32f4xx_hal_i2c.c
     ${stm32f4_hal_path}/Src/stm32f4xx_hal_i2c_ex.c
 )
@@ -55,6 +56,7 @@ set(f429zi_init_sources
     src/system_stm32f4xx.c
     src/startup_stm32f429xx.s
     src/i2c_drv.c
+    src/uart.c
 )
 
 ##########################################################

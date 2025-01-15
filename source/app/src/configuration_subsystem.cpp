@@ -1,11 +1,24 @@
+/**
+ * @file configuration_subsystem.cpp
+ * @author Renato Barresi (renatobarresi@gmail.com)
+ * @brief
+ * @version 0.1
+ * @date 2025-01-13
+ *
+ * @copyright Copyright (c) 2025
+ *
+ */
+
+/*###############################################*/
+// 					Includes
+/*###############################################*/
 #include "configuration_subsystem.hpp"
-#ifdef TARGET_MICRO
-#include "uart.h"
-#endif
 #include <iostream>
 #include <streambuf>
 
 #ifdef TARGET_MICRO
+#include "uart.h"
+
 class UartStreamBuf : public std::streambuf
 {
   protected:
@@ -23,6 +36,14 @@ UartStreamBuf uartStreamBuf;
 std::ostream uartOut(&uartStreamBuf);
 #endif
 
+/*###############################################*/
+// 				Methods implementation
+/*###############################################*/
+/**
+ * @name
+ * @brief
+ *
+ */
 void configManager::init()
 {
 #ifdef TARGET_MICRO
@@ -33,6 +54,11 @@ void configManager::init()
 	print_banner();
 }
 
+/**
+ * @name
+ * @brief
+ *
+ */
 void configManager::print_banner()
 {
 	std::cout << "#############################\r\n";

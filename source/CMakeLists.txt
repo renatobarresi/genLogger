@@ -1,6 +1,7 @@
 ##########################################################
 #                  APP CMakeLists.txt                    #
 ##########################################################
+# TODO: define an appropiate output folder for the output files.
 
 #############################
 #     Main variables        #
@@ -13,22 +14,23 @@ set(bsp_linker ${bsp_path}/link/STM32F429ZITX_FLASH.ld)
 #           Sources & include definitions                #
 ##########################################################
 set(app_sources
-    app/src/main.cpp
-    app/src/configuration_subsystem.cpp
-    #platform/src/posixThreads.cpp
-    #platform/src/rtosFactory.cpp
+    app/main/src/main.cpp
+    app/configurationSubsystem/src/config_manager.cpp
+    app/configurationSubsystem/src/terminal_component.cpp
 )
 
 set(app_includes
     platform/inc/
-    app/inc/
+    app/main/inc/
+    app/configurationSubsystem/inc/
 )
 
 ##########################################################
 #              Components definition                     #
 ##########################################################
-# TODO: define an appropiate output folder for the output files.
+
 if (target_type STREQUAL "target")
+
     add_subdirectory(
         ${bsp_path}
         ./BSP/nucleo-f429zi
@@ -61,15 +63,17 @@ endif()
 #     Compiler flags        #
 #############################
 if (target_type STREQUAL "target")
+
+    set(CPU_PARAMETERS
+        -mcpu=cortex-m4
+        -mthumb
+        -mfpu=fpv4-sp-d16
+        -mfloat-abi=hard
+    )
+
     target_compile_definitions(${executable} PRIVATE
         -DTARGET_MICRO
     )
-
-    set(CPU_PARAMETERS
-    -mcpu=cortex-m4
-    -mthumb
-    -mfpu=fpv4-sp-d16
-    -mfloat-abi=hard)
 
     target_compile_options(${executable} PRIVATE
         ${CPU_PARAMETERS}
@@ -106,6 +110,7 @@ endif()
 #      Linker flags         #
 #############################
 if (target_type STREQUAL "target")
+
     target_link_options(${executable} PRIVATE
         -T${bsp_linker}
         --specs=nosys.specs
@@ -129,6 +134,7 @@ endif()
 #    Post build commands    
 #############################
 if (target_type STREQUAL "target")
+
     # Assuming 'executable' is the name of your target
     set(output_file "${CMAKE_CURRENT_BINARY_DIR}/${executable}.objdump")
 

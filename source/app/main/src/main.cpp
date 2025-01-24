@@ -22,22 +22,26 @@
  * @copyright Copyright (c) 2025
  *
  */
-#include "configuration_subsystem.hpp"
+
+#include "main.h"
+#include "config_manager.hpp"
+#include "terminal_component.hpp"
 
 // Includes related to the used board
 #ifdef TARGET_MICRO
 #include "init.h"
 #endif
 
-configManager stationConfigManager;
+terminalStateMachine terminalOutput;
+internalStorageComponent storage;
+
+configManager loggerConfig(&terminalOutput, &storage);
 
 int main()
 {
 #ifdef TARGET_MICRO
 	stm32f429_init();
 #endif
-
-	stationConfigManager.init();
 
 	while(1)
 	{

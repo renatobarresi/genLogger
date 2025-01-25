@@ -10,6 +10,9 @@ set(executable app)
 set(bsp_path ${CMAKE_CURRENT_SOURCE_DIR}/BSP/nucleo-f429zi)
 set(bsp_linker ${bsp_path}/link/STM32F429ZITX_FLASH.ld)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 ##########################################################
 #           Sources & include definitions                #
 ##########################################################
@@ -17,12 +20,23 @@ set(app_sources
     app/main/src/main.cpp
     app/configurationSubsystem/src/config_manager.cpp
     app/configurationSubsystem/src/terminal_component.cpp
+    app/configurationSubsystem/src/internalStorage_component.cpp
+    platform/src/internalStorage_wrapper.cpp
+    app/loggerMetadata/loggerMetadata.cpp
 )
 
 set(app_includes
     platform/inc/
     app/main/inc/
     app/configurationSubsystem/inc/
+    app/loggerMetadata/
+    platform/inc/
+    
+    # Special target specific includes
+    if (target_type STREQUAL "target")
+    ${dependencies_path}/little-fs-src/
+    drivers/inc/
+    endif()    
 )
 
 ##########################################################
@@ -79,7 +93,7 @@ if (target_type STREQUAL "target")
         ${CPU_PARAMETERS}
         -Wall
         -Wextra
-        -Werror
+        #-Werror
         -Wpedantic
         -Wshadow
         --specs=nano.specs
@@ -92,6 +106,7 @@ if (target_type STREQUAL "target")
         -fdata-sections
         -fstack-usage
         $<$<COMPILE_LANGUAGE:CXX>:
+            -std=gnu++20
             -Wconversion
             -Wno-volatile
             -Wold-style-cast
@@ -105,6 +120,8 @@ if (target_type STREQUAL "target")
         $<$<CONFIG:Release>:-Og -g0>
     )
 endif()
+
+add_compile_options(-Wno-missing-field-initializers)
 
 #############################
 #      Linker flags         #

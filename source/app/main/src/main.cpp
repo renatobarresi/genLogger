@@ -25,6 +25,7 @@
 
 #include "main.h"
 #include "config_manager.hpp"
+#include "internalStorage_component.hpp"
 #include "terminal_component.hpp"
 
 // Includes related to the used board
@@ -42,6 +43,8 @@ int main()
 #ifdef TARGET_MICRO
 	stm32f429_init();
 #endif
+
+	terminalOutput.init(terminalState::basicDeviceInfo);
 
 	while(1)
 	{

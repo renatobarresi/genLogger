@@ -10,6 +10,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 set(projectName genLogger)
 set(dependencies_path ${CMAKE_SOURCE_DIR}/build/_deps)                                # this variable is used by the components that need to know the include path of the _deps folder
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+
 ##########################################################
 #              Project main definitions                  #
 ##########################################################

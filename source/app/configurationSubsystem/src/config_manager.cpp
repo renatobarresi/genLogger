@@ -14,6 +14,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "config_manager.hpp"
+#include "config_mediator.hpp"
 
 ////////////////////////////////////////////////////////////////////////
 //					   Public methods implementation
@@ -26,4 +27,15 @@ configManager::configManager(terminalStateMachine* terminal, internalStorageComp
 	this->internalStorage->setMediator(this);
 }
 
-void configManager::notify(configComponent* sender, const char& event, const char& data) const {}
+void configManager::notify(configComponent* sender, mediatorEvents event, const char* data) const
+{
+	if(event == mediatorEvents::UPDATE_METADATA)
+	{
+		// Notify internal storage
+	}
+
+	if(event == mediatorEvents::METADATA_UPDATED)
+	{
+		// Signal terminal
+	}
+}

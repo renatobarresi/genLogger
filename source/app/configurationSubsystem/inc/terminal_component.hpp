@@ -110,4 +110,10 @@ class terminalStateMachine : public configComponent
 	 * was handled, ignored, or triggered a state transition.
 	 */
 	terminalEvents eventDispacher(terminalState state);
+
+	/**
+	 * @brief Signals to mediator that an update to the logger's metadata is needed
+	 *
+	 */
+	void updateLoggerMetadata();
 };

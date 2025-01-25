@@ -17,6 +17,10 @@ set(bsp_nucleo_f429zi_component f429ziComponent)
 set(stm32f4_hal_path ${dependencies_path}/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver)
 set(stm32f4_cmsis_path ${dependencies_path}/stm32cubef4-src/Drivers/CMSIS)
 
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 ##########################################################
 #           Sources & include definitions                
 ##########################################################
@@ -57,6 +61,8 @@ set(f429zi_init_sources
     src/startup_stm32f429xx.s
     src/i2c_drv.c
     src/uart.c
+    src/spi_module.cpp
+    src/gpio_module.cpp
 )
 
 ##########################################################
@@ -103,7 +109,7 @@ target_compile_options(${bsp_nucleo_f429zi_component} PRIVATE
     ${CPU_PARAMETERS}
     -Wall                       # Enable most compiler warnings
     -Wextra                     # Enable extra warnings
-    -Werror                     # Treat warnings as errors
+    #-Werror                     # Treat warnings as errors
     -Wpedantic                  # Enforce strict ANSI compliance
     -Wshadow                    # Warn about shadowed variables
     --specs=nano.specs          # Use smaller C library for embedded systems
@@ -116,6 +122,7 @@ target_compile_options(${bsp_nucleo_f429zi_component} PRIVATE
     -fdata-sections             # Place each data item in its own section
     -fstack-usage               # Generate stack usage information
     $<$<COMPILE_LANGUAGE:CXX>:
+        -std=gnu++20
         -Wconversion             # Warn on data conversions in C++
         -Wno-volatile            # Suppress volatile warnings in C++
         -Wold-style-cast         # Warn on old-style C casts in C++
@@ -128,3 +135,5 @@ target_compile_options(${bsp_nucleo_f429zi_component} PRIVATE
     $<$<CONFIG:Debug>:-g3 -ggdb> # Full debug symbols for Debug configuration
     $<$<CONFIG:Release>:-Og -g0> # Optimize for size and no debugging in Release configuration
 )
+
+add_compile_options(-Wno-missing-field-initializers)

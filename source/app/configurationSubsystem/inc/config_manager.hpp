@@ -16,21 +16,12 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "config_mediator.hpp"
+#include "internalStorage_component.hpp"
 #include "terminal_component.hpp"
 
 ////////////////////////////////////////////////////////////////////////
 //							Class definition
 ////////////////////////////////////////////////////////////////////////
-
-/**
- * @brief A component representing the internal storage system.
- *
- * This class should be defined in its own header and provides an interface for managing
- * interactions with internal storage within the configuration system.
- */
-class internalStorageComponent : public configComponent
-{
-};
 
 /**
  * @brief Configuration manager implementing the mediator pattern.
@@ -66,5 +57,5 @@ class configManager : public configManagerInterface
 	 * @param event Character representing the type of event.
 	 * @param data Character representing additional data associated with the event.
 	 */
-	void notify(configComponent* sender, const char& event, const char& data) const override;
+	void notify(configComponent* sender, mediatorEvents event, const char* data) const override;
 };

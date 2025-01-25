@@ -14,6 +14,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "terminal_component.hpp"
+#include "loggerMetadata.hpp"
 #include <iostream>
 #include <streambuf>
 
@@ -21,7 +22,17 @@
 //				      Private function prototypes
 ////////////////////////////////////////////////////////////////////////
 
-void print_banner();
+/**
+ * @brief
+ *
+ */
+void printBanner();
+
+/**
+ * @brief
+ *
+ */
+void printLoggerMetadata();
 
 ////////////////////////////////////////////////////////////////////////
 //						   Stream redirection
@@ -50,11 +61,7 @@ std::ostream uartOut(&uartStreamBuf);
 ////////////////////////////////////////////////////////////////////////
 //					   Public methods implementation
 ////////////////////////////////////////////////////////////////////////
-/**
- * @name
- * @brief
- *
- */
+
 void terminalStateMachine::init(terminalState state)
 {
 #ifdef TARGET_MICRO
@@ -64,11 +71,15 @@ void terminalStateMachine::init(terminalState state)
 
 	this->activeState = state;
 
-	print_banner();
+	printBanner();
+
+	updateLoggerMetadata();
 }
 
+void terminalStateMachine::handler() {}
+
 ////////////////////////////////////////////////////////////////////////
-//					   Private methods implementation
+//					 Private methods implementation
 ////////////////////////////////////////////////////////////////////////
 
 terminalEvents terminalStateMachine::eventDispacher(terminalState state)
@@ -76,18 +87,23 @@ terminalEvents terminalStateMachine::eventDispacher(terminalState state)
 	return terminalEvents::EVENT_IGNORED;
 }
 
+void terminalStateMachine::updateLoggerMetadata()
+{
+	this->configManagerInterface_->notify(this, mediatorEvents::UPDATE_METADATA, nullptr);
+}
+
 ////////////////////////////////////////////////////////////////////////
 //				      Private function implementation
 ////////////////////////////////////////////////////////////////////////
 
-/**
- * @name
- * @brief
- *
- */
-void print_banner()
+void printBanner()
 {
 	std::cout << "#############################\r\n";
 	std::cout << "genLogger develop version 0.1\r\n";
 	std::cout << "#############################\r\n";
+}
+
+void printLoggerMetadata()
+{
+	// todo
 }

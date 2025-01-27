@@ -17,10 +17,6 @@ set(bsp_nucleo_f429zi_component f429ziComponent)
 set(stm32f4_hal_path ${dependencies_path}/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver)
 set(stm32f4_cmsis_path ${dependencies_path}/stm32cubef4-src/Drivers/CMSIS)
 
-
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 ##########################################################
 #           Sources & include definitions                
 ##########################################################
@@ -122,7 +118,7 @@ target_compile_options(${bsp_nucleo_f429zi_component} PRIVATE
     -fdata-sections             # Place each data item in its own section
     -fstack-usage               # Generate stack usage information
     $<$<COMPILE_LANGUAGE:CXX>:
-        -std=gnu++20
+        #-std=gnu++20
         -Wconversion             # Warn on data conversions in C++
         -Wno-volatile            # Suppress volatile warnings in C++
         -Wold-style-cast         # Warn on old-style C casts in C++

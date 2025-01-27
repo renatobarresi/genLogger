@@ -10,9 +10,6 @@ set(executable app)
 set(bsp_path ${CMAKE_CURRENT_SOURCE_DIR}/BSP/nucleo-f429zi)
 set(bsp_linker ${bsp_path}/link/STM32F429ZITX_FLASH.ld)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 ##########################################################
 #           Sources & include definitions                #
 ##########################################################
@@ -21,7 +18,7 @@ set(app_sources
     app/configurationSubsystem/src/config_manager.cpp
     app/configurationSubsystem/src/terminal_component.cpp
     app/configurationSubsystem/src/internalStorage_component.cpp
-    platform/src/internalStorage_wrapper.cpp
+    platform/src/filesystem_wrapper.cpp
     app/loggerMetadata/loggerMetadata.cpp
 )
 
@@ -106,7 +103,7 @@ if (target_type STREQUAL "target")
         -fdata-sections
         -fstack-usage
         $<$<COMPILE_LANGUAGE:CXX>:
-            -std=gnu++20
+            #-std=gnu++20
             -Wconversion
             -Wno-volatile
             -Wold-style-cast
@@ -122,6 +119,17 @@ if (target_type STREQUAL "target")
 endif()
 
 add_compile_options(-Wno-missing-field-initializers)
+
+if (target_type STREQUAL "host")
+    # Add compile options for debugging
+    target_compile_options(${executable} PRIVATE
+        -g     # Include debug symbols
+        -O0    # Disable optimizations for easier debugging
+        -Wall  # Enable all warnings
+        -Wextra # Enable extra warnings
+        -Wpedantic # Enforce strict standards compliance
+    )
+endif()
 
 #############################
 #      Linker flags         #
@@ -144,6 +152,14 @@ if (target_type STREQUAL "target")
         -Wl,--end-group
         -Wl,--print-memory-usage
         #-Wl,--verbose
+    )
+endif()
+
+
+if (target_type STREQUAL "host")
+    # Add linker options for debugging
+    target_link_options(${executable} PRIVATE
+        -g     # Pass debug symbol flag to the linker
     )
 endif()
 

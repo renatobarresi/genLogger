@@ -74,6 +74,8 @@ void terminalStateMachine::init(terminalState state)
 	printBanner();
 
 	updateLoggerMetadata();
+
+	printLoggerMetadata();
 }
 
 void terminalStateMachine::handler() {}
@@ -105,5 +107,17 @@ void printBanner()
 
 void printLoggerMetadata()
 {
-	// todo
+	struct loggerMetadata* metadata = getLoggerMetadata();
+
+	std::cout << "#############################\r\n";
+	std::cout << "Device name:";
+
+	for(uint16_t i = 0; i < sizeof(metadata->loggerName); i++)
+	{
+		if(metadata->loggerName[i] == '\0')
+			break;
+		std::cout << metadata->loggerName[i];
+	}
+
+	std::cout << "\r\n#############################\r\n";
 }

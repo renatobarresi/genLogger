@@ -32,6 +32,7 @@ void configManager::notify(configComponent* sender, mediatorEvents event, const 
 	if(event == mediatorEvents::UPDATE_METADATA)
 	{
 		// Notify internal storage
+		this->internalStorage->retrieveMetadata();
 	}
 
 	if(event == mediatorEvents::METADATA_UPDATED)

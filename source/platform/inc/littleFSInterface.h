@@ -8,15 +8,16 @@
 #pragma once
 
 extern "C" {
+
 #include "lfs.h"
 
 constexpr lfs_size_t W25Q64_READ_SIZE = 256; // W25Q64 page size
 constexpr lfs_size_t W25Q64_PROG_SIZE = 256; // W25Q64 page size
 constexpr lfs_size_t W25Q64_BLOCK_SIZE = 65536; // W25Q64 sector size (64KB)
-constexpr lfs_size_t W25Q64_BLOCK_COUNT =
-	128; // W25Q64 has 8MB, so with 64KB blocks, there are 128 blocks
-constexpr lfs_size_t W25Q64_BLOCK_CYCLES =
-	100000; // W25Q64 has a 100,000 program/erase cycles endurance per sector
+// W25Q64 has 8MB, so with 64KB blocks, there are 128 blocks
+constexpr lfs_size_t W25Q64_BLOCK_COUNT = 128;
+// W25Q64 has a 100,000 program/erase cycles endurance per sector
+constexpr lfs_size_t W25Q64_BLOCK_CYCLES = 100000;
 
 /**
  * Initialize the flash driver.
@@ -81,8 +82,8 @@ const struct lfs_config cfg = {
 	.prog_size = W25Q64_PROG_SIZE, // W25Q64 page size
 	.block_size = W25Q64_BLOCK_SIZE, // W25Q64 sector size (64KB)
 	.block_count = W25Q64_BLOCK_COUNT, // W25Q64 has 8MB, so with 64KB blocks, there are 128 blocks
-	.block_cycles =
-		W25Q64_BLOCK_CYCLES, // W25Q64 has a 100,000 program/erase cycles endurance per sector
+	.block_cycles = W25Q64_BLOCK_CYCLES, // W25Q64 has a 100,000 program/erase
+										 // cycles endurance per sector
 	.cache_size = W25Q64_PROG_SIZE, // Same as the program size (page size)
 	.lookahead_size = 16, // Suggested value (in bits) for a 128 block_count (adjust according to
 						  // the needs of your application)
@@ -90,6 +91,8 @@ const struct lfs_config cfg = {
 	.file_max = 0, // Maximum number of open files (0 for default)
 	.attr_max = 0, // Maximum number of custom attributes (0 for default)
 };
+
+//
 }
 
 #ifdef __cplusplus

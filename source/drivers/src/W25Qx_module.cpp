@@ -6,6 +6,7 @@
  */
 
 #include "W25Qx_module.h"
+#include "spi_drv.h"
 
 /* Constant expressions */
 constexpr uint8_t CMD_WRITE_ENABLE = 0x06;
@@ -26,13 +27,13 @@ W25Q64::W25Q64() {}
 /* Public methods */
 bool W25Q64::init()
 {
-	// Check if the SPI peripheral has already been initialized
+	// TODO: Check if the SPI peripheral has already been initialized
 
 	// Point interface methods
-	// this->write = nullptr;
-	// this->read = nullptr;
-	// this->writeRead = nullptr;
-	// this->writePin = nullptr;
+	this->write = spi_transmit;
+	this->read = spi_receive;
+	this->writeRead = spi_transmitReceive;
+	this->writePin = csWrite;
 
 	return true;
 }

@@ -1,8 +1,8 @@
-#include "spi_drv.h"
 #include "init.h"
 #include "stm32f4xx_hal.h"
 #include "i2c_drv.h"
 #include "uart.h"
+#include "spi_drv.h"
 
 void SystemClock_Config(void);
 void MX_GPIO_Init(void);
@@ -24,6 +24,8 @@ int stm32f429_init()
     MX_GPIO_Init();
     
     uart_init();
+
+    spi_init();
     
     i2c1Device.i2cHandle = hi2c1;
     i2c1Device.i2cInstance = I2C1;

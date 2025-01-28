@@ -114,6 +114,7 @@ if (target_type STREQUAL "target")
         -ffunction-sections
         -fdata-sections
         -fstack-usage
+        -Wno-missing-field-initializers
         $<$<COMPILE_LANGUAGE:CXX>:
             #-std=gnu++20
             -Wconversion
@@ -129,8 +130,6 @@ if (target_type STREQUAL "target")
         $<$<CONFIG:Release>:-Og -g0>
     )
 endif()
-
-add_compile_options(-Wno-missing-field-initializers)
 
 if (target_type STREQUAL "host")
     # Add compile options for debugging

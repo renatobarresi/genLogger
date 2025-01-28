@@ -5,8 +5,9 @@
 extern "C" {
 #endif
 
-    int stm32f429_init();
-    void SysTick_Handler(void);
+int stm32f429_init();
+void SysTick_Handler(void);
+
 #ifdef __cplusplus
 }
 #endif

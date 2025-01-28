@@ -14,25 +14,29 @@
 #include "loggerMetadata.hpp"
 #include <cstring>
 
-internalStorageComponent::internalStorageComponent()
+#ifdef TARGET_MICRO
+// Use microcontroller-specific file system
+fileSysWrapper fileSystem(1);
+char simulationFile[2];
+#else
+fileSysWrapper fileSystem(0); // Use the non-microcontroller implementation
+char simulationFile[] = "/home/renato/renato/CESE_fiuba/proyecto_final/genLogger/firmware/test/"
+						"simulationFiles/metadata.txt";
+#endif
+
+internalStorageComponent::internalStorageComponent() {}
+
+bool internalStorageComponent::initFS()
 {
 	this->thisMetadata = getLoggerMetadata();
+
+	return fileSystem.mount();
 }
 
-int8_t internalStorageComponent::retrieveMetadata()
+bool internalStorageComponent::retrieveMetadata()
 {
 	bool status;
 	struct loggerMetadata* metadata;
-
-#ifdef TARGET_MICRO
-	// Use microcontroller-specific file system
-	fileSysWrapper fileSystem(1);
-	char simulationFile[2];
-#else
-	fileSysWrapper fileSystem(0); // Use the non-microcontroller implementation
-	char simulationFile[] = "/home/renato/renato/CESE_fiuba/proyecto_final/genLogger/firmware/test/"
-							"simulationFiles/metadata.txt";
-#endif
 
 	// Open the metadata file
 	status = fileSystem.open(simulationFile, 0);
@@ -47,8 +51,9 @@ int8_t internalStorageComponent::retrieveMetadata()
 
 	// Read the name from the file into the metadata struct
 	char buffer[loggerNameLenght] = {0};
-	size_t bytesRead =
-		fileSystem.read(buffer, sizeof(buffer) - 1); // Leave space for null terminator
+	// Leave space for null terminator
+	size_t bytesRead = fileSystem.read(buffer, sizeof(buffer) - 1);
+
 	if(bytesRead > 0)
 	{
 		// Copy the name from the buffer into the metadata struct

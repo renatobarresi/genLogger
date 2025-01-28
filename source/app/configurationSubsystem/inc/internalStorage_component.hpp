@@ -30,7 +30,8 @@ class internalStorageComponent : public configComponent
 	// storeMetadata
   public:
 	internalStorageComponent();
-	int8_t retrieveMetadata();
+	bool initFS();
+	bool retrieveMetadata();
 	void storeMetadata();
 
   private:

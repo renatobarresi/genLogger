@@ -42,9 +42,9 @@ int w25q64_read(const struct lfs_config* c, lfs_block_t block, lfs_off_t off, vo
 				lfs_size_t size)
 {
 	uint32_t addr = block * c->block_size + off;
-	uint8_t a = 1;
-	myFlash.page_program(addr, &a, size);
-	// myFlash.read_data(addr, static_cast<uint8_t*>(buffer), size);
+
+	myFlash.read_data(addr, static_cast<uint8_t*>(buffer), size);
+
 	return 0;
 }
 
@@ -62,9 +62,9 @@ int w25q64_prog(const struct lfs_config* c, lfs_block_t block, lfs_off_t off, co
 				lfs_size_t size)
 {
 	uint32_t addr = block * c->block_size + off;
-	uint8_t a = 1;
-	// myFlash.page_program(addr, const_cast<uint8_t*>(static_cast<const uint8_t*>(buffer)), size);
-	myFlash.page_program(addr, &a, size);
+
+	myFlash.page_program(addr, const_cast<uint8_t*>(static_cast<const uint8_t*>(buffer)), size);
+
 	return 0;
 }
 
@@ -78,7 +78,9 @@ int w25q64_prog(const struct lfs_config* c, lfs_block_t block, lfs_off_t off, co
 int w25q64_erase(const struct lfs_config* c, lfs_block_t block)
 {
 	uint32_t addr = block * c->block_size;
+
 	myFlash.block_erase(addr);
+
 	return 0;
 }
 

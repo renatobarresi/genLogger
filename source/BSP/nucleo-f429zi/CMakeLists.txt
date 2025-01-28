@@ -45,7 +45,6 @@ set(st_hal_sources
     ${stm32f4_hal_path}/Src/stm32f4xx_hal_i2c.c
     ${stm32f4_hal_path}/Src/stm32f4xx_hal_i2c_ex.c
     ${stm32f4_hal_path}/Src/stm32f4xx_hal_spi.c
-    #${stm32f4_hal_path}/Src/stm32f4xx_hal_spi_ex.c
 )
 
 # List of source files for initializing and setting up the Nucleo-F429zi board
@@ -59,8 +58,7 @@ set(f429zi_init_sources
     src/startup_stm32f429xx.s
     src/i2c_drv.c
     src/uart.c
-    src/spi_module.c
-    #src/gpio_module.c
+    src/spi_drv.c
 )
 
 ##########################################################
@@ -133,5 +131,3 @@ target_compile_options(${bsp_nucleo_f429zi_component} PRIVATE
     $<$<CONFIG:Debug>:-g3 -ggdb> # Full debug symbols for Debug configuration
     $<$<CONFIG:Release>:-Og -g0> # Optimize for size and no debugging in Release configuration
 )
-
-add_compile_options(-Wno-missing-field-initializers)

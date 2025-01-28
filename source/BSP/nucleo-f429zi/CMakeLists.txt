@@ -44,6 +44,8 @@ set(st_hal_sources
     ${stm32f4_hal_path}/Src/stm32f4xx_hal_uart.c
     ${stm32f4_hal_path}/Src/stm32f4xx_hal_i2c.c
     ${stm32f4_hal_path}/Src/stm32f4xx_hal_i2c_ex.c
+    ${stm32f4_hal_path}/Src/stm32f4xx_hal_spi.c
+    #${stm32f4_hal_path}/Src/stm32f4xx_hal_spi_ex.c
 )
 
 # List of source files for initializing and setting up the Nucleo-F429zi board
@@ -57,8 +59,8 @@ set(f429zi_init_sources
     src/startup_stm32f429xx.s
     src/i2c_drv.c
     src/uart.c
-    src/spi_module.cpp
-    src/gpio_module.cpp
+    src/spi_module.c
+    #src/gpio_module.c
 )
 
 ##########################################################

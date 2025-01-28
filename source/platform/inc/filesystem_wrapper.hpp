@@ -10,9 +10,14 @@ extern "C" {
 #include <cstdio>
 #include <cstring>
 
+#ifdef TARGET_MICRO
+#include "littleFSInterface.h"
+#endif
+
 // Unified file handle interface
 struct FileHandler
 {
+	virtual bool mount() = 0;
 	virtual bool open(const char* fileName, uint8_t mode) = 0;
 	virtual size_t read(char* buffer, size_t size) = 0;
 	virtual size_t write(const char* buffer, size_t size) = 0;
@@ -54,6 +59,11 @@ class CFileHandler : public FileHandler
 		return true;
 	}
 
+	bool mount() override
+	{
+		return true;
+	}
+
 	size_t read(char* buffer, size_t size) override
 	{
 		if(!file)
@@ -75,6 +85,79 @@ class CFileHandler : public FileHandler
 		file = nullptr;
 	}
 };
+
+#ifdef TARGET_MICRO
+// --- LittleFS Implementation ---
+class LittleFSHandler : public FileHandler
+{
+  private:
+	lfs_t lfs;
+	lfs_file_t file;
+
+  public:
+	bool open(const char* fileName, uint8_t mode) override
+	{
+		const char* fsMode = nullptr;
+		switch(mode)
+		{
+			case 0:
+				fsMode = "r";
+				break; // Read mode
+			case 1:
+				fsMode = "w";
+				break; // Write mode
+			case 2:
+				fsMode = "a";
+				break; // Append mode
+			default:
+				return false;
+		}
+
+		if(lfs_file_open(&lfs, &file, fileName, LFS_O_WRONLY | LFS_O_CREAT) < 0)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	bool mount() override
+	{
+		flash_init();
+		int res = lfs_mount(&lfs, &cfg);
+		if(res < 0)
+		{
+			// If the mount fails, try formatting the filesystem
+			res = lfs_format(&lfs, &cfg);
+		}
+		if(res < 0)
+		{
+			return false;
+		}
+		// Try mounting again
+		res = lfs_mount(&lfs, &cfg);
+		if(res < 0)
+		{
+			return false;
+		}
+		return true;
+	}
+	size_t read(char* buffer, size_t size) override
+	{
+		return 0;
+	}
+
+	size_t write(const char* buffer, size_t size) override
+	{
+		return 0;
+	}
+
+	void close() override
+	{
+		//
+	}
+};
+#endif
 
 // --- Wrapper Function ---
 class fileSysWrapper
@@ -98,16 +181,20 @@ class fileSysWrapper
 		{
 			this->activeHandler = &cHandler;
 		}
-		// Uncomment and use additional handlers as needed:
-		// else if (strcmp(implementation, "C++") == 0)
-		// {
-		//     activeHandler = &cppHandler;
-		// }
 #ifdef TARGET_MICRO
-		else if(strcmp(implementation, "LittleFS") == 0)
+		else if(fs == 1)
 		{
 			activeHandler = &littleFSHandler;
 		}
+#endif
+	}
+
+	bool mount()
+	{
+#ifdef TARGET_MICRO
+		return activeHandler ? activeHandler->mount() : false;
+#else
+		return true;
 #endif
 	}
 

@@ -22,19 +22,31 @@ set(app_sources
     app/loggerMetadata/loggerMetadata.cpp
 )
 
+# Special target specific sources
+if (target_type STREQUAL "target")
+    LIST(APPEND app_sources
+        drivers/src/W25Qx_module.cpp
+        platform/src/littleFSInterface.cpp
+        ${dependencies_path}/little-fs-src/lfs_util.c
+        ${dependencies_path}/little-fs-src/lfs.c
+    )
+endif()
+
 set(app_includes
     platform/inc/
     app/main/inc/
     app/configurationSubsystem/inc/
     app/loggerMetadata/
     platform/inc/
-    
-    # Special target specific includes
-    if (target_type STREQUAL "target")
-    ${dependencies_path}/little-fs-src/
-    drivers/inc/
-    endif()    
 )
+
+# Special target specific includes
+if (target_type STREQUAL "target")
+    list(APPEND app_includes
+        ${dependencies_path}/little-fs-src/
+        drivers/inc/
+    )
+endif()    
 
 ##########################################################
 #              Components definition                     #

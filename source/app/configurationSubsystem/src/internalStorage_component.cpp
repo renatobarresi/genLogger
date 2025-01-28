@@ -26,7 +26,8 @@ int8_t internalStorageComponent::retrieveMetadata()
 
 #ifdef TARGET_MICRO
 	// Use microcontroller-specific file system
-	// fileSysWrapper fileSystem(MICRO_FS_IDENTIFIER);
+	fileSysWrapper fileSystem(1);
+	char simulationFile[2];
 #else
 	fileSysWrapper fileSystem(0); // Use the non-microcontroller implementation
 	char simulationFile[] = "/home/renato/renato/CESE_fiuba/proyecto_final/genLogger/firmware/test/"

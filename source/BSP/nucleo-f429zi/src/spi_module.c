@@ -55,39 +55,33 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
 	}
 }
 
-SPI& SPI::getInstance()
-{
-	static SPI instance;
-	return instance;
-}
-
 /**
  * @brief Initialize the SPI module.
  *
  * @return The initialization status.
  */
-HAL_StatusTypeDef SPI::init()
+HAL_StatusTypeDef init()
 {
 	HAL_StatusTypeDef status;
 
-	this->hspi_->Instance = SPI1; // TODO add modularity
-	this->hspi_->Init.Mode = SPI_MODE_MASTER;
-	this->hspi_->Init.Direction = SPI_DIRECTION_2LINES;
-	this->hspi_->Init.DataSize = SPI_DATASIZE_8BIT;
-	this->hspi_->Init.CLKPolarity = SPI_POLARITY_LOW;
-	this->hspi_->Init.CLKPhase = SPI_PHASE_1EDGE;
-	this->hspi_->Init.NSS = SPI_NSS_SOFT;
-	this->hspi_->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
-	this->hspi_->Init.FirstBit = SPI_FIRSTBIT_MSB;
-	this->hspi_->Init.TIMode = SPI_TIMODE_DISABLE;
-	this->hspi_->Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-	this->hspi_->Init.CRCPolynomial = 10;
+	mySPIHandler.Instance = SPI1; // TODO add modularity
+	mySPIHandler.Init.Mode = SPI_MODE_MASTER;
+	mySPIHandler.Init.Direction = SPI_DIRECTION_2LINES;
+	mySPIHandler.Init.DataSize = SPI_DATASIZE_8BIT;
+	mySPIHandler.Init.CLKPolarity = SPI_POLARITY_LOW;
+	mySPIHandler.Init.CLKPhase = SPI_PHASE_1EDGE;
+	mySPIHandler.Init.NSS = SPI_NSS_SOFT;
+	mySPIHandler.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
+	mySPIHandler.Init.FirstBit = SPI_FIRSTBIT_MSB;
+	mySPIHandler.Init.TIMode = SPI_TIMODE_DISABLE;
+	mySPIHandler.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+	mySPIHandler.Init.CRCPolynomial = 10;
 
-	status = HAL_SPI_Init(this->hspi_);
+	status = HAL_SPI_Init(&mySPIHandler);
 
-	if(HAL_OK == status)
+	if (status != HAL_OK)
 	{
-		state = SPIStates::Idle;
+		while(1);
 	}
 
 	return status;
@@ -100,9 +94,9 @@ HAL_StatusTypeDef SPI::init()
  * @param size The size of the data buffer.
  * @return The transmission status.
  */
-HAL_StatusTypeDef SPI::transmit(uint8_t* pData, uint16_t size)
+HAL_StatusTypeDef transmit(uint8_t* pData, uint16_t size)
 {
-	return HAL_SPI_Transmit(this->hspi_, pData, size, HAL_MAX_DELAY);
+	return HAL_SPI_Transmit(&mySPIHandler, pData, size, HAL_MAX_DELAY);
 }
 
 /**
@@ -112,9 +106,9 @@ HAL_StatusTypeDef SPI::transmit(uint8_t* pData, uint16_t size)
  * @param size The size of the data buffer.
  * @return The reception status.
  */
-HAL_StatusTypeDef SPI::receive(uint8_t* pData, uint16_t size)
+HAL_StatusTypeDef receive(uint8_t* pData, uint16_t size)
 {
-	return HAL_SPI_Receive(this->hspi_, pData, size, HAL_MAX_DELAY);
+	return HAL_SPI_Receive(&mySPIHandler, pData, size, HAL_MAX_DELAY);
 }
 
 /**
@@ -125,9 +119,9 @@ HAL_StatusTypeDef SPI::receive(uint8_t* pData, uint16_t size)
  * @param size The size of the data buffers.
  * @return The transmission/reception status.
  */
-HAL_StatusTypeDef SPI::transmitReceive(uint8_t* pTxData, uint8_t* pRxData, uint16_t size)
+HAL_StatusTypeDef transmitReceive(uint8_t* pTxData, uint8_t* pRxData, uint16_t size)
 {
-	return HAL_SPI_TransmitReceive(this->hspi_, pTxData, pRxData, size, HAL_MAX_DELAY);
+	return HAL_SPI_TransmitReceive(&mySPIHandler, pTxData, pRxData, size, HAL_MAX_DELAY);
 }
 
 /**
@@ -136,7 +130,7 @@ HAL_StatusTypeDef SPI::transmitReceive(uint8_t* pTxData, uint8_t* pRxData, uint1
  * @param pin The pin number of the chip select.
  * @param port The GPIO port of the chip select.
  */
-void SPI::csHigh(uint16_t pin, GPIO_TypeDef* port)
+void csHigh(uint16_t pin, GPIO_TypeDef* port)
 {
 	HAL_GPIO_WritePin(port, pin, GPIO_PIN_SET);
 }
@@ -147,7 +141,7 @@ void SPI::csHigh(uint16_t pin, GPIO_TypeDef* port)
  * @param pin The pin number of the chip select.
  * @param port The GPIO port of the chip select.
  */
-void SPI::csLow(uint16_t pin, GPIO_TypeDef* port)
+void csLow(uint16_t pin, GPIO_TypeDef* port)
 {
 	HAL_GPIO_WritePin(port, pin, GPIO_PIN_RESET);
 }

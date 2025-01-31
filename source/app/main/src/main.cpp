@@ -44,6 +44,14 @@ int main()
 	stm32f429_init();
 #endif
 
+	if(false == storage.initFS())
+	{
+		while(1)
+			;
+	}
+
+	storage.storeMetadata();
+
 	terminalOutput.init(terminalState::basicDeviceInfo);
 
 	while(1)

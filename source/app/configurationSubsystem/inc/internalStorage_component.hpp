@@ -32,7 +32,7 @@ class internalStorageComponent : public configComponent
 	internalStorageComponent();
 	bool initFS();
 	bool retrieveMetadata();
-	void storeMetadata();
+	bool storeMetadata();
 
   private:
 	struct loggerMetadata* thisMetadata;

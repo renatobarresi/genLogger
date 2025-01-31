@@ -19,7 +19,7 @@ W25Q64 myFlash; // F13 is Pin D7 on the nucleo board
  */
 int flash_init()
 {
-	if(myFlash.init())
+	if(!myFlash.init())
 	{
 		while(1)
 			;

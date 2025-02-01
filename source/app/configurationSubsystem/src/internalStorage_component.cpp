@@ -24,6 +24,8 @@ char simulationFile[] = "/home/renato/renato/CESE_fiuba/proyecto_final/genLogger
 						"simulationFiles/metadata.txt";
 #endif
 
+static char defaultLoggerName[] = "defaultLogger";
+
 internalStorageComponent::internalStorageComponent() {}
 
 bool internalStorageComponent::initFS()
@@ -71,9 +73,8 @@ bool internalStorageComponent::retrieveMetadata()
 
 bool internalStorageComponent::storeMetadata()
 {
-	bool status;
-	/*
-	strncpy("defaultLogger", this->thisMetadata->loggerName, strlen("defaultLogger"));
+	bool status = false;
+
 	status = fileSystem.open(simulationFile, 1);
 
 	if(status != true)
@@ -82,11 +83,12 @@ bool internalStorageComponent::storeMetadata()
 		return status;
 	}
 
-	int bytesWrote = fileSystem.write(this->thisMetadata->loggerName, strlen("defaultLogger"));
+	int bytesWrote = fileSystem.write(defaultLoggerName, strlen(defaultLoggerName));
 
-	// Close the file
-	fileSystem.close();
-*/
+	if(fileSystem.close() == 0 || bytesWrote == 0)
+	{
+		status = false;
+	}
 
 	return status;
 }

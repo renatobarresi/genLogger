@@ -21,7 +21,7 @@ struct FileHandler
 	virtual bool open(const char* fileName, uint8_t mode) = 0;
 	virtual int read(char* buffer, size_t size) = 0;
 	virtual int write(const char* buffer, size_t size) = 0;
-	virtual void close() = 0;
+	virtual int close() = 0;
 	virtual ~FileHandler() = default;
 };
 
@@ -78,11 +78,13 @@ class CFileHandler : public FileHandler
 		return fwrite(buffer, 1, size, file);
 	}
 
-	void close() override
+	int close() override
 	{
 		if(file)
 			fclose(file);
 		file = nullptr;
+
+		return 0;
 	}
 };
 
@@ -95,9 +97,32 @@ class LittleFSHandler : public FileHandler
 	lfs_file_t file;
 
   public:
+	bool mount() override
+	{
+		flash_init();
+
+		int res = lfs_mount(&lfs, &cfg);
+		if(res < 0)
+		{
+			// If the mount fails, try formatting the filesystem
+			res = lfs_format(&lfs, &cfg);
+			if(res < 0)
+			{
+				return false;
+			}
+			// Try mounting again
+			res = lfs_mount(&lfs, &cfg);
+			if(res < 0)
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	bool open(const char* fileName, uint8_t mode) override
 	{
-		const char* fsMode = nullptr;
 		int flags;
 
 		switch(mode)
@@ -114,136 +139,29 @@ class LittleFSHandler : public FileHandler
 				return false;
 		}
 
-		if(lfs_file_open(&lfs, &file, fileName, flags) < 0)
+		int res = lfs_file_open(&lfs, &file, fileName, flags);
+
+		if(res < 0)
 		{
 			return false;
 		}
 
 		return true;
-	}
-
-	bool mount() override
-	{
-		/*flash_init();
-		int res = lfs_mount(&lfs, &cfg);
-		if(res < 0)
-		{
-			// If the mount fails, try formatting the filesystem
-			res = lfs_format(&lfs, &cfg);
-		}
-		if(res < 0)
-		{
-			return false;
-		}
-		// Try mounting again
-		res = lfs_mount(&lfs, &cfg);
-		if(res < 0)
-		{
-			return false;
-		}*/
-
-		flash_init();
-
-		lfs_t lfs;
-		int res = lfs_mount(&lfs, &cfg);
-		if(res < 0)
-		{
-			// If the mount fails, try formatting the filesystem
-			res = lfs_format(&lfs, &cfg);
-			if(res < 0)
-			{
-				while(1)
-					;
-			}
-			// Try mounting again
-			res = lfs_mount(&lfs, &cfg);
-			if(res < 0)
-			{
-				while(1)
-					;
-			}
-		}
-
-		// Open the file for writing
-		lfs_file_t file;
-		res = lfs_file_open(&lfs, &file, "example.txt", LFS_O_WRONLY | LFS_O_CREAT);
-		if(res < 0)
-		{
-			while(1)
-				;
-		}
-
-		// Write some data to the file
-		const char* data = "Hello, LittleFS!";
-		res = lfs_file_write(&lfs, &file, data, strlen(data));
-		if(res < 0)
-		{
-			while(1)
-				;
-		}
-
-		// Close the file after writing
-		lfs_file_close(&lfs, &file);
-
-		// Open the file for reading
-		res = lfs_file_open(&lfs, &file, "example.txt", LFS_O_RDONLY);
-		if(res < 0)
-		{
-			while(1)
-				;
-		}
-
-		// Read the data from the file
-		char buffer[32];
-		res = lfs_file_read(&lfs, &file, buffer, sizeof(buffer));
-		if(res < 0)
-		{
-			while(1)
-				;
-		}
-
-		// Null-terminate the read data
-		buffer[res] = '\0';
-
-		// Print the read data
-
-		// Close the file after reading
-		lfs_file_close(&lfs, &file);
-
-		// Unmount the filesystem
-		lfs_unmount(&lfs);
-
-		while(1)
-			;
-
-		return true;
-	}
-	int read(char* buffer, size_t size) override
-	{
-		int retVal = lfs_file_read(&lfs, &file, buffer, size);
-		if(retVal < 0)
-		{
-			while(1)
-				;
-		}
-
-		return retVal;
 	}
 
 	int write(const char* buffer, size_t size) override
 	{
-		int retVal = lfs_file_write(&lfs, &file, buffer, size);
-		if(retVal < 0)
-		{
-			while(1)
-				;
-		}
-		return retVal;
+		return lfs_file_write(&lfs, &file, buffer, size);
 	}
 
-	void close() override
+	int read(char* buffer, size_t size) override
 	{
-		lfs_file_close(&lfs, &file);
+		return lfs_file_read(&lfs, &file, buffer, size);
+	}
+
+	int close() override
+	{
+		return lfs_file_close(&lfs, &file);
 	}
 };
 #endif
@@ -302,10 +220,9 @@ class fileSysWrapper
 		return activeHandler ? activeHandler->write(buffer, size) : 0;
 	}
 
-	void close()
+	int close()
 	{
-		if(activeHandler)
-			activeHandler->close();
+		return activeHandler->close();
 	}
 
 	~fileSysWrapper()

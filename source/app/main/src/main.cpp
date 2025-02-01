@@ -50,7 +50,7 @@ int main()
 			;
 	}
 
-	storage.storeMetadata();
+	// storage.storeMetadata();
 
 	terminalOutput.init(terminalState::basicDeviceInfo);
 

@@ -110,7 +110,7 @@ void printLoggerMetadata()
 	struct loggerMetadata* metadata = getLoggerMetadata();
 
 	std::cout << "#############################\r\n";
-	std::cout << "Device name:";
+	std::cout << "Device name: ";
 
 	for(uint16_t i = 0; i < sizeof(metadata->loggerName); i++)
 	{

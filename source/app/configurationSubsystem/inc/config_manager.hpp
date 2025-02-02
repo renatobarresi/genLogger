@@ -32,7 +32,7 @@
 class configManager : public configManagerInterface
 {
   private:
-	terminalStateMachine* outputTerminal; ///< Pointer to the terminal state machine component.
+	terminalStateMachine*	  outputTerminal;  ///< Pointer to the terminal state machine component.
 	internalStorageComponent* internalStorage; ///< Pointer to the internal storage component.
 
   public:
@@ -42,8 +42,8 @@ class configManager : public configManagerInterface
 	 * Initializes the configuration manager with references to the terminal state machine and
 	 * internal storage components.
 	 *
-	 * @param terminal Pointer to the terminal state machine component.
-	 * @param storage Pointer to the internal storage component.
+	 * @param[in] terminal Pointer to the terminal state machine component.
+	 * @param[in] storage Pointer to the internal storage component.
 	 */
 	configManager(terminalStateMachine* terminal, internalStorageComponent* storage);
 
@@ -53,9 +53,9 @@ class configManager : public configManagerInterface
 	 * Handles events triggered by configuration components and facilitates communication
 	 * between them as needed.
 	 *
-	 * @param sender Pointer to the component that triggered the event.
+	 * @param[in] sender Pointer to the component that triggered the event.
 	 * @param event Character representing the type of event.
-	 * @param data Character representing additional data associated with the event.
+	 * @param[in] data Character representing additional data associated with the event.
 	 */
 	void notify(configComponent* sender, mediatorEvents event, const char* data) const override;
 };

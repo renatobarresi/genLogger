@@ -21,11 +21,11 @@ void initGPIOOutput(uint16_t pin, GPIO_TypeDef* port)
 	// Configure CS GPIO
 	GPIO_InitTypeDef GPIO_InitStruct = {};
 
-	if(port == GPIOF)
+	if (port == GPIOF)
 	{
 		__HAL_RCC_GPIOF_CLK_ENABLE();
 	}
-	else if(port == GPIOE)
+	else if (port == GPIOE)
 	{
 		__HAL_RCC_GPIOE_CLK_ENABLE();
 	}
@@ -34,14 +34,13 @@ void initGPIOOutput(uint16_t pin, GPIO_TypeDef* port)
 	else
 	{
 		// Error: Invalid GPIO port
-		while(1)
-			;
+		while (1);
 		// assert(0);
 	}
 
-	GPIO_InitStruct.Pin = pin;
-	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Pin	  = pin;
+	GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull  = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 	HAL_GPIO_Init(port, &GPIO_InitStruct);
 

@@ -8,6 +8,14 @@ Could be used in conjunction with weather sensors to create a weather station, o
 This is the repository for the "genLogger" product/project, which is part of my Thesis for FIUBA's CESE.
 Here you will find the source code of the project, the build system and the documentation to be able to modify, test and build your own firmware.
 
+# Folder structure
+
+* cmake: Files (toolchain configuration files, libraries, etc) relevant to the build system CMake
+* prototypes: Small projects (source files) used to test some features of the genLogger device
+* source: All the source code (source files and header files) are located in this folder and its subfolders
+* test: 
+* tools:
+
 # Build system description
 
 The build system used is CMake
@@ -17,16 +25,8 @@ The build system used is CMake
 After making sure all the requirements are met:
 
 * Create a build folder named "build" in the root directory
-* cd to build
+* go to to build
 * To create a host makefile, execute
-    - cmake .. 
+    - cmake .. -Dtarget_type=host 
 * To create a target makefile, execute
-    - cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/cross/stm32f429.cmake -DCMAKE_BUILD_TYPE=Debug
-
-# Folder structure
-
-cmake: Files (toolchain configuration files, libraries, etc) relevant to the build system CMake
-prototypes: Small projects (source files) used to test some features of the genLogger device
-source: All the source code (source files and header files) are located in this folder and its subfolders
-test: 
-tools:
+    - cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/cross/stm32f429.cmake -DCMAKE_BUILD_TYPE=Debug -Dtarget_type=target

@@ -7,44 +7,74 @@
 #     Main variables        #
 #############################
 set(executable app)
-set(bsp_path ${CMAKE_CURRENT_SOURCE_DIR}/BSP/nucleo-f429zi)
-set(bsp_linker ${bsp_path}/link/STM32F429ZITX_FLASH.ld)
+set(microcontroller_path ${CMAKE_CURRENT_SOURCE_DIR}/microcontroller/stm32f429zi)
+set(bsp_linker ${microcontroller_path}/link/STM32F429ZITX_FLASH.ld)
 
 ##########################################################
 #           Sources & include definitions                #
 ##########################################################
+################
+#    Sources
+################
 set(app_sources
     app/main/src/main.cpp
     app/configurationSubsystem/src/config_manager.cpp
     app/configurationSubsystem/src/terminal_component.cpp
     app/configurationSubsystem/src/internalStorage_component.cpp
-    platform/src/filesystem_wrapper.cpp
-    app/loggerMetadata/loggerMetadata.cpp
+    app/loggerMetadata/loggerMetadata.cpp 
 )
+
+set(platform_sources)
+
+set(driver_sources)
+
+set(dependencies_sources)
+
+set(virtualDevice_sources)
 
 # Special target specific sources
 if (target_type STREQUAL "target")
-    LIST(APPEND app_sources
-        drivers/src/W25Qx_module.cpp
+    LIST(APPEND platform_sources
         platform/src/littleFSInterface.cpp
+    )
+
+    LIST(APPEND driver_sources
+        drivers/src/W25Qx_module.cpp
+    )
+
+    LIST(APPEND dependencies_sources
         ${dependencies_path}/little-fs-src/lfs_util.c
         ${dependencies_path}/little-fs-src/lfs.c
     )
 endif()
 
+################
+#    Includes
+################
 set(app_includes
-    platform/inc/
     app/main/inc/
     app/configurationSubsystem/inc/
     app/loggerMetadata/
+)
+
+set(platform_includes
+    platform/inc/
     platform/inc/
 )
 
+set(driver_includes)
+
+set(dependencies_includes)
+
+set(virtualDevices_includes)
+
 # Special target specific includes
 if (target_type STREQUAL "target")
-    list(APPEND app_includes
-        ${dependencies_path}/little-fs-src/
+    list(APPEND driver_includes
         drivers/inc/
+    )
+    list(APPEND dependencies_includes
+        ${dependencies_path}/little-fs-src/
     )
 endif()    
 
@@ -53,10 +83,9 @@ endif()
 ##########################################################
 
 if (target_type STREQUAL "target")
-
     add_subdirectory(
-        ${bsp_path}
-        ./BSP/nucleo-f429zi
+        ${microcontroller_path}
+        ./microcontroller/stm32f429zi
         EXCLUDE_FROM_ALL
     )
 endif()
@@ -64,14 +93,31 @@ endif()
 ##########################################################
 #              Target definition                         #
 ##########################################################
+################
+#    Sources
+################
 add_executable(${executable} 
     ${app_sources}
+    ${platform_sources}
+    ${driver_sources}
+    ${dependencies_sources}
+    ${virtualDevice_sources}
 )
 
+################
+#    Includes
+################
 target_include_directories(${executable} PRIVATE
     ${app_includes}
+    ${platform_includes}
+    ${virtualDevices_includes}
+    ${driver_includes}
+    ${dependencies_includes}
 )
 
+################
+#   Libraries
+################
 if (target_type STREQUAL "target")
     target_link_libraries(${executable} PRIVATE 
         f429ziComponent

@@ -46,7 +46,7 @@ class UartStreamBuf : public std::streambuf
   protected:
 	int overflow(int c) override
 	{
-		if(c != EOF)
+		if (c != EOF)
 		{
 			uart_tx(static_cast<char>(c), 1);
 		}
@@ -55,7 +55,7 @@ class UartStreamBuf : public std::streambuf
 };
 
 UartStreamBuf uartStreamBuf;
-std::ostream uartOut(&uartStreamBuf);
+std::ostream  uartOut(&uartStreamBuf);
 #endif
 
 ////////////////////////////////////////////////////////////////////////
@@ -112,9 +112,9 @@ void printLoggerMetadata()
 	std::cout << "#############################\r\n";
 	std::cout << "Device name: ";
 
-	for(uint16_t i = 0; i < sizeof(metadata->loggerName); i++)
+	for (uint16_t i = 0; i < sizeof(metadata->loggerName); i++)
 	{
-		if(metadata->loggerName[i] == '\0')
+		if (metadata->loggerName[i] == '\0')
 			break;
 		std::cout << metadata->loggerName[i];
 	}

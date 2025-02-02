@@ -1,7 +1,7 @@
 /**
  * @file internalStorage_component.cpp
  * @author Renato Barresi (renatobarresi@gmail.com)
- * @brief
+ * @brief Source file for the internal storage component, for a better description go to the header file
  * @version 0.1
  * @date 2025-01-24
  *
@@ -9,25 +9,39 @@
  *
  */
 
+////////////////////////////////////////////////////////////////////////
+//							    Includes
+////////////////////////////////////////////////////////////////////////
+
 #include "internalStorage_component.hpp"
 #include "filesystem_wrapper.hpp"
 #include "loggerMetadata.hpp"
 #include <cstring>
 
+////////////////////////////////////////////////////////////////////////
+//				      Private variables
+////////////////////////////////////////////////////////////////////////
+
 #ifdef TARGET_MICRO
 // Use microcontroller-specific file system
 fileSysWrapper fileSystem(1);
-char simulationFile[] = "metadata.txt";
+char		   simulationFile[] = "metadata.txt";
 #else
 fileSysWrapper fileSystem(0); // Use the non-microcontroller implementation
-char simulationFile[] = "/home/renato/renato/CESE_fiuba/proyecto_final/genLogger/firmware/test/"
-						"simulationFiles/metadata.txt";
+char		   simulationFile[] = "/home/renato/renato/CESE_fiuba/proyecto_final/genLogger/firmware/test/"
+								  "simulationFiles/metadata.txt";
 #endif
 
 static char defaultLoggerName[] = "defaultLogger";
 
+////////////////////////////////////////////////////////////////////////
+//					   Public methods implementation
+////////////////////////////////////////////////////////////////////////
+
+// Description in header file //
 internalStorageComponent::internalStorageComponent() {}
 
+// Description in header file //
 bool internalStorageComponent::initFS()
 {
 	// Get the metadata pointer
@@ -36,13 +50,14 @@ bool internalStorageComponent::initFS()
 	return fileSystem.mount();
 }
 
+// Description in header file //
 bool internalStorageComponent::retrieveMetadata()
 {
 	bool status;
 
 	// Open the metadata file
 	status = fileSystem.open(simulationFile, 0);
-	if(status != true)
+	if (status != true)
 	{
 		// Failed to open the file
 		return status;
@@ -53,7 +68,7 @@ bool internalStorageComponent::retrieveMetadata()
 	// Leave space for null terminator
 	int bytesRead = fileSystem.read(buffer, sizeof(buffer) - 1);
 
-	if(bytesRead > 0)
+	if (bytesRead > 0)
 	{
 		// Copy the name from the buffer into the metadata struct
 		strncpy(this->thisMetadata->loggerName, buffer, loggerNameLenght - 1);
@@ -71,13 +86,14 @@ bool internalStorageComponent::retrieveMetadata()
 	return status;
 }
 
+// Description in header file //
 bool internalStorageComponent::storeMetadata()
 {
 	bool status = false;
 
 	status = fileSystem.open(simulationFile, 1);
 
-	if(status != true)
+	if (status != true)
 	{
 		// Failed to open the file
 		return status;
@@ -85,7 +101,7 @@ bool internalStorageComponent::storeMetadata()
 
 	int bytesWrote = fileSystem.write(defaultLoggerName, strlen(defaultLoggerName));
 
-	if(fileSystem.close() == 0 || bytesWrote == 0)
+	if (fileSystem.close() == 0 || bytesWrote == 0)
 	{
 		status = false;
 	}

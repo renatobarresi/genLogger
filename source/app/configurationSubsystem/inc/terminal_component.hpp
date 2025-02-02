@@ -1,8 +1,8 @@
 /**
  * @file terminal_component.hpp
  * @author Renato Barresi (renatobarresi@gmail.com)
- * @brief Header file for the terminal component, implementing a state machine for managing terminal
- * states and events.
+ * @brief Header file for the terminal component, implementing a state machine 
+ * for managing terminal states and events.
  * @version 0.1
  * @date 2025-01-13
  *
@@ -28,10 +28,10 @@
  */
 enum class terminalState
 {
-	basicDeviceInfo, ///< State for displaying basic device information.
+	basicDeviceInfo,   ///< State for displaying basic device information.
 	basicDeviceConfig, ///< State for configuring basic device settings.
-	sensorConfig, ///< State for configuring sensors.
-	networkConfig, ///< State for configuring network settings.
+	sensorConfig,	   ///< State for configuring sensors.
+	networkConfig,	   ///< State for configuring network settings.
 
 	numStates ///< Number of states (used for validation or iteration).
 };
@@ -43,8 +43,8 @@ enum class terminalState
  */
 enum class terminalSignals
 {
-	ENTRY, ///< Signal indicating entry into a state.
-	EXIT, ///< Signal indicating exit from a state.
+	ENTRY,		  ///< Signal indicating entry into a state.
+	EXIT,		  ///< Signal indicating exit from a state.
 	pressedKey_C, ///< Signal triggered when the 'C' key is pressed.
 	pressedKey_B, ///< Signal triggered when the 'B' key is pressed.
 	pressedKey_S, ///< Signal triggered when the 'S' key is pressed.
@@ -59,8 +59,8 @@ enum class terminalSignals
  */
 enum class terminalEvents
 {
-	EVENT_HANDLED, ///< Event was successfully handled within the current state.
-	EVENT_IGNORED, ///< Event was ignored in the current state.
+	EVENT_HANDLED,	 ///< Event was successfully handled within the current state.
+	EVENT_IGNORED,	 ///< Event was ignored in the current state.
 	EVENT_TRANSITION ///< Event triggered a state transition.
 };
 

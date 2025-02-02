@@ -2,8 +2,7 @@
 #include <pthread.h>
 #include <stdio.h>
 
-bool posixThreads::threadCreate(const char* threadName, void* (*startRoutine)(void*), int stackSize,
-								int priority, void* args)
+bool posixThreads::threadCreate(const char* threadName, void* (*startRoutine)(void*), int stackSize, int priority, void* args)
 {
 	printf("Creating thread");
 

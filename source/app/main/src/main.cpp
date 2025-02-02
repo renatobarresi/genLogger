@@ -33,7 +33,7 @@
 #include "init.h"
 #endif
 
-terminalStateMachine terminalOutput;
+terminalStateMachine	 terminalOutput;
 internalStorageComponent storage;
 
 configManager loggerConfig(&terminalOutput, &storage);
@@ -44,17 +44,16 @@ int main()
 	stm32f429_init();
 #endif
 
-	if(false == storage.initFS())
+	if (false == storage.initFS())
 	{
-		while(1)
-			;
+		while (1);
 	}
 
 	// storage.storeMetadata();
 
 	terminalOutput.init(terminalState::basicDeviceInfo);
 
-	while(1)
+	while (1)
 	{
 	}
 

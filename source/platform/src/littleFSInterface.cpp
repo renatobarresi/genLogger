@@ -19,10 +19,9 @@ W25Q64 myFlash; // F13 is Pin D7 on the nucleo board
  */
 int flash_init()
 {
-	if(!myFlash.init())
+	if (!myFlash.init())
 	{
-		while(1)
-			;
+		while (1);
 	}
 
 	return 1;
@@ -38,8 +37,7 @@ int flash_init()
  * @param size The number of bytes to read.
  * @return Always returns 0.
  */
-int w25q64_read(const struct lfs_config* c, lfs_block_t block, lfs_off_t off, void* buffer,
-				lfs_size_t size)
+int w25q64_read(const struct lfs_config* c, lfs_block_t block, lfs_off_t off, void* buffer, lfs_size_t size)
 {
 	uint32_t addr = block * c->block_size + off;
 
@@ -58,8 +56,7 @@ int w25q64_read(const struct lfs_config* c, lfs_block_t block, lfs_off_t off, vo
  * @param size The number of bytes to write.
  * @return Always returns 0.
  */
-int w25q64_prog(const struct lfs_config* c, lfs_block_t block, lfs_off_t off, const void* buffer,
-				lfs_size_t size)
+int w25q64_prog(const struct lfs_config* c, lfs_block_t block, lfs_off_t off, const void* buffer, lfs_size_t size)
 {
 	uint32_t addr = block * c->block_size + off;
 

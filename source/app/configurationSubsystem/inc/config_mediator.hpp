@@ -1,7 +1,7 @@
 /**
  * @file config_mediator.hpp
  * @author Renato Barresi (renatobarresi@gmail.com)
- * @brief
+ * @brief Mediator interface and base component definitions for the configuration subsystem
  * @version 0.1
  * @date 2025-01-24
  *
@@ -15,6 +15,10 @@
 //								Types
 ////////////////////////////////////////////////////////////////////////
 
+/**
+ * @brief Type of events that the mediator handles
+ * 
+ */
 enum class mediatorEvents
 {
 	UPDATE_METADATA,
@@ -36,6 +40,7 @@ class configComponent;
  *
  * The configManagerInterface defines a contract for mediators that manage communication
  * between different configuration components.
+ * @ref configManager is the mediator.
  */
 class configManagerInterface
 {
@@ -79,10 +84,7 @@ class configComponent
 	 *
 	 * @param cnfInterface Pointer to the mediator interface (default is nullptr).
 	 */
-	configComponent(configManagerInterface* cnfInterface = nullptr)
-		: configManagerInterface_(cnfInterface)
-	{
-	}
+	configComponent(configManagerInterface* cnfInterface = nullptr) : configManagerInterface_(cnfInterface) {}
 
 	/**
 	 * @brief Set the mediator for the configuration component.

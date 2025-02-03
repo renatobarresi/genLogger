@@ -78,15 +78,18 @@ CPMAddPackage(
     DOWNLOAD_ONLY ON 
 )
 
-# Documentation
-#find_program(DOXYGEN doxygen)
+#Documentation
+find_program(DOXYGEN doxygen)
 
-#if(DOXYGEN)
-#  add_custom_target(docs
-#    COMMAND ${DOXYGEN} docs/Doxyfile
-#    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-#  )
-#endif()
+if(DOXYGEN)
+ add_custom_target(docs ALL 
+   COMMAND ${DOXYGEN} docs/Doxyfile
+   WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+   COMMENT "Generating API documentation with Doxygen"
+ )
+else()
+  message(WARNING "Doxygen not found. Documentation will not be constructed")    
+endif()
 
 # This property will remove a directory
 #set_target_properties(docs PROPERTIES ADDITIONAL_CLEAN_FILES ${CMAKE_BINARY_DIR}/doc/)

@@ -2,3 +2,4 @@ build
 .cache
 .vscode
 reset_cmake.sh
+docs/html

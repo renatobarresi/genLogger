@@ -57,5 +57,5 @@ class configManager : public configManagerInterface
 	 * @param event Character representing the type of event.
 	 * @param[in] data Character representing additional data associated with the event.
 	 */
-	void notify(configComponent* sender, mediatorEvents event, const char* data) const override;
+	uint8_t notify(configComponent* sender, mediatorEvents event, const char* data) const override;
 };

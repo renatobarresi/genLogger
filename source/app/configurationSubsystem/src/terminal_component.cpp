@@ -14,6 +14,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "terminal_component.hpp"
+#include "device_version.hpp"
 #include "loggerMetadata.hpp"
 #include <iostream>
 #include <streambuf>
@@ -89,9 +90,16 @@ terminalEvents terminalStateMachine::eventDispacher(terminalState state)
 	return terminalEvents::EVENT_IGNORED;
 }
 
-void terminalStateMachine::updateLoggerMetadata()
+int8_t terminalStateMachine::updateLoggerMetadata()
 {
-	this->configManagerInterface_->notify(this, mediatorEvents::UPDATE_METADATA, nullptr);
+	uint8_t res = this->configManagerInterface_->notify(this, mediatorEvents::UPDATE_METADATA, nullptr);
+
+	if (res != 1)
+	{
+		return -1;
+	}
+
+	return 1;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -101,7 +109,8 @@ void terminalStateMachine::updateLoggerMetadata()
 void printBanner()
 {
 	std::cout << "#############################\r\n";
-	std::cout << "genLogger develop version 0.1\r\n";
+	std::cout << "genLogger version: ";
+	std::cout << MAJOR << "." << MINOR << "." << PATCH << "." << DEVELOPMENT << "\r\n";
 	std::cout << "#############################\r\n";
 }
 
@@ -110,14 +119,6 @@ void printLoggerMetadata()
 	struct loggerMetadata* metadata = getLoggerMetadata();
 
 	std::cout << "#############################\r\n";
-	std::cout << "Device name: ";
-
-	for (uint16_t i = 0; i < sizeof(metadata->loggerName); i++)
-	{
-		if (metadata->loggerName[i] == '\0')
-			break;
-		std::cout << metadata->loggerName[i];
-	}
-
+	std::cout << "Device name: " << metadata->loggerName;
 	std::cout << "\r\n#############################\r\n";
 }

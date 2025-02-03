@@ -30,7 +30,7 @@ configManager::configManager(terminalStateMachine* terminal, internalStorageComp
 }
 
 // Description in header file //
-void configManager::notify(configComponent* sender, mediatorEvents event, const char* data) const
+uint8_t configManager::notify(configComponent* sender, mediatorEvents event, const char* data) const
 {
 	if (event == mediatorEvents::UPDATE_METADATA)
 	{
@@ -42,4 +42,6 @@ void configManager::notify(configComponent* sender, mediatorEvents event, const 
 	{
 		// Signal terminal
 	}
+
+	return 1;
 }

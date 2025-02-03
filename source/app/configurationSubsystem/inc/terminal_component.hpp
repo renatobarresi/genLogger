@@ -115,5 +115,5 @@ class terminalStateMachine : public configComponent
 	 * @brief Signals to mediator that an update to the logger's metadata is needed
 	 *
 	 */
-	void updateLoggerMetadata();
+	int8_t updateLoggerMetadata();
 };

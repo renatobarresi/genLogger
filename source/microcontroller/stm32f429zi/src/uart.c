@@ -1,10 +1,33 @@
+/**
+ * @file uart.c
+ * @author Renato Barresi (renatobarresi@gmail.com)
+ * @brief 
+ * @version 0.1
+ * @date 2025-02-03
+ * 
+ * @copyright Copyright (c) 2025
+ * 
+ */
+ 
+////////////////////////////////////////////////////////////////////////
+//							    Includes
+////////////////////////////////////////////////////////////////////////
+
 #include "uart.h"
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_uart.h"
 
-UART_HandleTypeDef huart3;
+////////////////////////////////////////////////////////////////////////
+//							Private variables
+////////////////////////////////////////////////////////////////////////
 
-void uart_init()
+static UART_HandleTypeDef huart3;
+
+////////////////////////////////////////////////////////////////////////
+//							Functions declarations
+////////////////////////////////////////////////////////////////////////
+
+int8_t uart_init()
 {
   huart3.Instance = USART3;
   huart3.Init.BaudRate = 115200;
@@ -17,8 +40,10 @@ void uart_init()
 
   if (HAL_UART_Init(&huart3) != HAL_OK)
   {
-    while(1);
+    return -1;
   }
+
+  return 1;
 }
 
 /**

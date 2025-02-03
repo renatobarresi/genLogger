@@ -16,26 +16,32 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+////////////////////////////////////////////////////////////////////////
+//							    Includes
+////////////////////////////////////////////////////////////////////////
+
 #include "stdint.h"
 #include "stm32f4xx_hal_dma.h"
 #include <stm32f4xx_hal_i2c.h>
 
-typedef struct stm32f429_i2c_dev_t
-{
-	I2C_HandleTypeDef i2cHandle;
-	I2C_TypeDef* i2cInstance;
-} i2c_dev_t;
+////////////////////////////////////////////////////////////////////////
+//							    Types
+////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////
+//							Function definition
+////////////////////////////////////////////////////////////////////////
 
 void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c);
 
-int8_t stm32f429_i2cInit(i2c_dev_t* i2cDev);
+int8_t stm32f429_i2cInit(void);
 
-int8_t stm32f429_mem_i2cTx(i2c_dev_t* i2cDev, uint16_t DevAddress, uint16_t MemAddress,
-						   uint16_t MemAddSize, uint8_t* pData, uint16_t Size, uint32_t Timeout);
+/*
+int8_t stm32f429_mem_i2cTx(i2c_dev_t* i2cDev, uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSize, uint8_t* pData, uint16_t Size, uint32_t Timeout);
 
-int8_t stm32f429_mem_i2cRx(i2c_dev_t* i2cDev, uint16_t DevAddress, uint16_t MemAddress,
-						   uint16_t MemAddSize, uint8_t* pData, uint16_t Size, uint32_t Timeout);
-
+int8_t stm32f429_mem_i2cRx(i2c_dev_t* i2cDev, uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSize, uint8_t* pData, uint16_t Size, uint32_t Timeout);
+*/
 #ifdef __cplusplus
 }
 #endif

@@ -50,15 +50,15 @@ set(st_hal_sources
 # List of source files for initializing and setting up the Nucleo-F429zi board
 set(f429zi_init_sources
     src/interrupts.c
-    src/leds.c
+   # src/leds.c
     src/init.c
     src/syscalls.c
     src/sysmem.c
     src/system_stm32f4xx.c
     src/startup_stm32f429xx.s
-    src/i2c_drv.c
+    #src/i2c_drv.c
+    src/spi_drv.c    
     src/uart.c
-    src/spi_drv.c
 )
 
 ##########################################################
@@ -105,7 +105,7 @@ target_compile_options(${bsp_nucleo_f429zi_component} PRIVATE
     ${CPU_PARAMETERS}
     -Wall                       # Enable most compiler warnings
     -Wextra                     # Enable extra warnings
-    #-Werror                     # Treat warnings as errors
+    -Werror                     # Treat warnings as errors
     -Wpedantic                  # Enforce strict ANSI compliance
     -Wshadow                    # Warn about shadowed variables
     --specs=nano.specs          # Use smaller C library for embedded systems

@@ -45,6 +45,9 @@ class internalStorageComponent : public configComponent
 	/**
 	 * @brief initializes the internal filesystem
 	 * 
+	 * This method gets the pointer to the @ref metadata structure and 
+	 * mounts the filesystem (if target is a microcontroller)
+	 *
 	 * @return true if initialization was successful
 	 * @return false if initialization failed
 	 */

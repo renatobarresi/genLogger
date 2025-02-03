@@ -1,38 +1,72 @@
+/**
+ * @file init.c
+ * @author Renato Barresi (renatobarresi@gmail.com)
+ * @brief This is the source file for all microncontroller/system
+ * initialization functions, all init work is done here.
+ *
+ * It is the responsability of this subsystem to initialize all
+ * and peripherals, HAL, system clock, etc. All layers depend on the
+ * correct initialization of this subsystem.
+ *
+ * @version 0.1
+ * @date 2025-02-03
+ * 
+ * @copyright Copyright (c) 2025
+ * 
+ */
+
+////////////////////////////////////////////////////////////////////////
+//							    Includes
+////////////////////////////////////////////////////////////////////////
+
 #include "init.h"
 #include "stm32f4xx_hal.h"
-#include "i2c_drv.h"
+//#include "i2c_drv.h"
 #include "uart.h"
 #include "spi_drv.h"
+
+////////////////////////////////////////////////////////////////////////
+//							Functions definitions
+////////////////////////////////////////////////////////////////////////
 
 void SystemClock_Config(void);
 void MX_GPIO_Init(void);
 void HAL_MspInit(void);
 
-static I2C_HandleTypeDef hi2c1;
+////////////////////////////////////////////////////////////////////////
+//							Private function definitions
+////////////////////////////////////////////////////////////////////////
 
-static i2c_dev_t i2c1Device;
 
-int stm32f429_init()
+////////////////////////////////////////////////////////////////////////
+//							Functions declarations
+////////////////////////////////////////////////////////////////////////
+
+void stm32f429_init()
 {
-    // Init ST Hal if used
-    HAL_Init();
+  // Init ST Hal if used
+  if (HAL_OK != HAL_Init())
+  {
+    while(1);
+  }
 
-    // Init clock
-    SystemClock_Config();
+  // Init clock
+  SystemClock_Config();
 
-    // Init peripherals
-    MX_GPIO_Init();
-    
-    uart_init();
+  // Init peripherals
+  MX_GPIO_Init();
 
-    spi_init();
-    
-    i2c1Device.i2cHandle = hi2c1;
-    i2c1Device.i2cInstance = I2C1;
+  if ( -1 == uart_init())
+  {
+    while(1);
+  }
 
-    stm32f429_i2cInit(&i2c1Device);
+  if (-1 == spi_init())
+  {
+    while(1);
+  }
 
-    return 1;
+  //stm32f429_i2cInit(&i2c1Device);
 }
 
 void HAL_MspInit(void)

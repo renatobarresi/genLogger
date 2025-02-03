@@ -1,14 +1,45 @@
+/**
+ * @file spi_drv.c
+ * @author Renato Barresi (renatobarresi@gmail.com)
+ * @brief 
+ * @version 0.1
+ * @date 2025-02-03
+ * 
+ * @copyright Copyright (c) 2025
+ * 
+ */
+
+////////////////////////////////////////////////////////////////////////
+//							    Includes
+////////////////////////////////////////////////////////////////////////
+
 #include "spi_drv.h"
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_spi.h"
 #include <stm32f4xx_hal_gpio.h>
 
+////////////////////////////////////////////////////////////////////////
+//							    Defines
+////////////////////////////////////////////////////////////////////////
+
 #define CS_PIN  GPIO_PIN_13
 #define CS_PORT GPIOF
 
-SPI_HandleTypeDef mySPIHandler;
+////////////////////////////////////////////////////////////////////////
+//							    Private variables 
+////////////////////////////////////////////////////////////////////////
 
-void initCSPin(uint16_t pin, GPIO_TypeDef *port);
+static SPI_HandleTypeDef mySPIHandler;
+
+////////////////////////////////////////////////////////////////////////
+//							    Private functions
+////////////////////////////////////////////////////////////////////////
+
+int8_t _initCSPin(uint16_t pin, GPIO_TypeDef *port);
+
+////////////////////////////////////////////////////////////////////////
+//							Functions declarations
+////////////////////////////////////////////////////////////////////////
 
 /* Peripheral initialization */
 /**
@@ -54,27 +85,30 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
 
 int8_t spi_init()
 {
-    initCSPin(CS_PIN, CS_PORT);
-
-	mySPIHandler.Instance = SPI1; // TODO add modularity
-	mySPIHandler.Init.Mode = SPI_MODE_MASTER;
-	mySPIHandler.Init.Direction = SPI_DIRECTION_2LINES;
-	mySPIHandler.Init.DataSize = SPI_DATASIZE_8BIT;
-	mySPIHandler.Init.CLKPolarity = SPI_POLARITY_LOW;
-	mySPIHandler.Init.CLKPhase = SPI_PHASE_1EDGE;
-	mySPIHandler.Init.NSS = SPI_NSS_SOFT;
-	mySPIHandler.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
-	mySPIHandler.Init.FirstBit = SPI_FIRSTBIT_MSB;
-	mySPIHandler.Init.TIMode = SPI_TIMODE_DISABLE;
-	mySPIHandler.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-	mySPIHandler.Init.CRCPolynomial = 10;
-    
-    if (HAL_OK != HAL_SPI_Init(&mySPIHandler))
+    if (_initCSPin(CS_PIN, CS_PORT) < 0)
     {
-        while(1);
+        return -1;
     }
 
-    return 0;
+    mySPIHandler.Instance = SPI1; // TODO add modularity
+    mySPIHandler.Init.Mode = SPI_MODE_MASTER;
+    mySPIHandler.Init.Direction = SPI_DIRECTION_2LINES;
+    mySPIHandler.Init.DataSize = SPI_DATASIZE_8BIT;
+    mySPIHandler.Init.CLKPolarity = SPI_POLARITY_LOW;
+    mySPIHandler.Init.CLKPhase = SPI_PHASE_1EDGE;
+    mySPIHandler.Init.NSS = SPI_NSS_SOFT;
+    mySPIHandler.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
+    mySPIHandler.Init.FirstBit = SPI_FIRSTBIT_MSB;
+    mySPIHandler.Init.TIMode = SPI_TIMODE_DISABLE;
+    mySPIHandler.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+    mySPIHandler.Init.CRCPolynomial = 10;
+
+    if (HAL_OK != HAL_SPI_Init(&mySPIHandler))
+    {
+        return -1;
+    }
+
+    return 1;
 }
 
 uint16_t spi_transmit(uint8_t* pData, uint16_t size)
@@ -125,7 +159,7 @@ void csWrite(uint8_t val)
  * @param pin The pin number to be initialized.
  * @param port The GPIO port to which the pin belongs.
  */
-void initCSPin(uint16_t pin, GPIO_TypeDef *port)
+int8_t _initCSPin(uint16_t pin, GPIO_TypeDef *port)
 {
     // Assert that port is not NULL
     //assert(port != NULL);
@@ -145,9 +179,7 @@ void initCSPin(uint16_t pin, GPIO_TypeDef *port)
 
     else
     {
-        // Error: Invalid GPIO port
-    	while(1);
-        //assert(0);
+        return -1;
     }
 
     GPIO_InitStruct.Pin = pin;
@@ -158,4 +190,6 @@ void initCSPin(uint16_t pin, GPIO_TypeDef *port)
 
     // Set the pin to a default state
     HAL_GPIO_WritePin(port, pin, GPIO_PIN_SET);
+
+    return 1;
 }

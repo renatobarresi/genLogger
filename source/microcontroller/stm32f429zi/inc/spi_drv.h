@@ -1,8 +1,12 @@
-/*
- * spi_module.h
- *
- *  Created on: Apr 5, 2023
- *      Author: renatobarresi
+/**
+ * @file spi_drv.h
+ * @author Renato Barresi (renatobarresi@gmail.com)
+ * @brief 
+ * @version 0.1
+ * @date 2025-02-03
+ * 
+ * @copyright Copyright (c) 2025
+ * 
  */
 
 #ifndef SPI_DRV_H
@@ -12,11 +16,15 @@
 extern "C" {
 #endif
 
+////////////////////////////////////////////////////////////////////////
+//							    Includes
+////////////////////////////////////////////////////////////////////////
+
 #include "stdint.h"
 
-/* Global variables */
-
-/* Types */
+////////////////////////////////////////////////////////////////////////
+//							Function definition
+////////////////////////////////////////////////////////////////////////
 
 /**
  * @brief Initialize the SPI module.

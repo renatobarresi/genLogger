@@ -78,7 +78,9 @@ CPMAddPackage(
     DOWNLOAD_ONLY ON 
 )
 
-#Documentation
+##########################################################
+#                     Documentation                            
+##########################################################
 find_program(DOXYGEN doxygen)
 
 if(DOXYGEN)
@@ -90,6 +92,14 @@ if(DOXYGEN)
 else()
   message(WARNING "Doxygen not found. Documentation will not be constructed")    
 endif()
+
+##########################################################
+#                     Testing                            
+##########################################################
+
+enable_testing()
+add_subdirectory(${dependencies_path}/googletest-src/)
+add_subdirectory(test)
 
 # This property will remove a directory
 #set_target_properties(docs PROPERTIES ADDITIONAL_CLEAN_FILES ${CMAKE_BINARY_DIR}/doc/)

@@ -1,12 +1,25 @@
-set(this exampleTests)
+################################################
+#             testSuite CMakeLists.txt                   
+################################################
+
+set(this testFilesystem)
+
+set(includes
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../source/platform/inc
+)
 
 set(sources
-    exampleTests.cpp
+    testSuiteFS.cpp
 )
 
 add_executable(${this} 
     ${sources}
 )
+
+target_include_directories(${this} PRIVATE
+    ${includes}
+)
+
 
 target_link_libraries(${this} PUBLIC
     gtest_main

@@ -14,7 +14,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "internalStorage_component.hpp"
-#include "filesystem_wrapper.hpp"
+#include "filesystemWrapper.hpp"
 #include "loggerMetadata.hpp"
 #include <cstring>
 

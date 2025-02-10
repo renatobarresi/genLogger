@@ -1,18 +1,23 @@
 #include "filesystemWrapper.hpp"
+#include <fstream>
 #include <gtest/gtest.h>
 #include <string>
 
-char testFileLocation[] = "/home/renato/renato/CESE_fiuba/proyecto_final/genLogger/firmware/test/"
-						  "simulationFiles/testFS.txt";
+char testFileLocation[] = "testFS.txt";
+
 TEST(fileSystemWrapper, testOpen)
 {
-	//
+	// Create a file to be able to test
+	std::ofstream testFile(testFileLocation);
+	testFile << "thisFile";
+	testFile.close();
+
 	fileSysWrapper fileSystem(0); // Use the non-microcontroller implementation
 
 	bool status = fileSystem.open(testFileLocation, 0);
 	fileSystem.close();
 
-	ASSERT_TRUE(status) << "File open failed";
+	ASSERT_TRUE(status) << "File open failed, path: " << testFileLocation;
 }
 
 TEST(filesystemWrapper, testRead)

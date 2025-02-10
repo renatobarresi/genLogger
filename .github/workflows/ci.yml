@@ -11,14 +11,25 @@ jobs:
 
       - name: Create build directory
         run: mkdir -p build
-      
-      - name: Check directory (before entering)
-        run: pwd
 
       - name: Configure CMake
         run: cmake .. -Dtarget_type=host
         working-directory: build
 
-      - name: Check directory (inside build)
-        run: pwd
+      - name: Build project
+        run: make -j$(nproc)
         working-directory: build
+
+      - name: Run unit tests
+        run: ./testFilesystem
+        working-directory: build/test/src
+
+      - name: Check test results
+        run: |
+          if ./testFilesystem | grep -q "FAIL"; then
+            echo "Tests failed!"
+            exit 1
+          else
+            echo "All tests passed!"
+          fi
+        working-directory: build/test/src

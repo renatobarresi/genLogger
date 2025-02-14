@@ -30,7 +30,9 @@ set(driver_sources)
 
 set(dependencies_sources)
 
-set(virtualDevice_sources)
+set(virtualDevice_sources
+    
+)
 
 # Special target specific sources
 if (target_type STREQUAL "target")
@@ -39,12 +41,20 @@ if (target_type STREQUAL "target")
     )
 
     LIST(APPEND driver_sources
-        drivers/src/W25Qx_module.cpp
+        drivers/W25Qx/src/W25Qx_module.cpp
+        drivers/rtc/src/st_rtc.cpp
     )
 
     LIST(APPEND dependencies_sources
         ${dependencies_path}/little-fs-src/lfs_util.c
         ${dependencies_path}/little-fs-src/lfs.c
+    )
+endif()
+
+# Special target specific host
+if (target_type STREQUAL "host")
+    LIST(APPEND driver_sources
+        drivers/rtc/src/host_rtc.cpp
     )
 endif()
 
@@ -59,24 +69,35 @@ set(app_includes
 
 set(platform_includes
     platform/inc/
-    platform/inc/
 )
 
-set(driver_includes)
+set(driver_includes
+    # Real time clock  
+    drivers/rtc/inc/
+    # W25Qx driver
+    drivers/W25Qx/inc/
+)
 
 set(dependencies_includes)
 
-set(virtualDevices_includes)
+set(virtualDevices_includes
+    virtualDevices/inc/
+)
 
 # Special target specific includes
 if (target_type STREQUAL "target")
     list(APPEND driver_includes
-        drivers/inc/
+        # W25Qx driver
+        # drivers/W25Qx/inc/
     )
     list(APPEND dependencies_includes
         ${dependencies_path}/little-fs-src/
     )
-endif()    
+endif()
+
+if (target_type STREQUAL "host")
+
+endif()
 
 ##########################################################
 #              Components definition                     #

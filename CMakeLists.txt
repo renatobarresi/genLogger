@@ -97,9 +97,13 @@ endif()
 #                     Testing                            
 ##########################################################
 
+if (target_type STREQUAL "host")
+
 enable_testing()
 add_subdirectory(${dependencies_path}/googletest-src/)
 add_subdirectory(test)
+
+endif()
 
 # This property will remove a directory
 #set_target_properties(docs PROPERTIES ADDITIONAL_CLEAN_FILES ${CMAKE_BINARY_DIR}/doc/)

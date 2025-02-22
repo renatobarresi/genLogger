@@ -18,6 +18,7 @@
 #include "config_mediator.hpp"
 #include "internalStorage_component.hpp"
 #include "terminal_component.hpp"
+#include "virtualRTC.hpp"
 
 ////////////////////////////////////////////////////////////////////////
 //							Class definition

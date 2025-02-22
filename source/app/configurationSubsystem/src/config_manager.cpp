@@ -17,6 +17,7 @@
 
 #include "config_manager.hpp"
 #include "config_mediator.hpp"
+#include "virtualRTC.hpp"
 
 ////////////////////////////////////////////////////////////////////////
 //					   Public methods implementation

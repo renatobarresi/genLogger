@@ -19,6 +19,7 @@ class virtualRTC
 	rtcInterface* interface;
 
   public:
+	virtualRTC() : interface(&loggerRTC) {}
 	/**
      * @brief Sets the time.
      * 

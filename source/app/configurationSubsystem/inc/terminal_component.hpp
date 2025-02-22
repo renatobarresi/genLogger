@@ -18,6 +18,8 @@
 
 #include "config_mediator.hpp"
 
+#include "virtualRTC.hpp"
+
 ////////////////////////////////////////////////////////////////////////
 //							     Types
 ////////////////////////////////////////////////////////////////////////
@@ -83,7 +85,7 @@ class terminalStateMachine : public configComponent
 	 * Initializes the terminal state machine object. The initial state must be set separately
 	 * using the init() method.
 	 */
-	terminalStateMachine() {}
+	terminalStateMachine(virtualRTC* rtc) : _terminalRTC(rtc) {}
 
 	/**
 	 * @brief Initialize the terminal state machine with a specified initial state.
@@ -101,7 +103,8 @@ class terminalStateMachine : public configComponent
 
   private:
 	terminalState activeState; ///< The currently active state of the terminal state machine.
-
+	virtualRTC*	  _terminalRTC;
+	char		  _timeBuff[9];
 	/**
 	 * @brief Dispatch an event to the appropriate handler based on the current state.
 	 *
@@ -116,4 +119,7 @@ class terminalStateMachine : public configComponent
 	 *
 	 */
 	int8_t updateLoggerMetadata();
+
+	void printLoggerMetadata();
+	void printBanner();
 };

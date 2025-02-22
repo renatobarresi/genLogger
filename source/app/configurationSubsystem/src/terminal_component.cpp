@@ -102,11 +102,7 @@ int8_t terminalStateMachine::updateLoggerMetadata()
 	return 1;
 }
 
-////////////////////////////////////////////////////////////////////////
-//				      Private function implementation
-////////////////////////////////////////////////////////////////////////
-
-void printBanner()
+void terminalStateMachine::printBanner()
 {
 	std::cout << "#############################\r\n";
 	std::cout << "genLogger version: ";
@@ -114,11 +110,17 @@ void printBanner()
 	std::cout << "#############################\r\n";
 }
 
-void printLoggerMetadata()
+void terminalStateMachine::printLoggerMetadata()
 {
 	struct loggerMetadata* metadata = getLoggerMetadata();
+	_terminalRTC->getTime(&_timeBuff[0], sizeof(_timeBuff));
 
 	std::cout << "#############################\r\n";
-	std::cout << "Device name: " << metadata->loggerName;
-	std::cout << "\r\n#############################\r\n";
+	std::cout << "Device name: " << metadata->loggerName << "\r\n";
+	std::cout << "Device time: " << _timeBuff << "\r\n";
+	std::cout << "#############################\r\n";
 }
+
+////////////////////////////////////////////////////////////////////////
+//				      Private function implementation
+////////////////////////////////////////////////////////////////////////

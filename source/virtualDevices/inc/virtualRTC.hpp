@@ -1,7 +1,7 @@
 #pragma once
 
 #ifdef TARGET_MICRO
-#include "st_rtc.hpp"
+#include "stm32F429_RTC.hpp"
 #else
 #include "host_rtc.hpp"
 #endif
@@ -11,7 +11,7 @@ class virtualRTC
 {
   private:
 #ifdef TARGET_MICRO
-	st_rtc loggerRTC;
+	stm429RTC loggerRTC;
 #else
 	simulatedRTC loggerRTC;
 #endif

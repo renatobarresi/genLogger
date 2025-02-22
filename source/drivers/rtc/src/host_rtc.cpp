@@ -9,6 +9,11 @@ simulatedRTC::simulatedRTC()
 	currentTime	  = *std::localtime(&t);
 }
 
+bool simulatedRTC::init()
+{
+	return true;
+}
+
 bool simulatedRTC::setTime(uint8_t hour, uint8_t minute, uint8_t seconds)
 {
 	if (hour > 23 || minute > 59 || seconds > 59)

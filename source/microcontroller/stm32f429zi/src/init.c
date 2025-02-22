@@ -24,6 +24,7 @@
 //#include "i2c_drv.h"
 #include "uart.h"
 #include "spi_drv.h"
+#include "rtc_drv.h"
 
 ////////////////////////////////////////////////////////////////////////
 //							Functions definitions
@@ -62,6 +63,11 @@ void stm32f429_init()
   }
 
   if (-1 == spi_init())
+  {
+    while(1);
+  }
+
+  if (-1 == rct_init())
   {
     while(1);
   }

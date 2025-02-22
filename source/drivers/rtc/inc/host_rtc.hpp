@@ -21,6 +21,8 @@ class simulatedRTC : public rtcInterface
      */
 	simulatedRTC();
 
+	bool init() override;
+
 	/**
      * @brief Sets the time.
      * 

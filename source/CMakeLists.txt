@@ -42,7 +42,7 @@ if (target_type STREQUAL "target")
 
     LIST(APPEND driver_sources
         drivers/W25Qx/src/W25Qx_module.cpp
-        drivers/rtc/src/st_rtc.cpp
+        drivers/rtc/src/stm32F429_RTC.cpp
     )
 
     LIST(APPEND dependencies_sources

@@ -1,4 +1,5 @@
 #include "stm32F429_RTC.hpp"
+#include "rtc_drv.h"
 
 bool stm429RTC::init()
 {
@@ -6,6 +7,11 @@ bool stm429RTC::init()
 }
 bool stm429RTC::setTime(uint8_t hour, uint8_t minute, uint8_t seconds)
 {
+	if (-1 == rtc_set_time(hour, minute, seconds))
+	{
+		return false;
+	}
+
 	return true;
 }
 void stm429RTC::getTime(char* buffer, size_t bufferSize) const

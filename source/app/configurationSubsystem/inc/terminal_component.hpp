@@ -105,6 +105,7 @@ class terminalStateMachine : public configComponent
 	terminalState activeState; ///< The currently active state of the terminal state machine.
 	virtualRTC*	  _terminalRTC;
 	char		  _timeBuff[9];
+
 	/**
 	 * @brief Dispatch an event to the appropriate handler based on the current state.
 	 *
@@ -118,7 +119,7 @@ class terminalStateMachine : public configComponent
 	 * @brief Signals to mediator that an update to the logger's metadata is needed
 	 *
 	 */
-	int8_t updateLoggerMetadata();
+	bool updateLoggerMetadata();
 
 	void printLoggerMetadata();
 	void printBanner();

@@ -40,7 +40,7 @@ void HAL_RTC_MspInit(RTC_HandleTypeDef* rtc)
 
 }
 
-int8_t rct_init()
+int8_t rct_init(void)
 {
     hrtc.Instance = RTC;
     hrtc.Init.HourFormat = RTC_HOURFORMAT_24;
@@ -56,4 +56,59 @@ int8_t rct_init()
     }
 
     return 1;
+}
+
+int8_t rtc_set_time(uint8_t hour, uint8_t minute, uint8_t second)
+{
+  RTC_TimeTypeDef sTime = {0};
+
+  sTime.Hours = hour;
+  sTime.Minutes = minute;
+  sTime.Seconds = second;
+
+  if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN) != HAL_OK)
+  {
+    return -1;
+  }
+
+  return 1;
+}
+
+void rtc_get_time(uint8_t *hour, uint8_t *minute, uint8_t *second)
+{
+  RTC_TimeTypeDef sTime = {0};
+
+  HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
+
+  *hour = sTime.Hours;
+  *minute = sTime.Minutes;
+  *second = sTime.Seconds;
+}
+
+int8_t rtc_set_date(uint8_t year, uint8_t month, uint8_t day)
+{
+  RTC_DateTypeDef sDate = {0};
+
+  sDate.WeekDay = RTC_WEEKDAY_MONDAY;
+  sDate.Month = month;
+  sDate.Date = day;
+  sDate.Year = year;
+
+  if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BIN) != HAL_OK)
+  {
+    return -1;
+  }
+
+  return 1;
+}
+
+void rtc_get_date(uint8_t *year, uint8_t *month, uint8_t *day)
+{
+  RTC_DateTypeDef sDate = {0};
+
+  HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
+  
+  *year = sDate.Year;
+  *month = sDate.Month;
+  *day = sDate.Date; 
 }

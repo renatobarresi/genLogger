@@ -23,18 +23,6 @@
 //				      Private function prototypes
 ////////////////////////////////////////////////////////////////////////
 
-/**
- * @brief
- *
- */
-void printBanner();
-
-/**
- * @brief
- *
- */
-void printLoggerMetadata();
-
 ////////////////////////////////////////////////////////////////////////
 //						   Stream redirection
 ////////////////////////////////////////////////////////////////////////
@@ -79,7 +67,15 @@ void terminalStateMachine::init(terminalState state)
 	printLoggerMetadata();
 }
 
-void terminalStateMachine::handler() {}
+void terminalStateMachine::handler()
+{
+	terminalEvents event = eventDispacher(this->activeState);
+
+	if (terminalEvents::EVENT_TRANSITION == event)
+	{
+		eventDispacher(this->activeState);
+	}
+}
 
 ////////////////////////////////////////////////////////////////////////
 //					 Private methods implementation
@@ -90,16 +86,16 @@ terminalEvents terminalStateMachine::eventDispacher(terminalState state)
 	return terminalEvents::EVENT_IGNORED;
 }
 
-int8_t terminalStateMachine::updateLoggerMetadata()
+bool terminalStateMachine::updateLoggerMetadata()
 {
 	uint8_t res = this->configManagerInterface_->notify(this, mediatorEvents::UPDATE_METADATA, nullptr);
 
 	if (res != 1)
 	{
-		return -1;
+		return false;
 	}
 
-	return 1;
+	return true;
 }
 
 void terminalStateMachine::printBanner()
@@ -113,11 +109,12 @@ void terminalStateMachine::printBanner()
 void terminalStateMachine::printLoggerMetadata()
 {
 	struct loggerMetadata* metadata = getLoggerMetadata();
+
 	_terminalRTC->getTime(&_timeBuff[0], sizeof(_timeBuff));
 
 	std::cout << "#############################\r\n";
 	std::cout << "Device name: " << metadata->loggerName << "\r\n";
-	std::cout << "Device time: " << _timeBuff << "\r\n";
+	std::cout << "Device time: " << this->_timeBuff << "\r\n";
 	std::cout << "#############################\r\n";
 }
 

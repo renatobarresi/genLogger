@@ -23,6 +23,8 @@
 //				      Private function prototypes
 ////////////////////////////////////////////////////////////////////////
 
+void printHelp();
+
 ////////////////////////////////////////////////////////////////////////
 //						   Stream redirection
 ////////////////////////////////////////////////////////////////////////
@@ -62,18 +64,37 @@ void terminalStateMachine::init(terminalState state)
 
 	printBanner();
 
-	updateLoggerMetadata();
-
-	printLoggerMetadata();
+	printHelp();
 }
 
+/**
+ * @brief the handler checks for pending signals and sends
+ * them to the signal dispacher.
+ * 
+ */
 void terminalStateMachine::handler()
 {
-	terminalEvents event = eventDispacher(this->activeState);
+	terminalState currentState = this->activeState;
+	terminalState nextState;
+	terminalEvent event = terminalEvent::EVENT_IGNORED;
 
-	if (terminalEvents::EVENT_TRANSITION == event)
+	// TODO
+	// Define how to signal handler that there are pending signals
+	uint8_t availableSignal = 0;
+
+	if (1 == availableSignal)
 	{
-		eventDispacher(this->activeState);
+		event = signalDispacher(currentState, terminalSignal::ENTRY);
+	}
+
+	if (terminalEvent::EVENT_TRANSITION == event)
+	{
+		// Exit current state
+		signalDispacher(currentState, terminalSignal::EXIT);
+
+		// Enter next state
+		nextState = this->activeState;
+		signalDispacher(nextState, terminalSignal::ENTRY);
 	}
 }
 
@@ -81,9 +102,45 @@ void terminalStateMachine::handler()
 //					 Private methods implementation
 ////////////////////////////////////////////////////////////////////////
 
-terminalEvents terminalStateMachine::eventDispacher(terminalState state)
+terminalEvent terminalStateMachine::signalDispacher(terminalState state, terminalSignal sig)
 {
-	return terminalEvents::EVENT_IGNORED;
+	terminalEvent event = terminalEvent::EVENT_IGNORED;
+
+	switch (state)
+	{
+		case terminalState::basicDeviceInfo: {
+			switch (sig)
+			{
+				case terminalSignal::ENTRY: {
+					updateLoggerMetadata();
+
+					printLoggerMetadata();
+
+					event = terminalEvent::EVENT_HANDLED;
+				}
+				break;
+				case terminalSignal::EXIT: {
+					// Clean Terminal
+				}
+				break;
+				case terminalSignal::pressedKey_C: {
+					this->activeState = terminalState::basicDeviceConfig;
+					event			  = terminalEvent::EVENT_TRANSITION;
+				}
+				break;
+			}
+		}
+		break;
+		case terminalState::basicDeviceConfig: {
+		}
+		break;
+		default: {
+			// do nothing
+		}
+		break;
+	}
+
+	return event;
 }
 
 bool terminalStateMachine::updateLoggerMetadata()
@@ -121,3 +178,11 @@ void terminalStateMachine::printLoggerMetadata()
 ////////////////////////////////////////////////////////////////////////
 //				      Private function implementation
 ////////////////////////////////////////////////////////////////////////
+
+void printHelp()
+{
+	std::cout << "#############################\r\n";
+	std::cout << "Help:\r\n";
+	std::cout << "B - Print Device Info\r\n";
+	std::cout << "#############################\r\n";
+}

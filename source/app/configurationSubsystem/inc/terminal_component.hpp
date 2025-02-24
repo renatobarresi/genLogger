@@ -43,7 +43,7 @@ enum class terminalState
  * terminal state machine.
  *
  */
-enum class terminalSignals
+enum class terminalSignal
 {
 	ENTRY,		  ///< Signal indicating entry into a state.
 	EXIT,		  ///< Signal indicating exit from a state.
@@ -59,7 +59,7 @@ enum class terminalSignals
  * @brief Enumeration representing the outcomes of event handling within the terminal state machine.
  *
  */
-enum class terminalEvents
+enum class terminalEvent
 {
 	EVENT_HANDLED,	 ///< Event was successfully handled within the current state.
 	EVENT_IGNORED,	 ///< Event was ignored in the current state.
@@ -103,17 +103,18 @@ class terminalStateMachine : public configComponent
 
   private:
 	terminalState activeState; ///< The currently active state of the terminal state machine.
-	virtualRTC*	  _terminalRTC;
-	char		  _timeBuff[9];
+
+	virtualRTC* _terminalRTC;
+	char		_timeBuff[9];
 
 	/**
-	 * @brief Dispatch an event to the appropriate handler based on the current state.
+	 * @brief Dispatch a signal to the appropriate handler based on the current state.
 	 *
 	 * @param state The current state of the terminal state machine.
 	 * @return terminalEvents The result of the event handling, indicating whether the event
 	 * was handled, ignored, or triggered a state transition.
 	 */
-	terminalEvents eventDispacher(terminalState state);
+	terminalEvent signalDispacher(terminalState state, terminalSignal sig);
 
 	/**
 	 * @brief Signals to mediator that an update to the logger's metadata is needed

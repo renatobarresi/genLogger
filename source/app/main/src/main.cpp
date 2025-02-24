@@ -57,6 +57,7 @@ int main()
 
 	while (1)
 	{
+		terminalOutput.handler();
 	}
 
 	return 0;

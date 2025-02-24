@@ -67,7 +67,7 @@ void stm32f429_init()
     while(1);
   }
 
-  if (-1 == rct_init())
+  if (-1 == rtc_init())
   {
     while(1);
   }

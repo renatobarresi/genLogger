@@ -1,6 +1,7 @@
 #include "rtc_drv.h"
 
 #include "stm32f4xx_hal.h"
+#include "stm32f4xx_hal_pwr.h"
 #include "stm32f4xx_hal_rtc.h"
 
 RTC_HandleTypeDef hrtc;
@@ -40,23 +41,45 @@ void HAL_RTC_MspInit(RTC_HandleTypeDef* rtc)
 
 }
 
-int8_t rct_init(void)
+int8_t rtc_init(void)
 {
+    // Enable the Power Controller (PWR) clock
+    __HAL_RCC_PWR_CLK_ENABLE();
+
+    // Enable access to the backup domain
+    HAL_PWR_EnableBkUpAccess();
+
+    // Enable LSI as RTC clock source
+    __HAL_RCC_LSI_ENABLE();
+
+    // Wait until LSI is stable
+    while (__HAL_RCC_GET_FLAG(RCC_FLAG_LSIRDY) == RESET);
+
+    // Select LSI as RTC clock source
+    __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSI);
+
+    // Enable RTC Clock
+    __HAL_RCC_RTC_ENABLE();
+
+    // Configure RTC
     hrtc.Instance = RTC;
     hrtc.Init.HourFormat = RTC_HOURFORMAT_24;
-    hrtc.Init.AsynchPrediv = 127;
-    hrtc.Init.SynchPrediv = 255;
+    hrtc.Init.AsynchPrediv = 127;  // Recommended for LSI (~32 kHz / 128)
+    hrtc.Init.SynchPrediv = 249;   // Adjusted for LSI (~32 kHz / 128 / 250 = 1 Hz)
     hrtc.Init.OutPut = RTC_OUTPUT_DISABLE;
     hrtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
     hrtc.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
-    
+
+    // Initialize RTC
     if (HAL_RTC_Init(&hrtc) != HAL_OK)
     {
-        return -1;
+        return -1;  // Initialization failed
     }
 
-    return 1;
+    return 1;  // Initialization successful
 }
+
+
 
 int8_t rtc_set_time(uint8_t hour, uint8_t minute, uint8_t second)
 {

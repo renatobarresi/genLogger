@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-int8_t rct_init(void);
+int8_t rtc_init(void);
 
 int8_t rtc_set_time(uint8_t hour, uint8_t minute, uint8_t second);
 

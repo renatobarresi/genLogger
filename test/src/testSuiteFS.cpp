@@ -2,6 +2,10 @@
 #include <fstream>
 #include <gtest/gtest.h>
 #include <string>
+#include "terminal_component.hpp"
+#include "virtualRTC.hpp"
+#include "config_manager.hpp"
+#include "internalStorage_component.hpp"
 
 char testFileLocation[] = "testFS.txt";
 
@@ -33,4 +37,28 @@ TEST(filesystemWrapper, testRead)
 	fileSystem.close();
 
 	EXPECT_STREQ(buffer, "thisFile") << "File read failed";
+}
+
+TEST(terminalStateMachine, testChangeToDeviceInfoState)
+{
+	virtualRTC				 rtc;
+	terminalStateMachine	 terminalOutput(&rtc);
+	internalStorageComponent storage;
+	configManager loggerConfig(&terminalOutput, &storage);
+	
+	// Init terminal
+	terminalOutput.init(terminalState::initState);
+	terminalOutput.handler();
+
+	// Simulate "I" key press
+	terminalOutput.setSignal(terminalSignal::pressedKey_I);
+	terminalOutput.handler();
+
+	EXPECT_EQ(terminalOutput.activeState, terminalState::basicDeviceInfo) << "Failed to set basicDeviceInfo";
+
+	// Simulate "B" key press
+	terminalOutput.setSignal(terminalSignal::pressedKey_B);
+	terminalOutput.handler();
+
+	EXPECT_EQ(terminalOutput.activeState, terminalState::initState); "Failed to set initState";
 }

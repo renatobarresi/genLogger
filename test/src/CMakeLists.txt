@@ -2,14 +2,25 @@
 #             testSuite CMakeLists.txt                   
 ################################################
 
-set(this testFilesystem)
+set(this generalTests)
+set(sourceDirectory ${CMAKE_CURRENT_SOURCE_DIR}/../../source)
 
 set(includes
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../source/platform/inc
+    ${sourceDirectory}/platform/inc/
+    ${sourceDirectory}/virtualDevices/inc/
+    ${sourceDirectory}/app/configurationSubsystem/inc/
+    ${sourceDirectory}/drivers/rtc/inc/
+    ${sourceDirectory}/app/loggerMetadata/
+    ${sourceDirectory}/app/main/inc/
 )
 
 set(sources
     testSuiteFS.cpp
+    ${sourceDirectory}/app/configurationSubsystem/src/terminal_component.cpp
+    ${sourceDirectory}/drivers/rtc/src/host_rtc.cpp
+    ${sourceDirectory}/app/loggerMetadata/loggerMetadata.cpp
+    ${sourceDirectory}/app/configurationSubsystem/src/internalStorage_component.cpp
+    ${sourceDirectory}/app/configurationSubsystem/src/config_manager.cpp
 )
 
 add_executable(${this} 
@@ -19,7 +30,6 @@ add_executable(${this}
 target_include_directories(${this} PRIVATE
     ${includes}
 )
-
 
 target_link_libraries(${this} PUBLIC
     gtest_main

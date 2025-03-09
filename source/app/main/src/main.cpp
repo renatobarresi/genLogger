@@ -40,11 +40,30 @@ internalStorageComponent storage;
 
 configManager loggerConfig(&terminalOutput, &storage);
 
+#ifndef TARGET_MICRO
+#include <csignal>
+#include <iostream>
+#include <unistd.h>
+
+bool flagKey_C = false;
+
+void signalHandler(int signum)
+{
+	std::cout << "Interrupt signal (" << signum << ") received. \n";
+
+	if (signum == 10) flagKey_C == true;
+}
+#endif
+
 int main()
 {
 #ifdef TARGET_MICRO
 	stm32f429_init();
+#else
+	std::cout << "ID: " << getpid() << std::endl;
 #endif
+
+	std::signal(SIGUSR1, signalHandler);
 
 	if (false == storage.initFS())
 	{
@@ -57,8 +76,9 @@ int main()
 
 	while (1)
 	{
+		// Detect if any signlas are available
 		terminalOutput.handler();
 	}
 
 	return 0;
-}
+} 

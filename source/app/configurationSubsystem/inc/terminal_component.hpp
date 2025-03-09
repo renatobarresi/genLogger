@@ -30,6 +30,7 @@
  */
 enum class terminalState
 {
+	initState = 1,
 	basicDeviceInfo,   ///< State for displaying basic device information.
 	basicDeviceConfig, ///< State for configuring basic device settings.
 	sensorConfig,	   ///< State for configuring sensors.
@@ -47,9 +48,9 @@ enum class terminalSignal
 {
 	ENTRY,		  ///< Signal indicating entry into a state.
 	EXIT,		  ///< Signal indicating exit from a state.
+	pressedKey_I, ///< Signal triggered when the 'I' key is pressed.
 	pressedKey_C, ///< Signal triggered when the 'C' key is pressed.
 	pressedKey_B, ///< Signal triggered when the 'B' key is pressed.
-	pressedKey_S, ///< Signal triggered when the 'S' key is pressed.
 	pressedKey_N, ///< Signal triggered when the 'N' key is pressed.
 
 	numSignals ///< Number of signals (used for validation or iteration).
@@ -79,6 +80,7 @@ enum class terminalEvent
 class terminalStateMachine : public configComponent
 {
   public:
+  	terminalState activeState; ///< The currently active state of the terminal state machine.
 	/**
 	 * @brief Construct a new terminalStateMachine object.
 	 *
@@ -101,12 +103,13 @@ class terminalStateMachine : public configComponent
 	 */
 	void handler();
 
-  private:
-	terminalState activeState; ///< The currently active state of the terminal state machine.
+	void setSignal(terminalSignal sig);
 
+  private:
 	virtualRTC* _terminalRTC;
 	char		_timeBuff[9];
 
+	terminalSignal availableSignal; 
 	/**
 	 * @brief Dispatch a signal to the appropriate handler based on the current state.
 	 *

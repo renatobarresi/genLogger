@@ -26,7 +26,7 @@ jobs:
 
       - name: Check test results
         run: |
-          if ./testFilesystem | grep -q "FAIL"; then
+          if ./generalTests | grep -q "FAIL"; then
             echo "Tests failed!"
             exit 1
           else

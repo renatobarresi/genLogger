@@ -46,8 +46,9 @@ enum class terminalState
  */
 enum class terminalSignal
 {
-	ENTRY,		  ///< Signal indicating entry into a state.
-	EXIT,		  ///< Signal indicating exit from a state.
+	ENTRY, ///< Signal indicating entry into a state.
+	EXIT,  ///< Signal indicating exit from a state.
+	IDLE,
 	pressedKey_I, ///< Signal triggered when the 'I' key is pressed.
 	pressedKey_C, ///< Signal triggered when the 'C' key is pressed.
 	pressedKey_B, ///< Signal triggered when the 'B' key is pressed.
@@ -82,7 +83,7 @@ enum class terminalEvent
 class terminalStateMachine : public configComponent
 {
   public:
-  	terminalState activeState; ///< The currently active state of the terminal state machine.
+	terminalState activeState; ///< The currently active state of the terminal state machine.
 	/**
 	 * @brief Construct a new terminalStateMachine object.
 	 *
@@ -103,16 +104,16 @@ class terminalStateMachine : public configComponent
 	 *
 	 * This method should be called periodically to evaluate and process terminal events.
 	 */
-	void handler();
+	void handler(terminalSignal sig);
 
 	void setSignal(terminalSignal sig);
 
   private:
 	virtualRTC* _terminalRTC;
 	char		_timeBuff[9];
-	char 		_configurationBuffer[1024];
+	char		_configurationBuffer[1024];
 
-	terminalSignal availableSignal; 
+	terminalSignal availableSignal;
 	/**
 	 * @brief Dispatch a signal to the appropriate handler based on the current state.
 	 *

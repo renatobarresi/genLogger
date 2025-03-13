@@ -40,18 +40,39 @@ internalStorageComponent storage;
 
 configManager loggerConfig(&terminalOutput, &storage);
 
+/**
+ * @brief This simulates a microcontroller interrupt 
+ * 
+ */
 #ifndef TARGET_MICRO
 #include <csignal>
 #include <iostream>
 #include <unistd.h>
 
-bool flagKey_C = false;
+// Global flags
+bool		  flagKey_I = false;
+volatile bool flagKey_C = false;
+bool		  flagKey_B = false;
+bool		  flagKey_N = false;
+bool		  flagKey_T = false;
+bool		  flagKey_S = false;
 
 void signalHandler(int signum)
 {
 	std::cout << "Interrupt signal (" << signum << ") received. \n";
 
-	if (signum == 10) flagKey_C == true;
+	if (signum == 10)
+		flagKey_I = true;
+	else if (signum == 12)
+		flagKey_B = true;
+	else if (signum == 34)
+		flagKey_C = true;
+	else if (signum == 35)
+		flagKey_N = true;
+	else if (signum == 36)
+		flagKey_T = true;
+	else if (signum == 37)
+		flagKey_S = true;
 }
 #endif
 
@@ -60,10 +81,16 @@ int main()
 #ifdef TARGET_MICRO
 	stm32f429_init();
 #else
-	std::cout << "ID: " << getpid() << std::endl;
+	std::cout << "Process ID: " << getpid() << std::endl;
+	std::signal(SIGUSR1, signalHandler);
+	std::signal(SIGUSR2, signalHandler);
+	std::signal(SIGRTMIN, signalHandler);
+	std::signal(SIGRTMIN + 1, signalHandler);
+	std::signal(SIGRTMIN + 2, signalHandler);
+	std::signal(SIGRTMIN + 3, signalHandler);
 #endif
 
-	std::signal(SIGUSR1, signalHandler);
+	bool initFlag = true;
 
 	if (false == storage.initFS())
 	{
@@ -72,13 +99,47 @@ int main()
 
 	// storage.storeMetadata();
 
-	terminalOutput.init(terminalState::basicDeviceInfo);
+	terminalOutput.init(terminalState::initState);
 
 	while (1)
 	{
 		// Detect if any signlas are available
-		terminalOutput.handler();
+		if (initFlag == true)
+		{
+			terminalOutput.handler(terminalSignal::ENTRY);
+			initFlag = false;
+		}
+		if (flagKey_I == true)
+		{
+			terminalOutput.handler(terminalSignal::pressedKey_I);
+			flagKey_I = false;
+		}
+		if (flagKey_C == true)
+		{
+			terminalOutput.handler(terminalSignal::pressedKey_C);
+			flagKey_C = false;
+		}
+		if (flagKey_B == true)
+		{
+			terminalOutput.handler(terminalSignal::pressedKey_B);
+			flagKey_B = false;
+		}
+		if (flagKey_N == true)
+		{
+			terminalOutput.handler(terminalSignal::pressedKey_N);
+			flagKey_N = false;
+		}
+		if (flagKey_T == true)
+		{
+			terminalOutput.handler(terminalSignal::pressedKey_T);
+			flagKey_T = false;
+		}
+		if (flagKey_S == true)
+		{
+			terminalOutput.handler(terminalSignal::pressedKey_S);
+			flagKey_S = false;
+		}
 	}
 
 	return 0;
-} 
+}

@@ -1,11 +1,11 @@
+#include "config_manager.hpp"
 #include "filesystemWrapper.hpp"
+#include "internalStorage_component.hpp"
+#include "terminal_component.hpp"
+#include "virtualRTC.hpp"
 #include <fstream>
 #include <gtest/gtest.h>
 #include <string>
-#include "terminal_component.hpp"
-#include "virtualRTC.hpp"
-#include "config_manager.hpp"
-#include "internalStorage_component.hpp"
 
 char testFileLocation[] = "testFS.txt";
 
@@ -44,8 +44,8 @@ TEST(terminalStateMachine, testChangeToDeviceInfoState)
 	virtualRTC				 rtc;
 	terminalStateMachine	 terminalOutput(&rtc);
 	internalStorageComponent storage;
-	configManager loggerConfig(&terminalOutput, &storage);
-	
+	configManager			 loggerConfig(&terminalOutput, &storage);
+
 	// Init terminal
 	terminalOutput.init(terminalState::initState);
 	terminalOutput.handler();
@@ -60,18 +60,17 @@ TEST(terminalStateMachine, testChangeToDeviceInfoState)
 	terminalOutput.setSignal(terminalSignal::pressedKey_B);
 	terminalOutput.handler();
 
-	EXPECT_EQ(terminalOutput.activeState, terminalState::initState); "Failed to set initState";
+	EXPECT_EQ(terminalOutput.activeState, terminalState::initState) << "Failed to set initState";
 
 	// Simulate "C" key press
 	terminalOutput.setSignal(terminalSignal::pressedKey_C);
 	terminalOutput.handler();
 
-	EXPECT_EQ(terminalOutput.activeState, terminalState::basicDeviceConfig); "Failed to set basicDeviceConfig";
+	EXPECT_EQ(terminalOutput.activeState, terminalState::basicDeviceConfig) << "Failed to set basicDeviceConfig";
 
 	// Simulate "B" key press
 	terminalOutput.setSignal(terminalSignal::pressedKey_B);
 	terminalOutput.handler();
 
-	EXPECT_EQ(terminalOutput.activeState, terminalState::initState); "Failed to set initState";
-
+	EXPECT_EQ(terminalOutput.activeState, terminalState::initState) << "Failed to set initState";
 }

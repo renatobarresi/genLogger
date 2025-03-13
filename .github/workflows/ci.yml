@@ -21,7 +21,7 @@ jobs:
         working-directory: build
 
       - name: Run unit tests
-        run: ./testFilesystem
+        run: ./generalTests
         working-directory: build/test/src
 
       - name: Check test results

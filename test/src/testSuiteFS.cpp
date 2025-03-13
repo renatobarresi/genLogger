@@ -48,29 +48,25 @@ TEST(terminalStateMachine, testChangeToDeviceInfoState)
 
 	// Init terminal
 	terminalOutput.init(terminalState::initState);
-	terminalOutput.handler();
+	terminalOutput.handler(terminalSignal::ENTRY);
 
 	// Simulate "I" key press
-	terminalOutput.setSignal(terminalSignal::pressedKey_I);
-	terminalOutput.handler();
+	terminalOutput.handler(terminalSignal::pressedKey_I);
 
 	EXPECT_EQ(terminalOutput.activeState, terminalState::basicDeviceInfo) << "Failed to set basicDeviceInfo";
 
 	// Simulate "B" key press
-	terminalOutput.setSignal(terminalSignal::pressedKey_B);
-	terminalOutput.handler();
+	terminalOutput.handler(terminalSignal::pressedKey_B);
 
 	EXPECT_EQ(terminalOutput.activeState, terminalState::initState) << "Failed to set initState";
 
 	// Simulate "C" key press
-	terminalOutput.setSignal(terminalSignal::pressedKey_C);
-	terminalOutput.handler();
+	terminalOutput.handler(terminalSignal::pressedKey_C);
 
 	EXPECT_EQ(terminalOutput.activeState, terminalState::basicDeviceConfig) << "Failed to set basicDeviceConfig";
 
 	// Simulate "B" key press
-	terminalOutput.setSignal(terminalSignal::pressedKey_B);
-	terminalOutput.handler();
+	terminalOutput.handler(terminalSignal::pressedKey_B);
 
 	EXPECT_EQ(terminalOutput.activeState, terminalState::initState) << "Failed to set initState";
 }

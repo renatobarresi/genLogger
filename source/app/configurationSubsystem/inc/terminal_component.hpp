@@ -52,6 +52,8 @@ enum class terminalSignal
 	pressedKey_C, ///< Signal triggered when the 'C' key is pressed.
 	pressedKey_B, ///< Signal triggered when the 'B' key is pressed.
 	pressedKey_N, ///< Signal triggered when the 'N' key is pressed.
+	pressedKey_T,
+	pressedKey_S,
 
 	numSignals ///< Number of signals (used for validation or iteration).
 };
@@ -108,6 +110,7 @@ class terminalStateMachine : public configComponent
   private:
 	virtualRTC* _terminalRTC;
 	char		_timeBuff[9];
+	char 		_configurationBuffer[1024];
 
 	terminalSignal availableSignal; 
 	/**
@@ -125,6 +128,15 @@ class terminalStateMachine : public configComponent
 	 */
 	bool updateLoggerMetadata();
 
+	/**
+	 * @brief 
+	 * 
+	 */
 	void printLoggerMetadata();
+
+	/**
+	 * @brief 
+	 * 
+	 */
 	void printBanner();
 };

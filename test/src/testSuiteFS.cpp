@@ -61,4 +61,17 @@ TEST(terminalStateMachine, testChangeToDeviceInfoState)
 	terminalOutput.handler();
 
 	EXPECT_EQ(terminalOutput.activeState, terminalState::initState); "Failed to set initState";
+
+	// Simulate "C" key press
+	terminalOutput.setSignal(terminalSignal::pressedKey_C);
+	terminalOutput.handler();
+
+	EXPECT_EQ(terminalOutput.activeState, terminalState::basicDeviceConfig); "Failed to set basicDeviceConfig";
+
+	// Simulate "B" key press
+	terminalOutput.setSignal(terminalSignal::pressedKey_B);
+	terminalOutput.handler();
+
+	EXPECT_EQ(terminalOutput.activeState, terminalState::initState); "Failed to set initState";
+
 }

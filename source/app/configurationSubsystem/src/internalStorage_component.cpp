@@ -87,7 +87,7 @@ bool internalStorageComponent::retrieveMetadata()
 }
 
 // Description in header file //
-bool internalStorageComponent::storeMetadata()
+bool internalStorageComponent::storeMetadata(const char *pBuff, uint16_t size)
 {
 	bool status = false;
 
@@ -99,7 +99,7 @@ bool internalStorageComponent::storeMetadata()
 		return status;
 	}
 
-	int bytesWrote = fileSystem.write(defaultLoggerName, strlen(defaultLoggerName));
+	int bytesWrote = fileSystem.write(pBuff, size);
 
 	if (fileSystem.close() == 0 || bytesWrote == 0)
 	{

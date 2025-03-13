@@ -24,6 +24,7 @@
 enum class mediatorEvents
 {
 	UPDATE_METADATA,
+	STORE_METADATA,
 	METADATA_UPDATED
 };
 

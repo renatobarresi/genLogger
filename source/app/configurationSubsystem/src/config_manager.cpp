@@ -18,6 +18,8 @@
 #include "config_manager.hpp"
 #include "config_mediator.hpp"
 #include "virtualRTC.hpp"
+#include <cinttypes>
+#include <cstring>
 
 ////////////////////////////////////////////////////////////////////////
 //					   Public methods implementation
@@ -42,6 +44,11 @@ uint8_t configManager::notify(configComponent* sender, mediatorEvents event, con
 	if (event == mediatorEvents::METADATA_UPDATED)
 	{
 		// Signal terminal
+	}
+
+	if (event == mediatorEvents::STORE_METADATA)
+	{
+		this->internalStorage->storeMetadata(data, strlen(data));
 	}
 
 	return 1;

@@ -73,7 +73,7 @@ class internalStorageComponent : public configComponent
 	 * @return true 
 	 * @return false 
 	 */
-	bool storeMetadata();
+	bool storeMetadata(const char*pBuff, uint16_t size);
 
   private:
 	/**

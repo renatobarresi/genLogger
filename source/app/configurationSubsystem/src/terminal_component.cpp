@@ -24,6 +24,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 void printHelp();
+void printConfigHelp();
 
 ////////////////////////////////////////////////////////////////////////
 //						   Stream redirection
@@ -64,8 +65,6 @@ void terminalStateMachine::init(terminalState state)
 	this->availableSignal = terminalSignal::ENTRY;
 
 	printBanner();
-
-	printHelp();
 }
 
 /**
@@ -115,6 +114,7 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 			{
 				case terminalSignal::ENTRY:
 				{
+					printHelp();
 					event = terminalEvent::EVENT_HANDLED;
 				}
 				break;
@@ -179,6 +179,7 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 				case terminalSignal::EXIT:
 				{
 					// Clean Terminal
+					printConfigHelp();
 					event = terminalEvent::EVENT_HANDLED;
 				}
 				break;
@@ -186,6 +187,44 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 				{
 					this->activeState = terminalState::initState;
 					event			  = terminalEvent::EVENT_TRANSITION;
+				}
+				break;
+				case terminalSignal::pressedKey_T:
+				{
+					// Set device time and date
+					std::cout << "Please input the time HH:MM:SS and date DD:MM:YYYY\r\n";
+					event = terminalEvent::EVENT_HANDLED;
+				}
+				break;
+				case terminalSignal::pressedKey_N:
+				{
+					// Set device name
+					std::cout << "Please input the device name\r\n";
+					
+					// todo Wait for user input
+
+					// Update _configurationBuffer with the device name
+					
+					event = terminalEvent::EVENT_HANDLED;
+				}
+				break;
+				case terminalSignal::pressedKey_S:
+				{
+					std::cout << "Storing configuratoin in memory..\r\n";
+					
+					// Signal mediator to comunicate with internal storage component
+					uint8_t res = this->configManagerInterface_->notify(this, mediatorEvents::STORE_METADATA, _configurationBuffer);
+
+					if (res != 1)
+					{
+						std::cout << "Error trying to store in memory\r\n";
+					}
+					else 
+					{
+						std::cout << "Configuration saved!\r\n";
+					}					
+					
+					event = terminalEvent::EVENT_HANDLED;
 				}
 				break;
 			}
@@ -230,6 +269,7 @@ void terminalStateMachine::printLoggerMetadata()
 	std::cout << "#############################\r\n";
 	std::cout << "Device name: " << metadata->loggerName << "\r\n";
 	std::cout << "Device time: " << this->_timeBuff << "\r\n";
+	std::cout << "B - return\r\n";
 	std::cout << "#############################\r\n";
 }
 
@@ -243,5 +283,15 @@ void printHelp()
 	std::cout << "Press:\r\n";
 	std::cout << "I - Print Device Info\r\n";
 	std::cout << "C - Configure Device\r\n";
+	std::cout << "#############################\r\n";
+}
+
+void printConfigHelp()
+{
+	std::cout << "#############################\r\n";
+	std::cout << "Configure menu\r\n";
+	std::cout << "T - Set device time and date\r\n";
+	std::cout << "N - set device name\r\n";
+	std::cout << "B - return\r\n";
 	std::cout << "#############################\r\n";
 }

@@ -14,6 +14,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "internalStorage_component.hpp"
+#include "errorHandler.hpp"
 #include "filesystemWrapper.hpp"
 #include "loggerMetadata.hpp"
 #include <cstring>
@@ -44,15 +45,25 @@ internalStorageComponent::internalStorageComponent() {}
 // Description in header file //
 bool internalStorageComponent::initFS()
 {
+	bool retVal = false;
 	// Get the metadata pointer
 	this->thisMetadata = getLoggerMetadata();
 
-	return fileSystem.mount();
+	retVal = fileSystem.mount();
+
+	if (retVal == true)
+	{
+		this->_fileSystemInit = true;
+	}
+
+	return retVal;
 }
 
 // Description in header file //
 bool internalStorageComponent::retrieveMetadata()
 {
+	appAssert(this->_fileSystemInit == true);
+
 	bool status;
 
 	// Open the metadata file
@@ -71,7 +82,7 @@ bool internalStorageComponent::retrieveMetadata()
 	if (bytesRead > 0)
 	{
 		// Copy the name from the buffer into the metadata struct
-		strncpy(this->thisMetadata->loggerName, buffer, loggerNameLenght - 1);
+		std::strncpy(this->thisMetadata->loggerName, buffer, loggerNameLenght - 1);
 		this->thisMetadata->loggerName[loggerNameLenght - 1] = '\0'; // Ensure null termination
 	}
 	else
@@ -87,8 +98,10 @@ bool internalStorageComponent::retrieveMetadata()
 }
 
 // Description in header file //
-bool internalStorageComponent::storeMetadata(const char *pBuff, uint16_t size)
+bool internalStorageComponent::storeMetadata(const char* pBuff, uint16_t size)
 {
+	appAssert(this->_fileSystemInit == true);
+
 	bool status = false;
 
 	status = fileSystem.open(simulationFile, 1);

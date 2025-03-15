@@ -18,6 +18,7 @@ set(bsp_linker ${microcontroller_path}/link/STM32F429ZITX_FLASH.ld)
 ################
 set(app_sources
     app/main/src/main.cpp
+    app/main/src/errorHandler.cpp
     app/configurationSubsystem/src/config_manager.cpp
     app/configurationSubsystem/src/terminal_component.cpp
     app/configurationSubsystem/src/internalStorage_component.cpp
@@ -30,9 +31,7 @@ set(driver_sources)
 
 set(dependencies_sources)
 
-set(virtualDevice_sources
-    
-)
+set(virtualDevice_sources)
 
 # Special target specific sources
 if (target_type STREQUAL "target")

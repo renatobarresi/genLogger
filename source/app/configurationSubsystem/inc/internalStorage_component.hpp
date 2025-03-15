@@ -73,7 +73,7 @@ class internalStorageComponent : public configComponent
 	 * @return true 
 	 * @return false 
 	 */
-	bool storeMetadata(const char*pBuff, uint16_t size);
+	bool storeMetadata(const char* pBuff, uint16_t size);
 
   private:
 	/**
@@ -81,4 +81,6 @@ class internalStorageComponent : public configComponent
    	* 
    	*/
 	struct loggerMetadata* thisMetadata;
+
+	bool _fileSystemInit = false;
 };

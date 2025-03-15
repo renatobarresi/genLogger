@@ -21,6 +21,7 @@ set(sources
     ${sourceDirectory}/app/loggerMetadata/loggerMetadata.cpp
     ${sourceDirectory}/app/configurationSubsystem/src/internalStorage_component.cpp
     ${sourceDirectory}/app/configurationSubsystem/src/config_manager.cpp
+    ${sourceDirectory}/app/main/src/errorHandler.cpp
 )
 
 add_executable(${this} 

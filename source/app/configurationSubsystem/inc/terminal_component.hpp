@@ -17,7 +17,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "config_mediator.hpp"
-
+#include "loggerMetadata.hpp"
 #include "virtualRTC.hpp"
 
 ////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,7 @@ enum class terminalSignal
 	pressedKey_N, ///< Signal triggered when the 'N' key is pressed.
 	pressedKey_T,
 	pressedKey_S,
+	pressedKey_Enter,
 
 	numSignals ///< Number of signals (used for validation or iteration).
 };
@@ -84,6 +85,7 @@ class terminalStateMachine : public configComponent
 {
   public:
 	terminalState activeState; ///< The currently active state of the terminal state machine.
+
 	/**
 	 * @brief Construct a new terminalStateMachine object.
 	 *
@@ -104,14 +106,19 @@ class terminalStateMachine : public configComponent
 	 *
 	 * This method should be called periodically to evaluate and process terminal events.
 	 */
-	void handler(terminalSignal sig);
+	void handler(terminalSignal sig, const char* buff);
 
+	/**
+	 * @brief Set the Signal object
+	 * 
+	 * @param sig 
+	 */
 	void setSignal(terminalSignal sig);
 
   private:
-	virtualRTC* _terminalRTC;
-	char		_timeBuff[9];
-	char		_configurationBuffer[1024];
+	virtualRTC*			  _terminalRTC;
+	char				  _timeBuff[9];
+	struct loggerMetadata _loggerMetadata;
 
 	terminalSignal availableSignal;
 	/**
@@ -121,7 +128,7 @@ class terminalStateMachine : public configComponent
 	 * @return terminalEvents The result of the event handling, indicating whether the event
 	 * was handled, ignored, or triggered a state transition.
 	 */
-	terminalEvent signalDispacher(terminalState state, terminalSignal sig);
+	terminalEvent signalDispacher(terminalState state, terminalSignal sig, const char* buff);
 
 	/**
 	 * @brief Signals to mediator that an update to the logger's metadata is needed

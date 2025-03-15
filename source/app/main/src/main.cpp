@@ -106,37 +106,37 @@ int main()
 		// Detect if any signlas are available
 		if (initFlag == true)
 		{
-			terminalOutput.handler(terminalSignal::ENTRY);
+			terminalOutput.handler(terminalSignal::ENTRY, nullptr);
 			initFlag = false;
 		}
 		if (flagKey_I == true)
 		{
-			terminalOutput.handler(terminalSignal::pressedKey_I);
+			terminalOutput.handler(terminalSignal::pressedKey_I, nullptr);
 			flagKey_I = false;
 		}
 		if (flagKey_C == true)
 		{
-			terminalOutput.handler(terminalSignal::pressedKey_C);
+			terminalOutput.handler(terminalSignal::pressedKey_C, nullptr);
 			flagKey_C = false;
 		}
 		if (flagKey_B == true)
 		{
-			terminalOutput.handler(terminalSignal::pressedKey_B);
+			terminalOutput.handler(terminalSignal::pressedKey_B, nullptr);
 			flagKey_B = false;
 		}
 		if (flagKey_N == true)
 		{
-			terminalOutput.handler(terminalSignal::pressedKey_N);
+			terminalOutput.handler(terminalSignal::pressedKey_N, nullptr);
 			flagKey_N = false;
 		}
 		if (flagKey_T == true)
 		{
-			terminalOutput.handler(terminalSignal::pressedKey_T);
+			terminalOutput.handler(terminalSignal::pressedKey_T, nullptr);
 			flagKey_T = false;
 		}
 		if (flagKey_S == true)
 		{
-			terminalOutput.handler(terminalSignal::pressedKey_S);
+			terminalOutput.handler(terminalSignal::pressedKey_S, nullptr);
 			flagKey_S = false;
 		}
 	}

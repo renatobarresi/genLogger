@@ -16,6 +16,7 @@
 #include "terminal_component.hpp"
 #include "device_version.hpp"
 #include "loggerMetadata.hpp"
+#include <cstring>
 #include <iostream>
 #include <streambuf>
 
@@ -72,24 +73,22 @@ void terminalStateMachine::init(terminalState state)
  * them to the signal dispacher.
  * 
  */
-void terminalStateMachine::handler(terminalSignal sig = terminalSignal::ENTRY)
+void terminalStateMachine::handler(terminalSignal sig, const char* buff)
 {
 	terminalState currentState = this->activeState;
 	terminalState nextState;
 	terminalEvent event = terminalEvent::EVENT_IGNORED;
 
-	this->availableSignal = sig;
-
-	event = signalDispacher(currentState, this->availableSignal);
+	event = signalDispacher(currentState, sig, buff);
 
 	if (terminalEvent::EVENT_TRANSITION == event)
 	{
 		// Exit current state
-		signalDispacher(currentState, terminalSignal::EXIT);
+		signalDispacher(currentState, terminalSignal::EXIT, nullptr);
 
 		// Enter next state
 		nextState = this->activeState;
-		signalDispacher(nextState, terminalSignal::ENTRY);
+		signalDispacher(nextState, terminalSignal::ENTRY, nullptr);
 	}
 }
 
@@ -102,7 +101,7 @@ void terminalStateMachine::setSignal(terminalSignal sig)
 //					 Private methods implementation
 ////////////////////////////////////////////////////////////////////////
 
-terminalEvent terminalStateMachine::signalDispacher(terminalState state, terminalSignal sig)
+terminalEvent terminalStateMachine::signalDispacher(terminalState state, terminalSignal sig, const char* buff)
 {
 	terminalEvent event = terminalEvent::EVENT_IGNORED;
 
@@ -194,18 +193,32 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 				case terminalSignal::pressedKey_T:
 				{
 					// Set device time and date
-					std::cout << "Please input the time HH:MM:SS and date DD:MM:YYYY\r\n";
+					if (nullptr == buff)
+					{
+						std::cout << "Please input the time HH:MM:SS and date DD:MM:YYYY\r\n";
+					}
+					else
+					{
+						// Update _configurationBuffer with the device time and date
+						// todo
+					}
+
 					event = terminalEvent::EVENT_HANDLED;
 				}
 				break;
+				case terminalSignal::pressedKey_Enter:
 				case terminalSignal::pressedKey_N:
 				{
 					// Set device name
-					std::cout << "Please input the device name\r\n";
-
-					// todo Wait for user input
-
-					// Update _configurationBuffer with the device name
+					if (nullptr == buff)
+					{
+						std::cout << "Please input the device name\r\n";
+					}
+					else
+					{
+						// Update _configurationBuffer with the device name
+						std::strncpy(_loggerMetadata.loggerName, buff, sizeof(_loggerMetadata.loggerName));
+					}
 
 					event = terminalEvent::EVENT_HANDLED;
 				}
@@ -213,9 +226,10 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 				case terminalSignal::pressedKey_S:
 				{
 					std::cout << "Storing configuratoin in memory..\r\n";
-
+					char tempBuff[sizeof(_loggerMetadata)];
+					memcpy(tempBuff, &_loggerMetadata, sizeof(_loggerMetadata));
 					// Signal mediator to comunicate with internal storage component
-					uint8_t res = this->configManagerInterface_->notify(this, mediatorEvents::STORE_METADATA, _configurationBuffer);
+					uint8_t res = this->configManagerInterface_->notify(this, mediatorEvents::STORE_METADATA, tempBuff);
 
 					if (res != 1)
 					{

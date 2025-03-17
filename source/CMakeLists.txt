@@ -25,7 +25,9 @@ set(app_sources
     app/loggerMetadata/loggerMetadata.cpp 
 )
 
-set(platform_sources)
+set(platform_sources
+    platform/src/serialHandler.cpp
+)
 
 set(driver_sources)
 

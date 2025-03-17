@@ -136,6 +136,11 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 					event			  = terminalEvent::EVENT_TRANSITION;
 				}
 				break;
+				default:
+				{
+					event = terminalEvent::EVENT_IGNORED;
+				}
+				break;
 			}
 		}
 		break;
@@ -163,6 +168,11 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 				{
 					this->activeState = terminalState::initState;
 					event			  = terminalEvent::EVENT_TRANSITION;
+				}
+				break;
+				default:
+				{
+					event = terminalEvent::EVENT_IGNORED;
 				}
 				break;
 			}
@@ -218,6 +228,7 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 					{
 						// Update _configurationBuffer with the device name
 						std::strncpy(_loggerMetadata.loggerName, buff, sizeof(_loggerMetadata.loggerName));
+						std::cout << "Name copied, input S to save it\r\n";
 					}
 
 					event = terminalEvent::EVENT_HANDLED;
@@ -241,6 +252,11 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 					}
 
 					event = terminalEvent::EVENT_HANDLED;
+				}
+				break;
+				default:
+				{
+					event = terminalEvent::EVENT_IGNORED;
 				}
 				break;
 			}

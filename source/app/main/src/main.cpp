@@ -30,6 +30,11 @@
 #include "terminal_component.hpp"
 #include "virtualRTC.hpp"
 
+// Includes related to the used board
+#ifdef TARGET_MICRO
+#include "init.h"
+#endif
+
 virtualRTC				 rtc;
 terminalStateMachine	 terminalOutput(&rtc);
 internalStorageComponent storage;
@@ -107,7 +112,9 @@ int main()
 		}
 		else if (flagKey_Enter == true)
 		{
-			terminalOutput.handler(terminalSignal::pressedKey_Enter, nullptr);
+			char buff[96];
+			getSerialBuffer(buff, 96);
+			terminalOutput.handler(terminalSignal::pressedKey_Enter, buff);
 			flagKey_Enter = false;
 		}
 	}

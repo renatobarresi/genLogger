@@ -1,4 +1,5 @@
 #include "serialHandler.hpp"
+#include <cstring>
 
 // For Interrupt simulation in host
 #ifndef TARGET_MICRO
@@ -24,6 +25,7 @@ extern bool flagKey_B;
 extern bool flagKey_N;
 extern bool flagKey_T;
 extern bool flagKey_S;
+extern bool flagKey_Enter;
 
 // Function for the input thread
 void uartSimulatorThread()
@@ -84,29 +86,42 @@ bool serialHandler(void)
 void processSerialBuffer()
 {
 #ifndef TARGET_MICRO
-	if (serialBuffer.find("I") != std::string::npos)
+	if (serialBuffer == "I")
 	{
 		flagKey_I = true;
 	}
-	else if (serialBuffer.find("C") != std::string::npos)
+	else if (serialBuffer == "C")
 	{
 		flagKey_C = true;
 	}
-	else if (serialBuffer.find("B") != std::string::npos)
+	else if (serialBuffer == "B")
 	{
 		flagKey_B = true;
 	}
-	else if (serialBuffer.find("N") != std::string::npos)
+	else if (serialBuffer == "N")
 	{
 		flagKey_N = true;
 	}
-	else if (serialBuffer.find("T") != std::string::npos)
+	else if (serialBuffer == "T")
 	{
 		flagKey_T = true;
 	}
-	else if (serialBuffer.find("S") != std::string::npos)
+	else if (serialBuffer == "S")
 	{
 		flagKey_S = true;
 	}
+	else if (serialBuffer.find("\0") != std::string::npos)
+	{
+		flagKey_Enter = true;
+	}
+#endif
+}
+
+void getSerialBuffer(char* buffer, size_t bufferSize)
+{
+#ifndef TARGET_MICRO
+	std::lock_guard<std::mutex> lock(buffer_mutex);
+	std::strncpy(buffer, serialBuffer.c_str(), bufferSize - 1);
+	buffer[bufferSize - 1] = '\0'; // Ensure null termination
 #endif
 }

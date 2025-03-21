@@ -29,8 +29,7 @@ fileSysWrapper fileSystem(1);
 char		   simulationFile[] = "metadata.txt";
 #else
 fileSysWrapper fileSystem(0); // Use the non-microcontroller implementation
-char		   simulationFile[] = "/home/renato/renato/CESE_fiuba/proyecto_final/genLogger/firmware/test/"
-								  "simulationFiles/metadata.txt";
+char		   simulationFile[] = "../../../test/simulationFiles/metadata.txt";
 #endif
 
 static char defaultLoggerName[] = "defaultLogger";

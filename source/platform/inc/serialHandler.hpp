@@ -9,3 +9,5 @@ bool serialHandler(void);
 void processSerialBuffer();
 
 void getSerialBuffer(char* buffer, size_t bufferSize);
+
+void clearSerialBuffer();

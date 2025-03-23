@@ -301,7 +301,7 @@ void terminalStateMachine::printLoggerMetadata()
 	std::cout << "#############################\r\n";
 	std::cout << "Device name: " << metadata->loggerName << "\r\n";
 	std::cout << "Device time: " << this->_timeBuff << "\r\n";
-	std::cout << "Firwamree version: " << MAJOR << "." << MINOR << "." << PATCH << "." << DEVELOPMENT << "\r\n";
+	std::cout << "Firmware version: " << MAJOR << "." << MINOR << "." << PATCH << "." << DEVELOPMENT << "\r\n";
 	std::cout << "B - return\r\n";
 	std::cout << "#############################\r\n";
 }

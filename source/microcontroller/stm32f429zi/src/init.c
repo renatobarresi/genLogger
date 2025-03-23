@@ -57,6 +57,9 @@ void stm32f429_init()
   // Init peripherals
   MX_GPIO_Init();
 
+  // Init DMA 
+  MX_DMA_Init();
+
   if ( -1 == uart_init())
   {
     while(1);

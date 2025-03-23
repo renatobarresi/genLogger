@@ -48,6 +48,8 @@ bool flagKey_T	   = false;
 bool flagKey_S	   = false;
 bool flagKey_Enter = false;
 
+static char configBuff[96];
+
 int main()
 {
 #ifdef TARGET_MICRO
@@ -71,12 +73,20 @@ int main()
 
 	while (1)
 	{
+		// Check if data is available in serial port
 		bool process_input = serialHandler();
 
-		// Process the input outside the lock
+		// If data is available, process it and generate signals to terminal SM
 		if (process_input)
 		{
 			processSerialBuffer();
+
+			if (flagKey_Enter == true)
+			{
+				getSerialBuffer(configBuff, 96);
+			}
+
+			clearSerialBuffer();
 		}
 
 		// Passing signals to handler
@@ -112,9 +122,7 @@ int main()
 		}
 		else if (flagKey_Enter == true)
 		{
-			char buff[96];
-			getSerialBuffer(buff, 96);
-			terminalOutput.handler(terminalSignal::pressedKey_Enter, buff);
+			terminalOutput.handler(terminalSignal::pressedKey_Enter, configBuff);
 			flagKey_Enter = false;
 		}
 	}

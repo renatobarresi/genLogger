@@ -27,7 +27,15 @@ extern "C" {
 
 int8_t uart_init();
 
+void MX_DMA_Init(void);
+
 void uart_tx(char pBuff, int buffSize);
+
+void uart_start_rx_dma();
+
+uint8_t uart_isDataAvailable();
+
+void uart_getAvailableData(uint8_t* pBuff, uint16_t buffSize);
 
 #ifdef __cplusplus
 }

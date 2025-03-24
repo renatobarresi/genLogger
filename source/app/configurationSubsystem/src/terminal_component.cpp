@@ -16,6 +16,7 @@
 #include "terminal_component.hpp"
 #include "device_version.hpp"
 #include "loggerMetadata.hpp"
+#include <cstdio> // For sscanf
 #include <cstring>
 #include <iostream>
 #include <streambuf>
@@ -24,8 +25,9 @@
 //				      Private function prototypes
 ////////////////////////////////////////////////////////////////////////
 
-void printHelp();
-void printConfigHelp();
+static void printHelp();
+static void printConfigHelp();
+static bool parseTimeAndDate(const char* buff, uint8_t* hour, uint8_t* minute, uint8_t* seconds, uint8_t* day, uint8_t* month, uint16_t* year);
 
 ////////////////////////////////////////////////////////////////////////
 //						   Stream redirection
@@ -205,31 +207,87 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 					// Set device time and date
 					if (nullptr == buff)
 					{
-						std::cout << "Please input the time HH:MM:SS and date DD:MM:YYYY\r\n";
+						std::cout << "Please input the time following this format HH:MM:SS-DD/MM/YYYY\r\n";
+						this->_previousSignal = terminalSignal::pressedKey_T;
 					}
-					else
+					/*else
 					{
 						// Update _configurationBuffer with the device time and date
 						// todo
-					}
+					}*/
 
 					event = terminalEvent::EVENT_HANDLED;
 				}
 				break;
 				case terminalSignal::pressedKey_Enter:
+				{
+					if (nullptr == buff)
+					{
+						std::cout << "Invalid data, please type again\r\n";
+						break;
+					}
+
+					switch (this->_previousSignal)
+					{
+						case terminalSignal::pressedKey_N:
+						{
+							// Update _configurationBuffer with the device name
+							std::strncpy(_loggerMetadata.loggerName, buff, sizeof(_loggerMetadata.loggerName));
+							std::cout << "Name copied, input S to save it\r\n";
+						}
+						break;
+						case terminalSignal::pressedKey_T:
+						{
+							bool	 validData = false;
+							uint8_t	 hour;
+							uint8_t	 minute;
+							uint8_t	 seconds;
+							uint8_t	 day;
+							uint8_t	 month;
+							uint16_t year;
+
+							validData = parseTimeAndDate(buff, &hour, &minute, &seconds, &day, &month, &year);
+
+							if (false == validData)
+							{
+								std::cout << "Invalid data, please type again\r\n";
+								break;
+							}
+
+							if (true == this->_terminalRTC->setTime(hour, minute, seconds) && true == this->_terminalRTC->setDate(day, month, year))
+							{
+								std::cout << "RTC configured\r\n";
+							}
+							else
+							{
+								std::cout << "Error configuring RTC\r\n";
+							}
+						}
+						break;
+						default:
+						{
+							event = terminalEvent::EVENT_IGNORED;
+						}
+						break;
+					}
+
+					event = terminalEvent::EVENT_HANDLED;
+				}
+				break;
 				case terminalSignal::pressedKey_N:
 				{
 					// Set device name
 					if (nullptr == buff)
 					{
 						std::cout << "Please input the device name\r\n";
+						this->_previousSignal = terminalSignal::pressedKey_N;
 					}
-					else
+					/*else
 					{
 						// Update _configurationBuffer with the device name
 						std::strncpy(_loggerMetadata.loggerName, buff, sizeof(_loggerMetadata.loggerName));
 						std::cout << "Name copied, input S to save it\r\n";
-					}
+					}*/
 
 					event = terminalEvent::EVENT_HANDLED;
 				}
@@ -310,7 +368,7 @@ void terminalStateMachine::printLoggerMetadata()
 //				      Private function implementation
 ////////////////////////////////////////////////////////////////////////
 
-void printHelp()
+static void printHelp()
 {
 	std::cout << "#############################\r\n";
 	std::cout << "Help Menu:\r\n";
@@ -320,7 +378,7 @@ void printHelp()
 	std::cout << "#############################\r\n";
 }
 
-void printConfigHelp()
+static void printConfigHelp()
 {
 	std::cout << "#############################\r\n";
 	std::cout << "Configure menu\r\n";
@@ -330,4 +388,21 @@ void printConfigHelp()
 	std::cout << "S - Store configuration in memory\r\n";
 	std::cout << "B - return\r\n";
 	std::cout << "#############################\r\n";
+}
+
+static bool parseTimeAndDate(const char* buff, uint8_t* hour, uint8_t* minute, uint8_t* seconds, uint8_t* day, uint8_t* month, uint16_t* year)
+{
+	// Try to parse the input string, ensuring the expected format
+	if (sscanf(buff, "%2hhu:%2hhu:%2hhu-%2hhu/%2hhu/%4hu", hour, minute, seconds, day, month, year) != 6)
+	{
+		return false; // Parsing failed due to format mismatch
+	}
+
+	// Validate parsed values
+	if (*hour > 23 || *minute > 59 || *seconds > 59 || *day > 31 || *month > 12 || *year > 9999)
+	{
+		return false;
+	}
+
+	return true;
 }

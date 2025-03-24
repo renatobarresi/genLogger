@@ -119,6 +119,8 @@ class terminalStateMachine : public configComponent
 	virtualRTC*			  _terminalRTC;
 	char				  _timeBuff[9];
 	struct loggerMetadata _loggerMetadata;
+	void*				  paramToConfig;
+	terminalSignal		  _previousSignal;
 
 	terminalSignal availableSignal;
 	/**

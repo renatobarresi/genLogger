@@ -3,11 +3,52 @@
 #include "internalStorage_component.hpp"
 #include "loggerMetadata.hpp"
 #include "terminal_component.hpp"
+#include "utilities.hpp"
 #include "virtualRTC.hpp"
 #include <fstream>
 #include <gtest/gtest.h>
 
 char testFileLocation[] = "testFS.txt";
+
+TEST(utilities, testTimeDateParsing)
+{
+	// Test variables to store parsed values
+	int hour, minute, seconds, day, month;
+	int year;
+
+	// Test case 1: Valid format "HH:MM:SS DD/MM/YYYY"
+	EXPECT_TRUE(parseTimeAndDate("14:30:45 23/05/2025", &hour, &minute, &seconds, &day, &month, &year));
+	EXPECT_EQ(hour, 14);
+	EXPECT_EQ(minute, 30);
+	EXPECT_EQ(seconds, 45);
+	EXPECT_EQ(day, 23);
+	EXPECT_EQ(month, 5);
+	EXPECT_EQ(year, 2025);
+
+	// Test case 2: Valid format with single digits
+	EXPECT_TRUE(parseTimeAndDate("01:05:09 02/03/2024", &hour, &minute, &seconds, &day, &month, &year));
+	EXPECT_EQ(hour, 1);
+	EXPECT_EQ(minute, 5);
+	EXPECT_EQ(seconds, 9);
+	EXPECT_EQ(day, 2);
+	EXPECT_EQ(month, 3);
+	EXPECT_EQ(year, 2024);
+
+	// Test case 3: Invalid format - wrong separators
+	EXPECT_FALSE(parseTimeAndDate("14-30-45 23-05-2025", &hour, &minute, &seconds, &day, &month, &year));
+
+	// Test case 4: Invalid format - missing components
+	EXPECT_FALSE(parseTimeAndDate("14:30 23/05/2025", &hour, &minute, &seconds, &day, &month, &year));
+
+	// Test case 5: Invalid values - out of range
+	EXPECT_FALSE(parseTimeAndDate("25:70:99 32/13/2025", &hour, &minute, &seconds, &day, &month, &year));
+
+	// Test case 6: Null input
+	EXPECT_FALSE(parseTimeAndDate(nullptr, &hour, &minute, &seconds, &day, &month, &year));
+
+	// Test case 7: Empty string
+	EXPECT_FALSE(parseTimeAndDate("", &hour, &minute, &seconds, &day, &month, &year));
+}
 
 TEST(fileSystemWrapper, testOpen)
 {

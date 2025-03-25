@@ -16,6 +16,7 @@
 #include "terminal_component.hpp"
 #include "device_version.hpp"
 #include "loggerMetadata.hpp"
+#include "utilities.hpp"
 #include <cstring>
 #include <iostream>
 #include <streambuf>
@@ -24,8 +25,8 @@
 //				      Private function prototypes
 ////////////////////////////////////////////////////////////////////////
 
-void printHelp();
-void printConfigHelp();
+static void printHelp();
+static void printConfigHelp();
 
 ////////////////////////////////////////////////////////////////////////
 //						   Stream redirection
@@ -205,31 +206,87 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 					// Set device time and date
 					if (nullptr == buff)
 					{
-						std::cout << "Please input the time HH:MM:SS and date DD:MM:YYYY\r\n";
+						std::cout << "Please input the time following this format HH:MM:SS-DD/MM/YYYY\r\n";
+						this->_previousSignal = terminalSignal::pressedKey_T;
 					}
-					else
+					/*else
 					{
 						// Update _configurationBuffer with the device time and date
 						// todo
-					}
+					}*/
 
 					event = terminalEvent::EVENT_HANDLED;
 				}
 				break;
 				case terminalSignal::pressedKey_Enter:
+				{
+					if (nullptr == buff)
+					{
+						std::cout << "Invalid data, please type again\r\n";
+						break;
+					}
+
+					switch (this->_previousSignal)
+					{
+						case terminalSignal::pressedKey_N:
+						{
+							// Update _configurationBuffer with the device name
+							std::strncpy(_loggerMetadata.loggerName, buff, sizeof(_loggerMetadata.loggerName));
+							std::cout << "Name copied, input S to save it\r\n";
+						}
+						break;
+						case terminalSignal::pressedKey_T:
+						{
+							bool validData = false;
+							int	 hour;
+							int	 minute;
+							int	 seconds;
+							int	 day;
+							int	 month;
+							int	 year;
+
+							validData = parseTimeAndDate(buff, &hour, &minute, &seconds, &day, &month, &year);
+
+							if (false == validData)
+							{
+								std::cout << "Invalid data, please type again\r\n";
+								break;
+							}
+
+							if (true == this->_terminalRTC->setTime(static_cast<uint8_t>(hour), static_cast<uint8_t>(minute), static_cast<uint8_t>(seconds)) && true == this->_terminalRTC->setDate(static_cast<uint8_t>(day), static_cast<uint8_t>(month), static_cast<uint16_t>(year)))
+							{
+								std::cout << "RTC configured\r\n";
+							}
+							else
+							{
+								std::cout << "Error configuring RTC\r\n";
+							}
+						}
+						break;
+						default:
+						{
+							event = terminalEvent::EVENT_IGNORED;
+						}
+						break;
+					}
+
+					event = terminalEvent::EVENT_HANDLED;
+				}
+				break;
 				case terminalSignal::pressedKey_N:
 				{
 					// Set device name
 					if (nullptr == buff)
 					{
 						std::cout << "Please input the device name\r\n";
+						this->_previousSignal = terminalSignal::pressedKey_N;
 					}
-					else
+					/*else
 					{
 						// Update _configurationBuffer with the device name
 						std::strncpy(_loggerMetadata.loggerName, buff, sizeof(_loggerMetadata.loggerName));
 						std::cout << "Name copied, input S to save it\r\n";
-					}
+					}*/
 
 					event = terminalEvent::EVENT_HANDLED;
 				}
@@ -294,13 +351,17 @@ void terminalStateMachine::printBanner()
 
 void terminalStateMachine::printLoggerMetadata()
 {
+	char				   timBuff[9];
+	char				   dateBuff[15];
 	struct loggerMetadata* metadata = getLoggerMetadata();
 
-	_terminalRTC->getTime(&_timeBuff[0], sizeof(_timeBuff));
+	_terminalRTC->getTime(&timBuff[0], sizeof(timBuff));
+	_terminalRTC->getDate(&dateBuff[0], sizeof(dateBuff));
 
 	std::cout << "#############################\r\n";
 	std::cout << "Device name: " << metadata->loggerName << "\r\n";
-	std::cout << "Device time: " << this->_timeBuff << "\r\n";
+	std::cout << "Device time: " << timBuff << "\r\n";
+	std::cout << "Device date: " << dateBuff << "\r\n";
 	std::cout << "Firmware version: " << MAJOR << "." << MINOR << "." << PATCH << "." << DEVELOPMENT << "\r\n";
 	std::cout << "B - return\r\n";
 	std::cout << "#############################\r\n";
@@ -310,7 +371,7 @@ void terminalStateMachine::printLoggerMetadata()
 //				      Private function implementation
 ////////////////////////////////////////////////////////////////////////
 
-void printHelp()
+static void printHelp()
 {
 	std::cout << "#############################\r\n";
 	std::cout << "Help Menu:\r\n";
@@ -320,7 +381,7 @@ void printHelp()
 	std::cout << "#############################\r\n";
 }
 
-void printConfigHelp()
+static void printConfigHelp()
 {
 	std::cout << "#############################\r\n";
 	std::cout << "Configure menu\r\n";

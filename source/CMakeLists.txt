@@ -22,7 +22,8 @@ set(app_sources
     app/configurationSubsystem/src/config_manager.cpp
     app/configurationSubsystem/src/terminal_component.cpp
     app/configurationSubsystem/src/internalStorage_component.cpp
-    app/loggerMetadata/loggerMetadata.cpp 
+    app/loggerMetadata/loggerMetadata.cpp
+    app/utilities/src/utilities.cpp 
 )
 
 set(platform_sources
@@ -66,6 +67,7 @@ set(app_includes
     app/main/inc/
     app/configurationSubsystem/inc/
     app/loggerMetadata/
+    app/utilities/inc/
 )
 
 set(platform_includes

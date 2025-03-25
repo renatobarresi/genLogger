@@ -16,7 +16,7 @@
 #include "terminal_component.hpp"
 #include "device_version.hpp"
 #include "loggerMetadata.hpp"
-#include <cstdio> // For sscanf
+#include "utilities.hpp"
 #include <cstring>
 #include <iostream>
 #include <streambuf>
@@ -27,7 +27,6 @@
 
 static void printHelp();
 static void printConfigHelp();
-static bool parseTimeAndDate(const char* buff, uint8_t* hour, uint8_t* minute, uint8_t* seconds, uint8_t* day, uint8_t* month, uint16_t* year);
 
 ////////////////////////////////////////////////////////////////////////
 //						   Stream redirection
@@ -238,13 +237,13 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 						break;
 						case terminalSignal::pressedKey_T:
 						{
-							bool	 validData = false;
-							uint8_t	 hour;
-							uint8_t	 minute;
-							uint8_t	 seconds;
-							uint8_t	 day;
-							uint8_t	 month;
-							uint16_t year;
+							bool validData = false;
+							int	 hour;
+							int	 minute;
+							int	 seconds;
+							int	 day;
+							int	 month;
+							int	 year;
 
 							validData = parseTimeAndDate(buff, &hour, &minute, &seconds, &day, &month, &year);
 
@@ -254,7 +253,7 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 								break;
 							}
 
-							if (true == this->_terminalRTC->setTime(hour, minute, seconds) && true == this->_terminalRTC->setDate(day, month, year))
+							if (true == this->_terminalRTC->setTime(static_cast<uint8_t>(hour), static_cast<uint8_t>(minute), static_cast<uint8_t>(seconds)) && true == this->_terminalRTC->setDate(static_cast<uint8_t>(day), static_cast<uint8_t>(month), static_cast<uint16_t>(year)))
 							{
 								std::cout << "RTC configured\r\n";
 							}
@@ -352,13 +351,17 @@ void terminalStateMachine::printBanner()
 
 void terminalStateMachine::printLoggerMetadata()
 {
+	char				   timBuff[9];
+	char				   dateBuff[15];
 	struct loggerMetadata* metadata = getLoggerMetadata();
 
-	_terminalRTC->getTime(&_timeBuff[0], sizeof(_timeBuff));
+	_terminalRTC->getTime(&timBuff[0], sizeof(timBuff));
+	_terminalRTC->getDate(&dateBuff[0], sizeof(dateBuff));
 
 	std::cout << "#############################\r\n";
 	std::cout << "Device name: " << metadata->loggerName << "\r\n";
-	std::cout << "Device time: " << this->_timeBuff << "\r\n";
+	std::cout << "Device time: " << timBuff << "\r\n";
+	std::cout << "Device date: " << dateBuff << "\r\n";
 	std::cout << "Firmware version: " << MAJOR << "." << MINOR << "." << PATCH << "." << DEVELOPMENT << "\r\n";
 	std::cout << "B - return\r\n";
 	std::cout << "#############################\r\n";
@@ -388,21 +391,4 @@ static void printConfigHelp()
 	std::cout << "S - Store configuration in memory\r\n";
 	std::cout << "B - return\r\n";
 	std::cout << "#############################\r\n";
-}
-
-static bool parseTimeAndDate(const char* buff, uint8_t* hour, uint8_t* minute, uint8_t* seconds, uint8_t* day, uint8_t* month, uint16_t* year)
-{
-	// Try to parse the input string, ensuring the expected format
-	if (sscanf(buff, "%2hhu:%2hhu:%2hhu-%2hhu/%2hhu/%4hu", hour, minute, seconds, day, month, year) != 6)
-	{
-		return false; // Parsing failed due to format mismatch
-	}
-
-	// Validate parsed values
-	if (*hour > 23 || *minute > 59 || *seconds > 59 || *day > 31 || *month > 12 || *year > 9999)
-	{
-		return false;
-	}
-
-	return true;
 }

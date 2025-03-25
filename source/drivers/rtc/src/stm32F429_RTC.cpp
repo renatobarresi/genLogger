@@ -21,17 +21,28 @@ void stm429RTC::getTime(char* buffer, size_t bufferSize) const
 	uint8_t hours	= 0;
 	uint8_t seconds = 0;
 
-	rtc_get_date(&hours, &minutes, &seconds);
+	rtc_get_time(&hours, &minutes, &seconds);
 
 	snprintf(buffer, bufferSize, "%02d:%02d:%02d", hours, minutes, seconds);
 }
 
 bool stm429RTC::setDate(uint8_t day, uint8_t month, uint16_t year)
 {
+	if (-1 == rtc_set_date(day, month, year))
+	{
+		return false;
+	}
+
 	return true;
 }
 
 void stm429RTC::getDate(char* buffer, size_t bufferSize) const
 {
-	//
+	uint8_t	 day   = 0;
+	uint8_t	 month = 0;
+	uint16_t year  = 0;
+
+	rtc_get_date(&day, &month, &year);
+
+	snprintf(buffer, bufferSize, "%02d/%02d/%04d", day, month, year);
 }

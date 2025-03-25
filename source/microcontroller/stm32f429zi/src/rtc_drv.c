@@ -108,9 +108,11 @@ void rtc_get_time(uint8_t *hour, uint8_t *minute, uint8_t *second)
   *second = sTime.Seconds;
 }
 
-int8_t rtc_set_date(uint8_t year, uint8_t month, uint8_t day)
+int8_t rtc_set_date(uint8_t day, uint8_t month, uint16_t year)
 {
   RTC_DateTypeDef sDate = {0};
+
+  year = year - 1979;
 
   sDate.WeekDay = RTC_WEEKDAY_MONDAY;
   sDate.Month = month;
@@ -125,13 +127,13 @@ int8_t rtc_set_date(uint8_t year, uint8_t month, uint8_t day)
   return 1;
 }
 
-void rtc_get_date(uint8_t *year, uint8_t *month, uint8_t *day)
+void rtc_get_date(uint8_t *day, uint8_t *month, uint16_t *year)
 {
   RTC_DateTypeDef sDate = {0};
 
   HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
   
-  *year = sDate.Year;
+  *year = sDate.Year + 1979;
   *month = sDate.Month;
   *day = sDate.Date; 
 }

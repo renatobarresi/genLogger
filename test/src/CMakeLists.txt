@@ -12,6 +12,7 @@ set(includes
     ${sourceDirectory}/drivers/rtc/inc/
     ${sourceDirectory}/app/loggerMetadata/
     ${sourceDirectory}/app/main/inc/
+    ${sourceDirectory}/app/utilities/inc/
 )
 
 set(sources
@@ -22,6 +23,7 @@ set(sources
     ${sourceDirectory}/app/configurationSubsystem/src/internalStorage_component.cpp
     ${sourceDirectory}/app/configurationSubsystem/src/config_manager.cpp
     ${sourceDirectory}/app/main/src/errorHandler.cpp
+    ${sourceDirectory}/app/utilities/src/utilities.cpp 
 )
 
 add_executable(${this} 

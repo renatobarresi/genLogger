@@ -1,7 +1,7 @@
 /**
  * @file internalStorage_component.hpp
  * @author Renato Barresi (renatobarresi@gmail.com)
- * @brief Component handling filesystem operations and metadata storage for the logger
+ * @brief Component handling storage and retrieval of internal device data 
  * 
  * All major information about the logger is stored in a file in the internal memory, moreover
  * this stored information is accessed via a pointer to a global variable @ref metadata

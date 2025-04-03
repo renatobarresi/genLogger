@@ -3,6 +3,27 @@
  * @author Renato Barresi (renatobarresi@gmail.com)
  * @brief Header file for the terminal component, implementing a state machine 
  * for managing terminal states and events.
+
+   One of the ways that genLogger has to interface with the user is via a 
+   generic computer terminal, the user can request the device's information 
+   and configure its values using this method.
+
+   The logic is implemented following a state machine pattern, that has defined states as 
+   "print device metadata" or "configure device metadata", to access this 
+   states there are signals which are represented by key presses. 
+
+   This component assumes that the client has a working serial terminal like putty 
+   or minicom.
+
+   To comunicate internally with other components interested in user configuration, this 
+   component is part of a mediator pattern. 
+
+   This component forms part of the configuration subsystem and works with 
+   a RTC virtual device and internal storage component.
+
+   When build for the target device, this component redirects cout to the targets
+   UART peripheral
+
  * @version 0.1
  * @date 2025-01-13
  *
@@ -116,13 +137,13 @@ class terminalStateMachine : public configComponent
 	void setSignal(terminalSignal sig);
 
   private:
-	virtualRTC* _terminalRTC;
-	//char				  _timeBuff[9];
-	struct loggerMetadata _loggerMetadata;
-	void*				  paramToConfig;
-	terminalSignal		  _previousSignal;
+	virtualRTC* _terminalRTC;					/// Pointer to the device's RTC, used to get and store RTC's params
+	//char				  _timeBuff[9];		
+	struct loggerMetadata _loggerMetadata;		/// Pointer to the device's stored metadata, used to modify or get the devices params 			
+	//void*				  paramToConfig;		/// 
+	terminalSignal		  _previousSignal;		/// Used to know what configuration option was typed 
 
-	terminalSignal availableSignal;
+	terminalSignal availableSignal;				/// Represents a signal that can be passed to the signal dispacher
 	/**
 	 * @brief Dispatch a signal to the appropriate handler based on the current state.
 	 *
@@ -139,13 +160,13 @@ class terminalStateMachine : public configComponent
 	bool updateLoggerMetadata();
 
 	/**
-	 * @brief 
+	 * @brief Display on the terminal the devices metadata
 	 * 
 	 */
 	void printLoggerMetadata();
 
 	/**
-	 * @brief 
+	 * @brief Display on the terminal the device banner (welcome message)
 	 * 
 	 */
 	void printBanner();

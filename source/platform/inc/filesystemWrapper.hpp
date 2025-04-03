@@ -1,7 +1,16 @@
 /**
  * @file filesystem_wrapper.hpp
  * @author Renato Barresi (renatobarresi@gmail.com)
- * @brief
+ * @brief genLoggers filesystem wrapper
+	
+	this filesystem wrapper 
+
+	Provides a wrapper for filesystem operations, there are two filesystems used; littleFS and fatFS
+	A C standlard library filesystem handler is also used when builiding the firmware for the developing machine
+
+	The wrapper allows the client to select the filesystem via the constructor call 
+
+
  * @version 0.1
  * @date 2025-02-01
  *
@@ -46,6 +55,11 @@ struct FileHandler
 	virtual int	 write(const char* buffer, size_t size)	  = 0;
 	virtual int	 close()								  = 0;
 	virtual ~FileHandler()								  = default;
+};
+
+class fatFSHandler : public FileHandler
+{
+	
 };
 
 /**
@@ -251,10 +265,14 @@ class LittleFSHandler : public FileHandler
 class fileSysWrapper
 {
   private:
-	CFileHandler cHandler; ///< Standard file handler.
+	
 #ifdef TARGET_MICRO
 	LittleFSHandler littleFSHandler; ///< LittleFS handler for embedded systems.
+	fatFSHandler fatFS;
+#else
+	CFileHandler cHandler; ///< Standard file handler.
 #endif
+	
 	FileHandler* activeHandler = nullptr; ///< Pointer to the active file handler.
 
   public:

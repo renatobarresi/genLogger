@@ -1,7 +1,7 @@
 /**
  * @file terminal_component.cpp
  * @author Renato Barresi (renatobarresi@gmail.com)
- * @brief
+ * @brief 
  * @version 0.1
  * @date 2025-01-13
  *
@@ -209,11 +209,6 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 						std::cout << "Please input the time following this format HH:MM:SS-DD/MM/YYYY\r\n";
 						this->_previousSignal = terminalSignal::pressedKey_T;
 					}
-					/*else
-					{
-						// Update _configurationBuffer with the device time and date
-						// todo
-					}*/
 
 					event = terminalEvent::EVENT_HANDLED;
 				}
@@ -281,12 +276,6 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 						std::cout << "Please input the device name\r\n";
 						this->_previousSignal = terminalSignal::pressedKey_N;
 					}
-					/*else
-					{
-						// Update _configurationBuffer with the device name
-						std::strncpy(_loggerMetadata.loggerName, buff, sizeof(_loggerMetadata.loggerName));
-						std::cout << "Name copied, input S to save it\r\n";
-					}*/
 
 					event = terminalEvent::EVENT_HANDLED;
 				}

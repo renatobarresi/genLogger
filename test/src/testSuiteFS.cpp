@@ -7,6 +7,8 @@
 #include "virtualRTC.hpp"
 #include <fstream>
 #include <gtest/gtest.h>
+#include "processing_manager.hpp"
+#include "logger_manager.hpp"
 
 char testFileLocation[] = "testFS.txt";
 
@@ -150,4 +152,14 @@ TEST(terminalStateMachine, testChangeToDeviceConfigState)
 	pLoggerMetadata = getLoggerMetadata();
 
 	EXPECT_STREQ(pLoggerMetadata->loggerName, "station1") << "Failed to set loggerName";
+}
+
+TEST(loggerSubsystem, testSettingObservers)
+{
+	processingManager myProcessingManager;
+	loggerManager myLoggerManager(&myProcessingManager);
+
+	
+
+	EXPECT_TRUE(true);
 }

@@ -16,25 +16,59 @@
 
 #pragma once
 
+#include "loggerMetadata.hpp"
 #include "processing_manager.hpp"
 
 constexpr uint16_t PROCESS_INFO_BUFF_SIZE = 1024;
 
+enum class fileGenerationConf_t
+{
+	DAILY_FILE,
+	WEEKLY_FILE,
+	MONTHLY_FILE,
+	YEARLY_FILE,
+	ONE_FILE
+};
+
 class loggerManager : public observerInterface
 {
-    public: 
+  public:
+	/**
+     * @brief Construct a new logger Manager object
+     * 
+     * @param processingManager 
+     */
+	loggerManager(processingManager* processingManager) : _processingManager(processingManager) {}
 
-    loggerManager(processingManager *processingManager) : _processingManager(processingManager)
-    {
-    
-    }
+	bool init();
 
-    void update(bool infoFlag, char &sensorInformation) override;
+	/**
+     * @brief 
+     * 
+     */
+	fileGenerationConf_t typeOfFile = fileGenerationConf_t::DAILY_FILE;
 
+	/**
+     * @brief 
+     * 
+     * @param infoFlag 
+     * @param sensorInformation 
+     */
+	void update(bool infoFlag, const char*& sensorInformation, const char*& timestamp) override;
 
-    private:
-    
-    processingManager *_processingManager;
-    char _sensorData[PROCESS_INFO_BUFF_SIZE];
-    bool _availableData;
+	/**
+     * @brief 
+     * 
+     */
+	void handler();
+
+	char sensorData[PROCESS_INFO_BUFF_SIZE];
+
+  private:
+	void _fileManagement(uint8_t confNum);
+
+	processingManager*	   _processingManager;
+	uint16_t			   _infoDataLen;
+	struct loggerMetadata* _metadata;
+	bool				   _availableData;
 };

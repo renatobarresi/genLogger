@@ -1,33 +1,57 @@
 #pragma once
 
+#include "virtualRTC.hpp"
 #include <cstdint>
+#include <cstring>
+
+const uint8_t MAX_NUM_OBSERVERS = 10;
 
 class observerInterface
 {
-    public:
-    virtual void update(bool infoFlag, char &sensorInformation) = 0;
-    virtual ~observerInterface() = default;
+  public:
+	virtual void update(bool infoFlag, const char*& sensorInformation, const char*& timestamp) = 0;
+	virtual ~observerInterface()															   = default;
 };
 
 class processingManager
 {
-    public:
+  public:
+	uint8_t activeObservers = 0;
+	char	sensorInfoBuff[1024];
 
-    uint8_t numOfObservers = 0;
-    
-    observerInterface *listOfObservers[10]; 
-    
-    void setObserver(observerInterface *ref, uint8_t index)
-    {
-        //observerInterface[index] = ref;
-    }
+	observerInterface* listOfObservers[MAX_NUM_OBSERVERS];
 
-    private:
+	processingManager(virtualRTC& rtc) : _loggerRTC(rtc) {}
 
-    /**
+	void setObserver(observerInterface* ref)
+	{
+		listOfObservers[activeObservers] = ref;
+
+		activeObservers++;
+	}
+
+	void processData()
+	{
+		char timestamp[_loggerRTC.timeStampBuffSize];
+
+		_loggerRTC.getTimestamp(timestamp);
+
+		notify(sensorInfoBuff, timestamp);
+	}
+
+  private:
+	virtualRTC& _loggerRTC;
+
+	/**
      * @brief iterates through array of listeners 
      * 
      * @param pStr 
      */
-     void notify(char &pStr);
+	void notify(const char* pStr, const char* timestamp)
+	{
+		for (uint8_t i = 0; i < activeObservers; i++)
+		{
+			listOfObservers[i]->update(true, pStr, timestamp);
+		}
+	}
 };

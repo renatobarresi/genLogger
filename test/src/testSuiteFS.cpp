@@ -187,8 +187,6 @@ TEST(loggerSubsystem, testWritingExternal)
 
 	std::sprintf(fileName, "%s/%s", simulationFileFolder, pLoggerMetadata->loggerName);
 
-	std::cout << "file path:" << fileName << std::endl;
-
 	// get timestamp
 	rtc.getTimestamp(timeStamp);
 
@@ -207,9 +205,8 @@ TEST(loggerSubsystem, testWritingExternal)
 	myLoggerManager.handler();
 
 	// Read simulated file in "external device"
-	if (true == fileSystem.open(fileName, 2))
+	if (true == fileSystem.open(fileName, 0))
 	{
-		std::cout << "File opened for readout: " << fileName << std::endl;
 		fileSystem.read(storedData, sizeof(storedData));
 
 		fileSystem.close();
@@ -219,6 +216,6 @@ TEST(loggerSubsystem, testWritingExternal)
 		std::cout << "File not opened" << std::endl;
 	}
 
-	//EXPECT_STREQ(finalTestBuff, storedData);
-	EXPECT_TRUE(true);
+	EXPECT_STREQ(finalTestBuff, storedData);
+	//EXPECT_TRUE(true);
 }

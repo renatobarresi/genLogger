@@ -71,7 +71,6 @@ void loggerManager::handler()
 		case 4:
 		default:
 		{
-			std::cout << "1 file for all data" << std::endl;
 // Define file name
 #ifdef TARGET_TYPE
 			std::strncpy(fileName, _metadata->loggerName, std::strlen(fileName));
@@ -79,11 +78,9 @@ void loggerManager::handler()
 			std::sprintf(fileName, "%s/%s", simulationFileFolder, _metadata->loggerName);
 #endif
 			// Append data
-			if (true == fsHandler.open(fileName, 2))
+			if (true == fsHandler.open(fileName, 1))
 			{
-				std::cout << "File opened: " << fileName << std::endl;
-
-				fsHandler.write(this->sensorData, this->_infoDataLen);
+				fsHandler.write(this->sensorData, std::strlen(this->sensorData));
 
 				fsHandler.close();
 			}

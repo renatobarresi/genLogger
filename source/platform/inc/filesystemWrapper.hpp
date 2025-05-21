@@ -59,7 +59,6 @@ struct FileHandler
 
 class fatFSHandler : public FileHandler
 {
-	
 };
 
 /**
@@ -257,6 +256,64 @@ class LittleFSHandler : public FileHandler
 		return lfs_file_close(&lfs, &file);
 	}
 };
+
+class fatFSHanlder : public FileHandler
+{
+  private:
+  public:
+	/**
+		* @brief Mounts the LittleFS filesystem.
+		* @return true if successfully mounted or formatted, false otherwise.
+		*/
+	bool mount() override
+	{
+		return true;
+	}
+
+	/**
+		* @brief Opens a file on the LittleFS filesystem.
+		* @param fileName Name of the file to open.
+		* @param mode Access mode: 0 = read, 1 = write, 2 = append.
+		* @return true if the file was successfully opened, false otherwise.
+		*/
+	bool open(const char* fileName, uint8_t mode) override
+	{
+		int flags;
+
+		return true;
+	}
+
+	/**
+		* @brief Writes data to the file.
+		* @param buffer Data buffer to write.
+		* @param size Number of bytes to write.
+		* @return Number of bytes successfully written.
+		*/
+	int write(const char* buffer, size_t size) override
+	{
+		return 0;
+	}
+
+	/**
+		* @brief Reads data from the file.
+		* @param buffer Buffer to store the read data.
+		* @param size Number of bytes to read.
+		* @return Number of bytes successfully read.
+		*/
+	int read(char* buffer, size_t size) override
+	{
+		return 0;
+	}
+
+	/**
+		* @brief Closes the currently opened file.
+		* @return 0 on success.
+		*/
+	int close() override
+	{
+		return 0;
+	}
+};
 #endif
 
 /**
@@ -265,14 +322,13 @@ class LittleFSHandler : public FileHandler
 class fileSysWrapper
 {
   private:
-	
 #ifdef TARGET_MICRO
 	LittleFSHandler littleFSHandler; ///< LittleFS handler for embedded systems.
-	fatFSHandler fatFS;
+	fatFSHandler	fatFS;
 #else
 	CFileHandler cHandler; ///< Standard file handler.
 #endif
-	
+
 	FileHandler* activeHandler = nullptr; ///< Pointer to the active file handler.
 
   public:

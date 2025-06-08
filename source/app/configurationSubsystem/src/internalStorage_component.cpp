@@ -53,6 +53,8 @@ bool internalStorageComponent::initFS()
 	if (retVal == true)
 	{
 		this->_fileSystemInit = true;
+
+		retVal = retrieveMetadata();
 	}
 
 	return retVal;

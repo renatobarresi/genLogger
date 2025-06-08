@@ -78,7 +78,8 @@ void loggerManager::handler()
 		{
 // Define file name
 #ifdef TARGET_MICRO
-			std::strncpy(fileName, _metadata->loggerName, std::strlen(fileName));
+			//std::strncpy(fileName, _metadata->loggerName, std::strlen(fileName));
+			std::sprintf(fileName, "%s.txt", _metadata->loggerName);
 #else
 			std::sprintf(fileName, "%s/%s", simulationFileFolder, _metadata->loggerName);
 #endif

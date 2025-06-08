@@ -112,7 +112,13 @@ void configurationTask()
 
 void loggerTask()
 {
-	myProcessingManager.processData();
+	static bool testFlag = true;
+
+	if (testFlag == true)
+	{
+		myProcessingManager.processData();
+		testFlag = false;
+	}
 
 	myLoggerManager.handler();
 }

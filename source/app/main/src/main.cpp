@@ -26,6 +26,8 @@
 #include "main.h"
 #include "config_manager.hpp"
 #include "internalStorage_component.hpp"
+#include "logger_manager.hpp"
+#include "processing_manager.hpp"
 #include "serialHandler.hpp"
 #include "terminal_component.hpp"
 #include "virtualRTC.hpp"
@@ -37,8 +39,10 @@
 
 virtualRTC				 rtc;
 terminalStateMachine	 terminalOutput(&rtc);
-internalStorageComponent storage;
-configManager			 loggerConfig(&terminalOutput, &storage);
+internalStorageComponent internalStorage;
+configManager			 loggerConfig(&terminalOutput, &internalStorage);
+processingManager		 myProcessingManager(rtc);
+loggerManager			 myLoggerManager(&myProcessingManager);
 
 bool flagKey_I	   = false;
 bool flagKey_C	   = false;
@@ -50,6 +54,69 @@ bool flagKey_Enter = false;
 
 static char configBuff[96];
 
+void configurationTask()
+{
+	// Check if data is available in serial port
+	bool process_input = serialHandler();
+
+	// If data is available, process it and generate signals to terminal SM
+	if (process_input)
+	{
+		processSerialBuffer();
+
+		if (flagKey_Enter == true)
+		{
+			getSerialBuffer(configBuff, 96);
+		}
+
+		clearSerialBuffer();
+	}
+
+	// Passing signals to handler
+	if (flagKey_I == true)
+	{
+		terminalOutput.handler(terminalSignal::pressedKey_I, nullptr);
+		flagKey_I = false;
+	}
+	else if (flagKey_C == true)
+	{
+		terminalOutput.handler(terminalSignal::pressedKey_C, nullptr);
+		flagKey_C = false;
+	}
+	else if (flagKey_B == true)
+	{
+		terminalOutput.handler(terminalSignal::pressedKey_B, nullptr);
+		flagKey_B = false;
+	}
+	else if (flagKey_N == true)
+	{
+		terminalOutput.handler(terminalSignal::pressedKey_N, nullptr);
+		flagKey_N = false;
+	}
+	else if (flagKey_T == true)
+	{
+		terminalOutput.handler(terminalSignal::pressedKey_T, nullptr);
+		flagKey_T = false;
+	}
+	else if (flagKey_S == true)
+	{
+		terminalOutput.handler(terminalSignal::pressedKey_S, nullptr);
+		flagKey_S = false;
+	}
+	else if (flagKey_Enter == true)
+	{
+		terminalOutput.handler(terminalSignal::pressedKey_Enter, configBuff);
+		flagKey_Enter = false;
+	}
+}
+
+void loggerTask()
+{
+	myProcessingManager.processData();
+
+	myLoggerManager.handler();
+}
+
 int main()
 {
 #ifdef TARGET_MICRO
@@ -57,7 +124,7 @@ int main()
 #else
 #endif
 
-	if (false == storage.initFS())
+	if (false == internalStorage.initFS())
 	{
 		while (1);
 	}
@@ -68,63 +135,17 @@ int main()
 	}
 
 	terminalOutput.init(terminalState::initState);
-
 	terminalOutput.handler(terminalSignal::ENTRY, nullptr);
+
+	myProcessingManager.setObserver(&myLoggerManager);
+
+	myLoggerManager.init();
 
 	while (1)
 	{
-		// Check if data is available in serial port
-		bool process_input = serialHandler();
+		configurationTask();
 
-		// If data is available, process it and generate signals to terminal SM
-		if (process_input)
-		{
-			processSerialBuffer();
-
-			if (flagKey_Enter == true)
-			{
-				getSerialBuffer(configBuff, 96);
-			}
-
-			clearSerialBuffer();
-		}
-
-		// Passing signals to handler
-		if (flagKey_I == true)
-		{
-			terminalOutput.handler(terminalSignal::pressedKey_I, nullptr);
-			flagKey_I = false;
-		}
-		else if (flagKey_C == true)
-		{
-			terminalOutput.handler(terminalSignal::pressedKey_C, nullptr);
-			flagKey_C = false;
-		}
-		else if (flagKey_B == true)
-		{
-			terminalOutput.handler(terminalSignal::pressedKey_B, nullptr);
-			flagKey_B = false;
-		}
-		else if (flagKey_N == true)
-		{
-			terminalOutput.handler(terminalSignal::pressedKey_N, nullptr);
-			flagKey_N = false;
-		}
-		else if (flagKey_T == true)
-		{
-			terminalOutput.handler(terminalSignal::pressedKey_T, nullptr);
-			flagKey_T = false;
-		}
-		else if (flagKey_S == true)
-		{
-			terminalOutput.handler(terminalSignal::pressedKey_S, nullptr);
-			flagKey_S = false;
-		}
-		else if (flagKey_Enter == true)
-		{
-			terminalOutput.handler(terminalSignal::pressedKey_Enter, configBuff);
-			flagKey_Enter = false;
-		}
+		loggerTask();
 	}
 
 	return 0;

@@ -22,6 +22,12 @@ extern "C" {
 
 #include "stdint.h"
 
+typedef enum
+{
+	W25QX,
+	SDCard
+} SPI_Devices_t;
+
 ////////////////////////////////////////////////////////////////////////
 //							Function definition
 ////////////////////////////////////////////////////////////////////////
@@ -67,7 +73,9 @@ uint16_t spi_transmitReceive(uint8_t* pTxData, uint8_t* pRxData, uint16_t size);
  * @param pin The pin number of the chip select.
  * @param port The GPIO port of the chip select.
  */
-void csWrite(uint8_t val);
+void csWrite(SPI_Devices_t device, uint8_t val);
+
+void spiDelay(uint32_t delay);
 
 #ifdef __cplusplus
 }

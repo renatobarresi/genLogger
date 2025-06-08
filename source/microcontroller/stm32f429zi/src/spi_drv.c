@@ -22,8 +22,10 @@
 //							    Defines
 ////////////////////////////////////////////////////////////////////////
 
-#define CS_PIN  GPIO_PIN_13
-#define CS_PORT GPIOF
+#define CS_PIN_W25Q  GPIO_PIN_13
+#define CS_PORT_W25Q GPIOF
+#define CS_PIN_SD_CARD  GPIO_PIN_14
+#define CS_PORT_SD_CARD GPIOF
 
 ////////////////////////////////////////////////////////////////////////
 //							    Private variables 
@@ -85,7 +87,12 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
 
 int8_t spi_init()
 {
-    if (_initCSPin(CS_PIN, CS_PORT) < 0)
+    if (_initCSPin(CS_PIN_W25Q, CS_PORT_W25Q) < 0)
+    {
+        return -1;
+    }
+
+    if (_initCSPin(CS_PIN_SD_CARD, CS_PORT_SD_CARD) < 0)
     {
         return -1;
     }
@@ -141,16 +148,28 @@ uint16_t spi_transmitReceive(uint8_t* pTxData, uint8_t* pRxData, uint16_t size)
     return size;
 }
 
-void csWrite(uint8_t val)
+void csWrite(SPI_Devices_t device, uint8_t val)
 {
-    if (1 == val)
+    GPIO_TypeDef* port;
+    uint16_t pin;
+
+    switch (device)
     {
-        HAL_GPIO_WritePin(CS_PORT, CS_PIN, GPIO_PIN_SET);
+        case W25QX:
+        {
+            port = CS_PORT_W25Q;
+            pin = CS_PIN_W25Q;
+        }
+        break;
+        case SDCard:
+        {
+            port = CS_PORT_SD_CARD;
+            pin = CS_PIN_SD_CARD;
+        }
+        break;
     }
-    else 
-    {
-        HAL_GPIO_WritePin(CS_PORT, CS_PIN, GPIO_PIN_RESET);
-    }
+
+    HAL_GPIO_WritePin(port, pin, val);
 }
 
 /**
@@ -186,10 +205,16 @@ int8_t _initCSPin(uint16_t pin, GPIO_TypeDef *port)
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    
     HAL_GPIO_Init(port, &GPIO_InitStruct);
 
     // Set the pin to a default state
     HAL_GPIO_WritePin(port, pin, GPIO_PIN_SET);
 
     return 1;
+}
+
+void spiDelay(uint32_t delay)
+{
+    HAL_Delay(delay);
 }

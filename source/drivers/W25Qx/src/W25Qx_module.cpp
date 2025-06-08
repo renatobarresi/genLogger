@@ -9,17 +9,17 @@
 #include "spi_drv.h"
 
 /* Constant expressions */
-constexpr uint8_t CMD_WRITE_ENABLE = 0x06;
-constexpr uint8_t CMD_WRITE_DISABLE = 0x04;
-constexpr uint8_t CMD_READ_STATUS_REG = 0x05;
+constexpr uint8_t CMD_WRITE_ENABLE	   = 0x06;
+constexpr uint8_t CMD_WRITE_DISABLE	   = 0x04;
+constexpr uint8_t CMD_READ_STATUS_REG  = 0x05;
 constexpr uint8_t CMD_WRITE_STATUS_REG = 0x01;
-constexpr uint8_t CMD_CHIP_ERASE = 0xC7;
-constexpr uint8_t CMD_SECTOR_ERASE = 0x20;
-constexpr uint8_t CMD_BLOCK_ERASE = 0xD8; // or 0x52 for 32KB block erase
-constexpr uint8_t CMD_PAGE_PROGRAM = 0x02;
-constexpr uint8_t CMD_READ_DATA = 0x03;
-constexpr uint8_t CMD_READ_JDEC = 0x9F;
-constexpr uint8_t STATUS_BUSY_MASK = 0x01;
+constexpr uint8_t CMD_CHIP_ERASE	   = 0xC7;
+constexpr uint8_t CMD_SECTOR_ERASE	   = 0x20;
+constexpr uint8_t CMD_BLOCK_ERASE	   = 0xD8; // or 0x52 for 32KB block erase
+constexpr uint8_t CMD_PAGE_PROGRAM	   = 0x02;
+constexpr uint8_t CMD_READ_DATA		   = 0x03;
+constexpr uint8_t CMD_READ_JDEC		   = 0x9F;
+constexpr uint8_t STATUS_BUSY_MASK	   = 0x01;
 
 /* Constructor */
 W25Q64::W25Q64() {}
@@ -30,10 +30,10 @@ bool W25Q64::init()
 	// TODO: Check if the SPI peripheral has already been initialized
 
 	// Point interface methods
-	this->write = spi_transmit;
-	this->read = spi_receive;
+	this->write		= spi_transmit;
+	this->read		= spi_receive;
 	this->writeRead = spi_transmitReceive;
-	this->writePin = csWrite;
+	this->writePin	= csWrite;
 
 	return true;
 }
@@ -144,9 +144,7 @@ void W25Q64::sector_erase(uint32_t addr)
 	write_enable();
 	cs_select();
 
-	uint8_t cmd[] = {CMD_SECTOR_ERASE, static_cast<uint8_t>((addr >> 16) & 0xFF),
-					 static_cast<uint8_t>((addr >> 8) & 0xFF),
-					 static_cast<uint8_t>(addr & 0xFF)}; // Sector Erase command
+	uint8_t cmd[] = {CMD_SECTOR_ERASE, static_cast<uint8_t>((addr >> 16) & 0xFF), static_cast<uint8_t>((addr >> 8) & 0xFF), static_cast<uint8_t>(addr & 0xFF)}; // Sector Erase command
 	this->write(cmd, 4);
 
 	cs_deselect();
@@ -163,8 +161,7 @@ void W25Q64::block_erase(uint32_t addr)
 	write_enable();
 	cs_select();
 
-	uint8_t cmd[] = {CMD_BLOCK_ERASE, static_cast<uint8_t>((addr >> 16) & 0xFF),
-					 static_cast<uint8_t>((addr >> 8) & 0xFF), static_cast<uint8_t>(addr & 0xFF)};
+	uint8_t cmd[] = {CMD_BLOCK_ERASE, static_cast<uint8_t>((addr >> 16) & 0xFF), static_cast<uint8_t>((addr >> 8) & 0xFF), static_cast<uint8_t>(addr & 0xFF)};
 	this->write(cmd, 4);
 
 	cs_deselect();
@@ -180,14 +177,13 @@ void W25Q64::block_erase(uint32_t addr)
  */
 void W25Q64::page_program(uint32_t addr, uint8_t* data, uint16_t size)
 {
-	if(size > 256)
+	if (size > 256)
 		return; // Ensure that the data size is within the page limit
 
 	write_enable();
 	cs_select();
 
-	uint8_t cmd[] = {CMD_PAGE_PROGRAM, static_cast<uint8_t>((addr >> 16) & 0xFF),
-					 static_cast<uint8_t>((addr >> 8) & 0xFF), static_cast<uint8_t>(addr & 0xFF)};
+	uint8_t cmd[] = {CMD_PAGE_PROGRAM, static_cast<uint8_t>((addr >> 16) & 0xFF), static_cast<uint8_t>((addr >> 8) & 0xFF), static_cast<uint8_t>(addr & 0xFF)};
 
 	this->write(cmd, 4);
 	this->write(data, size);
@@ -207,8 +203,7 @@ void W25Q64::read_data(uint32_t addr, uint8_t* data, uint16_t size)
 {
 	cs_select();
 
-	uint8_t cmd[] = {CMD_READ_DATA, static_cast<uint8_t>((addr >> 16) & 0xFF),
-					 static_cast<uint8_t>((addr >> 8) & 0xFF), static_cast<uint8_t>(addr & 0xFF)};
+	uint8_t cmd[] = {CMD_READ_DATA, static_cast<uint8_t>((addr >> 16) & 0xFF), static_cast<uint8_t>((addr >> 8) & 0xFF), static_cast<uint8_t>(addr & 0xFF)};
 	this->write(cmd, 4);
 	this->read(data, size);
 
@@ -227,16 +222,16 @@ void W25Q64::wait_until_ready()
 	do
 	{
 		status = read_status_register();
-	} while(status & STATUS_BUSY_MASK); // Wait until the busy bit (bit 0) is cleared
+	} while (status & STATUS_BUSY_MASK); // Wait until the busy bit (bit 0) is cleared
 }
 
 /* Private methods */
 void W25Q64::cs_select()
 {
-	this->writePin(0);
+	this->writePin(W25QX, 0);
 }
 
 void W25Q64::cs_deselect()
 {
-	this->writePin(1);
+	this->writePin(W25QX, 1);
 }

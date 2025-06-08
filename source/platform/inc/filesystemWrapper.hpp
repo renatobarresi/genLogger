@@ -37,6 +37,7 @@ extern "C" {
 #include <cstring>
 
 #ifdef TARGET_MICRO
+#include "fatfs.h"
 #include "littleFSInterface.h"
 #endif
 
@@ -55,10 +56,6 @@ struct FileHandler
 	virtual int	 write(const char* buffer, size_t size)	  = 0;
 	virtual int	 close()								  = 0;
 	virtual ~FileHandler()								  = default;
-};
-
-class fatFSHandler : public FileHandler
-{
 };
 
 /**
@@ -257,9 +254,20 @@ class LittleFSHandler : public FileHandler
 	}
 };
 
-class fatFSHanlder : public FileHandler
+/**
+ * @name 
+ * @brief 
+ * 
+ */
+class fatFSHandler : public FileHandler
 {
   private:
+	FATFS	fs;
+	FATFS*	pfs;
+	FIL		fil;
+	FRESULT fres;
+	DWORD	fre_clust;
+
   public:
 	/**
 		* @brief Mounts the LittleFS filesystem.
@@ -267,6 +275,13 @@ class fatFSHanlder : public FileHandler
 		*/
 	bool mount() override
 	{
+		MX_FATFS_Init();
+
+		if (f_mount(&fs, "", 0) != FR_OK)
+		{
+			return false;
+		}
+
 		return true;
 	}
 
@@ -280,6 +295,25 @@ class fatFSHanlder : public FileHandler
 	{
 		int flags;
 
+		switch (mode)
+		{
+			case 0:
+				flags = FA_READ;
+				break; // Read mode
+			case 1:
+				flags = FA_OPEN_ALWAYS | FA_WRITE;
+				break; // Write mode
+			case 2:
+				break; // Append mode
+			default:
+				return false;
+		}
+
+		if (f_open(&fil, fileName, flags) != FR_OK)
+		{
+			return false;
+		}
+
 		return true;
 	}
 
@@ -291,6 +325,8 @@ class fatFSHanlder : public FileHandler
 		*/
 	int write(const char* buffer, size_t size) override
 	{
+		f_puts(buffer, &fil);
+
 		return 0;
 	}
 
@@ -302,6 +338,7 @@ class fatFSHanlder : public FileHandler
 		*/
 	int read(char* buffer, size_t size) override
 	{
+		f_gets(buffer, size, &fil);
 		return 0;
 	}
 
@@ -311,6 +348,8 @@ class fatFSHanlder : public FileHandler
 		*/
 	int close() override
 	{
+		f_close(&fil);
+
 		return 0;
 	}
 };
@@ -334,18 +373,23 @@ class fileSysWrapper
   public:
 	/**
 	 * @brief Constructs a file system wrapper with a specified handler.
-	 * @param fs Type of filesystem (0 = standard, 1 = LittleFS if enabled).
+	 * @param fs Type of filesystem (0 = standard, 1 = LittleFS if enabled, 2 = fatFS).
 	 */
 	fileSysWrapper(uint8_t fs)
 	{
+#ifndef TARGET_MICRO
 		if (fs == 0)
 		{
 			this->activeHandler = &cHandler;
 		}
-#ifdef TARGET_MICRO
-		else if (fs == 1)
+#else
+		if (fs == 1)
 		{
 			activeHandler = &littleFSHandler;
+		}
+		else if (fs == 2)
+		{
+			activeHandler = &fatFS;
 		}
 #endif
 	}

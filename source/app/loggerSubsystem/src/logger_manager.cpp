@@ -5,13 +5,15 @@
 #include <cstring>
 #include <iostream>
 
+/**
+ * @brief The logger manager uses a file system to manipulate files and store/retrieve weather information from an external storage
+ */
 #ifdef TARGET_MICRO
 // Use microcontroller-specific file system
-fileSysWrapper fileSystem(1);
-char		   simulationFile[] = "metadata.txt";
+fileSysWrapper fsHandler(2);
 #else
-fileSysWrapper fsHandler(0); // Use the non-microcontroller implementation
-char		   simulationFileFolder[] = "../../../test/simulationFiles/externalMemory";
+fileSysWrapper fsHandler(0);
+char		   simulationFileFolder[] = "../../../test/simulationFiles/externalMemory"; // This folder simulates the root path of the external storage device
 #endif
 
 void loggerManager::update(bool infoFlag, const char*& sensorInformation, const char*& timestamp)
@@ -26,10 +28,13 @@ bool loggerManager::init()
 	_metadata = getLoggerMetadata();
 
 #ifdef TARGET_MICRO
-	if (true == fsHandler(3))
-#else
-	return true;
+	if (fsHandler.mount() != true)
+	{
+		return false;
+	}
 #endif
+
+	return true;
 }
 
 void loggerManager::handler()
@@ -72,7 +77,7 @@ void loggerManager::handler()
 		default:
 		{
 // Define file name
-#ifdef TARGET_TYPE
+#ifdef TARGET_MICRO
 			std::strncpy(fileName, _metadata->loggerName, std::strlen(fileName));
 #else
 			std::sprintf(fileName, "%s/%s", simulationFileFolder, _metadata->loggerName);

@@ -23,7 +23,8 @@ set(app_sources
     app/configurationSubsystem/src/terminal_component.cpp
     app/configurationSubsystem/src/internalStorage_component.cpp
     app/loggerMetadata/loggerMetadata.cpp
-    app/utilities/src/utilities.cpp 
+    app/utilities/src/utilities.cpp
+    app/loggerSubsystem/src/logger_manager.cpp
 )
 
 set(platform_sources
@@ -36,6 +37,8 @@ set(dependencies_sources)
 
 set(virtualDevice_sources)
 
+set(middleware_sources)
+
 # Special target specific sources
 if (target_type STREQUAL "target")
     LIST(APPEND platform_sources
@@ -45,11 +48,21 @@ if (target_type STREQUAL "target")
     LIST(APPEND driver_sources
         drivers/W25Qx/src/W25Qx_module.cpp
         drivers/rtc/src/stm32F429_RTC.cpp
+        drivers/SDCard/sd_spi.c
     )
 
     LIST(APPEND dependencies_sources
         ${dependencies_path}/little-fs-src/lfs_util.c
         ${dependencies_path}/little-fs-src/lfs.c
+    )
+
+    LIST(APPEND middleware_sources
+        middleware/FatFS/diskio.c
+        middleware/FatFS/ff_gen_drv.c
+        middleware/FatFS/ff.c
+        middleware/FatFS/interface/fatfs.c
+        middleware/FatFS/interface/user_diskio.c
+        middleware/FatFS/option/cc949.c
     )
 endif()
 
@@ -68,6 +81,8 @@ set(app_includes
     app/configurationSubsystem/inc/
     app/loggerMetadata/
     app/utilities/inc/
+    app/processingSubsystem/inc/
+    app/loggerSubsystem/inc/
 )
 
 set(platform_includes
@@ -79,6 +94,7 @@ set(driver_includes
     drivers/rtc/inc/
     # W25Qx driver
     drivers/W25Qx/inc/
+    drivers/SDCard/
 )
 
 set(dependencies_includes)
@@ -87,14 +103,21 @@ set(virtualDevices_includes
     virtualDevices/inc/
 )
 
+set(middleware_includes)
+
 # Special target specific includes
 if (target_type STREQUAL "target")
     list(APPEND driver_includes
         # W25Qx driver
         # drivers/W25Qx/inc/
+        drivers/SDCard/
     )
     list(APPEND dependencies_includes
         ${dependencies_path}/little-fs-src/
+    )
+
+    list(APPEND middleware_includes
+        middleware/FatFS/
     )
 endif()
 
@@ -126,6 +149,7 @@ add_executable(${executable}
     ${driver_sources}
     ${dependencies_sources}
     ${virtualDevice_sources}
+    ${middleware_sources}
 )
 
 ################
@@ -137,6 +161,7 @@ target_include_directories(${executable} PRIVATE
     ${virtualDevices_includes}
     ${driver_includes}
     ${dependencies_includes}
+    ${middleware_includes}
 )
 
 ################

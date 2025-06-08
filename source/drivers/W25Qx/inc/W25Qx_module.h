@@ -8,6 +8,7 @@
 
 #ifdef __cplusplus
 
+#include "spi_drv.h"
 #include <cstdint>
 
 /**
@@ -113,7 +114,7 @@ class W25Q64
 	uint16_t (*writeRead)(uint8_t*, uint8_t*, uint16_t);
 
 	// Interface GPIO
-	void (*writePin)(uint8_t);
+	void (*writePin)(SPI_Devices_t, uint8_t);
 };
 
 #endif

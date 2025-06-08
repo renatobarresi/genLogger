@@ -1,1 +1,0 @@
-#include "externalStorage_component.hpp"

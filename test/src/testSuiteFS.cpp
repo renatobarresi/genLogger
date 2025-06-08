@@ -2,9 +2,13 @@
 #include "filesystemWrapper.hpp"
 #include "internalStorage_component.hpp"
 #include "loggerMetadata.hpp"
+#include "logger_manager.hpp"
+#include "processing_manager.hpp"
 #include "terminal_component.hpp"
 #include "utilities.hpp"
 #include "virtualRTC.hpp"
+#include <cstdio>
+#include <cstring>
 #include <fstream>
 #include <gtest/gtest.h>
 
@@ -133,21 +137,85 @@ TEST(terminalStateMachine, testChangeToDeviceConfigState)
 
 	terminalOutput.init(terminalState::initState);
 	terminalOutput.handler(terminalSignal::ENTRY, nullptr);
-
 	terminalOutput.handler(terminalSignal::pressedKey_C, nullptr);
-
 	terminalOutput.handler(terminalSignal::pressedKey_N, nullptr);
-
 	terminalOutput.handler(terminalSignal::pressedKey_Enter, "station1");
-
 	terminalOutput.handler(terminalSignal::pressedKey_S, nullptr);
-
-	// Simulate "B" key press
 	terminalOutput.handler(terminalSignal::pressedKey_B, nullptr);
-
 	terminalOutput.handler(terminalSignal::pressedKey_I, nullptr);
 
 	pLoggerMetadata = getLoggerMetadata();
 
 	EXPECT_STREQ(pLoggerMetadata->loggerName, "station1") << "Failed to set loggerName";
+}
+
+TEST(loggerSubsystem, testNotification)
+{
+	virtualRTC		  rtc;
+	processingManager myProcessingManager(rtc);
+	loggerManager	  myLoggerManager(&myProcessingManager);
+	const char*		  testBuff = "123,125y3,23534if";
+	char			  timeStamp[20];
+	char			  finalTestBuff[100];
+
+	rtc.getTimestamp(timeStamp);
+
+	std::sprintf(finalTestBuff, "%s;%s", timeStamp, testBuff);
+
+	std::strcpy(myProcessingManager.sensorInfoBuff, testBuff);
+	myProcessingManager.setObserver(&myLoggerManager);
+	myProcessingManager.processData();
+
+	EXPECT_STREQ(finalTestBuff, myLoggerManager.sensorData);
+}
+
+TEST(loggerSubsystem, testWritingExternal)
+{
+	char			  fileName[56];
+	fileSysWrapper	  fileSystem(0); // Use the non-microcontroller implementation
+	loggerMetadata*	  pLoggerMetadata;
+	virtualRTC		  rtc;
+	processingManager myProcessingManager(rtc);
+	loggerManager	  myLoggerManager(&myProcessingManager);
+	const char*		  testBuff = "123,125y3,23534if";
+	char			  timeStamp[20];
+	char			  finalTestBuff[100];
+	char			  storedData[56]		 = {0};
+	char			  simulationFileFolder[] = "../../../test/simulationFiles/externalMemory";
+
+	pLoggerMetadata = getLoggerMetadata();
+
+	std::sprintf(fileName, "%s/%s", simulationFileFolder, pLoggerMetadata->loggerName);
+
+	// get timestamp
+	rtc.getTimestamp(timeStamp);
+
+	// create testBuffer
+	std::sprintf(finalTestBuff, "%s;%s", timeStamp, testBuff);
+
+	// put mock-up buffer into tprocessing manager sensor information buffer
+	std::strcpy(myProcessingManager.sensorInfoBuff, testBuff);
+
+	// Set observer and simulate processing of sensor data
+	myProcessingManager.setObserver(&myLoggerManager);
+	myProcessingManager.processData();
+
+	// loggerManager handler
+	myLoggerManager.init();
+	myLoggerManager.handler();
+
+	// Read simulated file in "external device"
+	if (true == fileSystem.open(fileName, 0))
+	{
+		fileSystem.read(storedData, sizeof(storedData));
+
+		fileSystem.close();
+	}
+	else
+	{
+		std::cout << "File not opened" << std::endl;
+	}
+
+	EXPECT_STREQ(finalTestBuff, storedData);
+	//EXPECT_TRUE(true);
 }

@@ -6,6 +6,11 @@
 #include "host_rtc.hpp"
 #endif
 #include "rtcInterface.hpp"
+#include <cstring>
+
+constexpr uint8_t TIME_BUFF_SIZE	  = 9;
+constexpr uint8_t DATE_BUFF_SIZE	  = 11;
+constexpr uint8_t TIMESTAMP_BUFF_SIZE = TIME_BUFF_SIZE + DATE_BUFF_SIZE;
 
 class virtualRTC
 {
@@ -19,7 +24,12 @@ class virtualRTC
 	rtcInterface* interface;
 
   public:
+	uint8_t timeBuffSize	  = TIME_BUFF_SIZE;
+	uint8_t dateBuffSize	  = DATE_BUFF_SIZE;
+	uint8_t timeStampBuffSize = TIMESTAMP_BUFF_SIZE;
+
 	virtualRTC() : interface(&loggerRTC) {}
+
 	/**
      * @brief Sets the time.
      * 
@@ -74,5 +84,18 @@ class virtualRTC
 	void getDate(char* buffer, size_t bufferSize) const
 	{
 		this->interface->getDate(buffer, bufferSize);
+	}
+
+	void getTimestamp(char* buff)
+	{
+		char timeBuff[TIME_BUFF_SIZE];
+		char dateBuff[DATE_BUFF_SIZE];
+
+		getTime(timeBuff, timeBuffSize);
+		getDate(dateBuff, dateBuffSize);
+
+		memcpy(buff, timeBuff, TIME_BUFF_SIZE);
+		buff[timeBuffSize] = '-';
+		memcpy(buff + TIME_BUFF_SIZE + 1, dateBuff, DATE_BUFF_SIZE);
 	}
 };

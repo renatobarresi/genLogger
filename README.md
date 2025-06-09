@@ -11,7 +11,6 @@ Here you will find the source code of the project, the build system and the docu
 # Folder structure
 
 * cmake: Files (toolchain configuration files, libraries, etc) relevant to the build system CMake
-* prototypes: Small projects (source files) used to test some features of the genLogger device
 * source: All the source code (source files and header files) are located in this folder and its subfolders
 * test: unit tests for the source code
 * tools: dockerfiles and other tools used to help with the development
@@ -19,6 +18,18 @@ Here you will find the source code of the project, the build system and the docu
 # Build system description
 
 The build system generator used is CMake, configured to generate makefiles for the host and the target.
+
+# Dependencies
+
+All dependency source files are automatically downloaded by CMake, except FatFS (included as middleware in source folder)
+
+* LittleFS
+* lwIP
+* FatFS
+* STM32F4 HAL
+* CMSIS
+* Googletest
+* FreeRTOS (Not yet used)
 
 ## Build instructions
 
@@ -30,3 +41,6 @@ After making sure all the requirements are met:
     - cmake .. -Dtarget_type=host 
 * To create a target (stm32f429zi) makefile, execute
     - cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/cross/stm32f429.cmake -DCMAKE_BUILD_TYPE=Debug -Dtarget_type=target
+
+## Terminal used for testing 
+ Picocom

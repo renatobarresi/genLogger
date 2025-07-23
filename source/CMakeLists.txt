@@ -220,7 +220,8 @@ if (target_type STREQUAL "target")
             -std=gnu++17
             -fno-exceptions
             -fno-rtti
-            -fno-use-cxa-atexit>
+            -fno-use-cxa-atexit      # Avoid usage of cxa_atexit
+            -fno-threadsafe-statics> # no extra code for thread safe variables initialization
         $<$<CONFIG:Debug>:-g3 -ggdb>
         $<$<CONFIG:Release>:-Og -g0>
     )

@@ -31,6 +31,8 @@
 #include "serialHandler.hpp"
 #include "terminal_component.hpp"
 #include "virtualRTC.hpp"
+#include <cstdio>
+#include <new>
 
 // Includes related to the used board
 #ifdef TARGET_MICRO
@@ -53,6 +55,8 @@ bool flagKey_S	   = false;
 bool flagKey_Enter = false;
 
 static char configBuff[96];
+
+void* operator new(std::size_t count) = delete;
 
 void configurationTask()
 {

@@ -1,8 +1,10 @@
 #include "config_manager.hpp"
 #include "filesystemWrapper.hpp"
+#include "httpClient.hpp"
 #include "internalStorage_component.hpp"
 #include "loggerMetadata.hpp"
 #include "logger_manager.hpp"
+#include "networkManager.hpp"
 #include "processing_manager.hpp"
 #include "terminal_component.hpp"
 #include "utilities.hpp"
@@ -218,4 +220,13 @@ TEST(loggerSubsystem, testWritingExternal)
 
 	EXPECT_STREQ(finalTestBuff, storedData);
 	//EXPECT_TRUE(true);
+}
+
+TEST(networkManager, testStablishConn)
+{
+	const char ip[]		 = "123";
+	const char netmask[] = "123";
+	const char gateway[] = "123";
+
+	network::networkManager myNetwork(ip, netmask, gateway);
 }

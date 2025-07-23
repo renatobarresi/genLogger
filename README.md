@@ -24,7 +24,7 @@ The build system generator used is CMake, configured to generate makefiles for t
 All dependency source files are automatically downloaded by CMake, except FatFS (included as middleware in source folder)
 
 * LittleFS
-* lwIP
+* Mongoose
 * FatFS
 * STM32F4 HAL
 * CMSIS

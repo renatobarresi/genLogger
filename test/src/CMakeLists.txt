@@ -15,6 +15,8 @@ set(includes
     ${sourceDirectory}/app/utilities/inc/
     ${sourceDirectory}/app/loggerSubsystem/inc/
     ${sourceDirectory}/app/processingSubsystem/inc/
+    ${sourceDirectory}/app/networkSubsystem/inc/
+    ${sourceDirectory}/middleware/mongoose/
 )
 
 set(sources
@@ -27,6 +29,9 @@ set(sources
     ${sourceDirectory}/app/main/src/errorHandler.cpp
     ${sourceDirectory}/app/utilities/src/utilities.cpp
     ${sourceDirectory}/app/loggerSubsystem/src/logger_manager.cpp
+    ${sourceDirectory}/app/networkSubsystem/src/networkManager.cpp
+    ${sourceDirectory}/app/networkSubsystem/src/httpClient.cpp
+    ${sourceDirectory}/middleware/mongoose/mongoose.c
 )
 
 add_executable(${this} 

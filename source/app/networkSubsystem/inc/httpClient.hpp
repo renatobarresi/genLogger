@@ -1,9 +1,26 @@
 #pragma once
 
 #include "processing_manager.hpp"
-
-class httpClient
+#include "networkManager.hpp"
+namespace network
+{
+class httpClient : public observerInterface
 {
   public:
-	bool connect(const char*& serverLink);
+  httpClient(network::networkManager *netManager);
+  
+  void update(bool infoFlag, const char*& sensorInformation, const char*& timestamp) override;
+  
+  bool connect(const char*& url);
+  
+  void sendData(const char* data);
+  
+  //todo void sendFile(void) {}
+  
+  private:
+  
+  network::networkManager *_netManager;
+  
+  void post(const char* body, const char* contentType);
 };
+}

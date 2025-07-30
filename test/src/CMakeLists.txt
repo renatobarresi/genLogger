@@ -32,6 +32,7 @@ set(sources
     ${sourceDirectory}/app/networkSubsystem/src/networkManager.cpp
     ${sourceDirectory}/app/networkSubsystem/src/httpClient.cpp
     ${sourceDirectory}/middleware/mongoose/mongoose.c
+    ${sourceDirectory}/app/networkSubsystem/src/httpServer.cpp
 )
 
 add_executable(${this} 

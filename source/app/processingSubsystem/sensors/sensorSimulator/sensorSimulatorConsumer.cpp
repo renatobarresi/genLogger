@@ -12,6 +12,7 @@
 namespace sensorSimulator
 {
 
+constexpr char *producerPath = "../../source/app/processingSubsystem/sensors/sensorSimulator/sensorSimulatorProducer.py";
 constexpr char *name = "sensors";
 constexpr size_t SIZE = 4096;
 
@@ -71,7 +72,7 @@ void init(void)
     if (child_pid == 0)
     {
         // Child process: run python consumer
-        execlp("python3", "python3", "sensorSimulatorProducer.py", name, (char *)NULL);
+        execlp("python3", "python3", producerPath, name, (char *)NULL);
         perror("execlp failed");  // If execlp fails
         exit(1);
     }

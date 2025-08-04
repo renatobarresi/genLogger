@@ -70,6 +70,7 @@ endif()
 if (target_type STREQUAL "host")
     LIST(APPEND driver_sources
         drivers/rtc/src/host_rtc.cpp
+        app/processingSubsystem/sensors/sensorSimulator/sensorSimulatorConsumer.cpp
     )
 endif()
 
@@ -83,6 +84,7 @@ set(app_includes
     app/utilities/inc/
     app/processingSubsystem/inc/
     app/loggerSubsystem/inc/
+    app/processingSubsystem/sensors/sensorSimulator/
 )
 
 set(platform_includes

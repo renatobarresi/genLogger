@@ -3,6 +3,7 @@
 #include "virtualRTC.hpp"
 #include <cstdint>
 #include <cstring>
+#include "sensorSimulatorConsumer.hpp"
 
 const uint8_t MAX_NUM_OBSERVERS = 10;
 
@@ -22,6 +23,13 @@ class processingManager
 	observerInterface* listOfObservers[MAX_NUM_OBSERVERS];
 
 	processingManager(virtualRTC& rtc) : _loggerRTC(rtc) {}
+
+	void init(void)
+	{
+#ifndef TARGET_MICRO
+		sensorSimulator::init();
+#endif
+	}
 
 	void setObserver(observerInterface* ref)
 	{

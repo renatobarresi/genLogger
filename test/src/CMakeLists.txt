@@ -15,6 +15,8 @@ set(includes
     ${sourceDirectory}/app/utilities/inc/
     ${sourceDirectory}/app/loggerSubsystem/inc/
     ${sourceDirectory}/app/processingSubsystem/inc/
+    ${sourceDirectory}/app/processingSubsystem/sensors/sensorSimulator/
+    
 )
 
 set(sources
@@ -27,6 +29,7 @@ set(sources
     ${sourceDirectory}/app/main/src/errorHandler.cpp
     ${sourceDirectory}/app/utilities/src/utilities.cpp
     ${sourceDirectory}/app/loggerSubsystem/src/logger_manager.cpp
+    ${sourceDirectory}/app/processingSubsystem/sensors/sensorSimulator/sensorSimulatorConsumer.cpp
 )
 
 add_executable(${this} 

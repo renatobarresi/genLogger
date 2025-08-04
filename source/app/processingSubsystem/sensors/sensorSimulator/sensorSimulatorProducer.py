@@ -17,20 +17,20 @@ sensor_data = None
 
 def handle_exit(signum, frame):
     global running
-    print(f"\nReceived signal {signum}, stopping simulation...")
+    print(f"\nProducer: Received signal {signum}, stopping simulation...")
     running = False
 
 def simulateTickPluviometer():
     global sensor_data
     rainIncrement = random.randint(0, 1)
     sensor_data.rain_ctr += rainIncrement
-    print(f"Rain incremented by {rainIncrement}, total: {sensor_data.rain_ctr}")
+    #print(f"Rain incremented by {rainIncrement}, total: {sensor_data.rain_ctr}")
     time.sleep(1)
 
 def simulateTickAnemometer():
     windSpeedIncrement = random.randint(0, 1)
     sensor_data.windSpeed_ctr += windSpeedIncrement
-    print(f"Wind Speed incremented by {windSpeedIncrement}, total: {sensor_data.windSpeed_ctr}")
+    #print(f"Wind Speed incremented by {windSpeedIncrement}, total: {sensor_data.windSpeed_ctr}")
     time.sleep(1)
 
 def main():
@@ -50,7 +50,7 @@ def main():
     try:
         sensor_data = SensorData.from_buffer(shm.buf)
 
-        print("Sensor simulation started. Waiting for termination signal...")
+        print("Producer: Sensor simulation started. Waiting for termination signal...")
         while running:
             simulateTickPluviometer()
             simulateTickAnemometer()
@@ -58,7 +58,7 @@ def main():
     finally:
         del sensor_data
         shm.close()
-        print("Shared memory closed. Exiting.")
+        print("Producer: Shared memory closed. Exiting.")
 
 if __name__ == "__main__":
     main()

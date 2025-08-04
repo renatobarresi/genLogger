@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstddef>
-#include <cstdio>
+#include <cstdint>
 
 namespace sensorSimulator
 {

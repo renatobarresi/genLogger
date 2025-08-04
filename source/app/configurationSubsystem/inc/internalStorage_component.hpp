@@ -82,5 +82,8 @@ class internalStorageComponent : public configComponent
    	*/
 	struct loggerMetadata* thisMetadata;
 
+	char _metadataBuffer[METADATA_BUFFER_SIZE];
 	bool _fileSystemInit = false;
+
+	bool _parseMetadataBuffer(char* buffer, loggerMetadata* metadata);
 };

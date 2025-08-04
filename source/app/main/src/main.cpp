@@ -31,6 +31,7 @@
 #include "serialHandler.hpp"
 #include "terminal_component.hpp"
 #include "virtualRTC.hpp"
+#include <iostream>
 
 // Includes related to the used board
 #ifdef TARGET_MICRO
@@ -53,6 +54,46 @@ bool flagKey_S	   = false;
 bool flagKey_Enter = false;
 
 static char configBuff[96];
+
+void configurationTask();
+void loggerTask();
+
+int main()
+{
+#ifdef TARGET_MICRO
+	stm32f429_init();
+#else
+#endif
+
+	if (false == internalStorage.initFS())
+	{
+		std::cout << "FS error" << std::endl;
+		while (1);
+	}
+
+	if (false == serialHandlerInit())
+	{
+		std::cout << "Serial handler error" << std::endl;
+		while (1);
+	}
+
+{}	terminalOutput.init(terminalState::initState);
+	terminalOutput.handler(terminalSignal::ENTRY, nullptr);
+
+	myProcessingManager.init();
+	myProcessingManager.setObserver(&myLoggerManager);
+
+	myLoggerManager.init();
+
+	while (1)
+	{
+		configurationTask();
+
+		//loggerTask();
+	}
+
+	return 0;
+}
 
 void configurationTask()
 {
@@ -121,38 +162,4 @@ void loggerTask()
 	}
 
 	myLoggerManager.handler();
-}
-
-int main()
-{
-#ifdef TARGET_MICRO
-	stm32f429_init();
-#else
-#endif
-
-	if (false == internalStorage.initFS())
-	{
-		while (1);
-	}
-
-	if (false == serialHandlerInit())
-	{
-		while (1);
-	}
-
-	terminalOutput.init(terminalState::initState);
-	terminalOutput.handler(terminalSignal::ENTRY, nullptr);
-
-	myProcessingManager.setObserver(&myLoggerManager);
-
-	myLoggerManager.init();
-
-	while (1)
-	{
-		configurationTask();
-
-		loggerTask();
-	}
-
-	return 0;
 }

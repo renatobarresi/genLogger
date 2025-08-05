@@ -20,6 +20,12 @@
 #include <cstring>
 
 ////////////////////////////////////////////////////////////////////////
+//				      Defines
+////////////////////////////////////////////////////////////////////////
+
+constexpr uint16_t MS_IN_MINUTE = 60000;
+
+////////////////////////////////////////////////////////////////////////
 //				      Private variables
 ////////////////////////////////////////////////////////////////////////
 
@@ -29,7 +35,7 @@ fileSysWrapper fileSystem(1);
 char		   simulationFile[] = "metadata.txt";
 #else
 fileSysWrapper fileSystem(0); // Use the non-microcontroller implementation
-char		   simulationFile[] = "../../../test/simulationFiles/metadata.txt";
+char		   simulationFile[] = "/home/renato/renato/CESE_fiuba/proyecto_final/genLogger/firmware/test/simulationFiles/metadata.txt";
 #endif
 
 static char defaultLoggerName[] = "defaultLogger";
@@ -46,7 +52,7 @@ bool internalStorageComponent::initFS()
 {
 	bool retVal = false;
 	// Get the metadata pointer
-	this->thisMetadata = getLoggerMetadata();
+	this->_metadata = getLoggerMetadata();
 
 	retVal = fileSystem.mount();
 
@@ -83,8 +89,8 @@ bool internalStorageComponent::retrieveMetadata()
 	if (bytesRead > 0)
 	{
 		// Copy the name from the buffer into the metadata struct
-		std::strncpy(this->thisMetadata->loggerName, buffer, loggerNameLenght - 1);
-		this->thisMetadata->loggerName[loggerNameLenght - 1] = '\0'; // Ensure null termination
+		std::strncpy(this->_metadata->loggerName, buffer, loggerNameLenght - 1);
+		this->_metadata->loggerName[loggerNameLenght - 1] = '\0'; // Ensure null termination
 	}
 	else
 	{
@@ -121,4 +127,9 @@ bool internalStorageComponent::storeMetadata(const char* pBuff, uint16_t size)
 	}
 
 	return status;
+}
+
+uint16_t internalStorageComponent::getMeasurementPeriod()
+{
+	return (this->_metadata->fileTransmissionPeriod) * MS_IN_MINUTE;
 }

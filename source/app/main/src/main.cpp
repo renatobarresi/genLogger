@@ -26,11 +26,13 @@
 #include "main.h"
 #include "config_manager.hpp"
 #include "internalStorage_component.hpp"
+#include "loggerMetadata.hpp"
 #include "logger_manager.hpp"
 #include "processing_manager.hpp"
 #include "serialHandler.hpp"
 #include "terminal_component.hpp"
 #include "virtualRTC.hpp"
+#include "virtualTimer.hpp"
 
 // Includes related to the used board
 #ifdef TARGET_MICRO
@@ -53,6 +55,67 @@ bool flagKey_S	   = false;
 bool flagKey_Enter = false;
 
 static char configBuff[96];
+
+// TODO: Add RTOS
+static void configurationTask();
+static void loggerTask();
+static void configurationTask();
+
+#ifndef TARGET_MICRO
+
+#include <iostream>
+
+void myTickHandler()
+{
+	static uint64_t tickCount = 0;
+	tickCount++;
+	if (tickCount % 1000 == 0)
+	{
+		//std::cout << "Tick: " << tickCount << " ms elapsed\n";
+	}
+}
+#endif
+
+/**
+ * 
+ */
+int main()
+{
+#ifdef TARGET_MICRO
+	stm32f429_init();
+#else
+	systick::startSystickSimulation(myTickHandler);
+#endif
+
+	if (false == internalStorage.initFS())
+	{
+		while (1);
+	}
+
+	if (false == serialHandlerInit())
+	{
+		while (1);
+	}
+
+	terminalOutput.init(terminalState::initState);
+	terminalOutput.handler(terminalSignal::ENTRY, nullptr);
+
+	myProcessingManager.init();
+	myProcessingManager.setObserver(&myLoggerManager);
+
+	myLoggerManager.init();
+
+	while (1)
+	{
+		configurationTask();
+	}
+
+#ifndef TARGET_MICRO
+	systick::stopSystickSimulation();
+#endif
+
+	return 0;
+}
 
 void configurationTask()
 {
@@ -110,6 +173,20 @@ void configurationTask()
 	}
 }
 
+void measurementTask()
+{
+#ifndef TARGET_MICRO
+
+#endif
+
+	bool runTask = false;
+
+	if (runTask == true)
+	{
+		//
+	}
+}
+
 void loggerTask()
 {
 	static bool testFlag = true;
@@ -121,38 +198,4 @@ void loggerTask()
 	}
 
 	myLoggerManager.handler();
-}
-
-int main()
-{
-#ifdef TARGET_MICRO
-	stm32f429_init();
-#else
-#endif
-
-	if (false == internalStorage.initFS())
-	{
-		while (1);
-	}
-
-	if (false == serialHandlerInit())
-	{
-		while (1);
-	}
-
-	terminalOutput.init(terminalState::initState);
-	terminalOutput.handler(terminalSignal::ENTRY, nullptr);
-
-	myProcessingManager.setObserver(&myLoggerManager);
-
-	myLoggerManager.init();
-
-	while (1)
-	{
-		configurationTask();
-
-		loggerTask();
-	}
-
-	return 0;
 }

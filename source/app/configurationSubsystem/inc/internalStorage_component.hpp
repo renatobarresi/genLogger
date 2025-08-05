@@ -75,12 +75,14 @@ class internalStorageComponent : public configComponent
 	 */
 	bool storeMetadata(const char* pBuff, uint16_t size);
 
+	uint16_t getMeasurementPeriod();
+
   private:
 	/**
    	* @brief pointer to the global @ref metadata structure
    	* 
    	*/
-	struct loggerMetadata* thisMetadata;
+	struct loggerMetadata* _metadata;
 
 	bool _fileSystemInit = false;
 };

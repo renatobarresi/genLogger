@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <cstring>
 #include "sensorSimulatorConsumer.hpp"
+#include "pluviometer.hpp"
 
 const uint8_t MAX_NUM_OBSERVERS = 10;
 
@@ -20,7 +21,7 @@ class processingManager
 	uint8_t activeObservers = 0;
 	char	sensorInfoBuff[1024];
 
-	observerInterface* listOfObservers[MAX_NUM_OBSERVERS];
+	observerInterface* listOfObservers[MAX_NUM_OBSERVERS];	/// components that will be notified with processed data. e.g loggerSubsystem, networkSubsystem
 
 	processingManager(virtualRTC& rtc) : _loggerRTC(rtc) {}
 
@@ -49,7 +50,7 @@ class processingManager
 
   private:
 	virtualRTC& _loggerRTC;
-
+	sensor::pluviometer *loggerPluviometer;
 	/**
      * @brief iterates through array of listeners 
      * 

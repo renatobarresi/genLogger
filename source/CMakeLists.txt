@@ -25,6 +25,7 @@ set(app_sources
     app/loggerMetadata/loggerMetadata.cpp
     app/utilities/src/utilities.cpp
     app/loggerSubsystem/src/logger_manager.cpp
+    app/processingSubsystem/sensors/src/pluviometer.cpp
 )
 
 set(platform_sources
@@ -85,6 +86,7 @@ set(app_includes
     app/processingSubsystem/inc/
     app/loggerSubsystem/inc/
     app/processingSubsystem/sensors/sensorSimulator/
+    app/processingSubsystem/sensors/inc/
 )
 
 set(platform_includes

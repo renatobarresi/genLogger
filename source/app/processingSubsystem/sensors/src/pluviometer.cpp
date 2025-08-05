@@ -2,7 +2,7 @@
 
 namespace sensor
 {   
-    bool pluviometer::init()
+    bool davisPluviometer::init()
     {
         // Init shared memory
         
@@ -10,12 +10,17 @@ namespace sensor
 
         // Set GPIO interrupt 
 
+        return true;
+
     }
 
-    uint16_t pluviometer::getRain()
+    uint16_t davisPluviometer::getRain()
     {
+        uint16_t rain;
         // Get GPIO counter
 
         // Reset GPIO Counter
+
+        return rain;
     }
 }

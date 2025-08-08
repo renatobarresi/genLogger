@@ -14,9 +14,9 @@ set(includes
     ${sourceDirectory}/app/main/inc/
     ${sourceDirectory}/app/utilities/inc/
     ${sourceDirectory}/app/loggerSubsystem/inc/
-    ${sourceDirectory}/app/processingSubsystem/inc/
-    ${sourceDirectory}/app/processingSubsystem/sensors/sensorSimulator/
-    ${sourceDirectory}/app/processingSubsystem/sensors/inc/  
+    ${sourceDirectory}/app/measurementSubsystem/inc/
+    ${sourceDirectory}/app/measurementSubsystem/sensors/sensorSimulator/
+    ${sourceDirectory}/app/measurementSubsystem/sensors/inc/  
 )
 
 set(sources
@@ -29,8 +29,7 @@ set(sources
     ${sourceDirectory}/app/main/src/errorHandler.cpp
     ${sourceDirectory}/app/utilities/src/utilities.cpp
     ${sourceDirectory}/app/loggerSubsystem/src/logger_manager.cpp
-    ${sourceDirectory}/app/processingSubsystem/sensors/sensorSimulator/sensorSimulatorConsumer.cpp
-    ${sourceDirectory}/app/processingSubsystem/sensors/src/pluviometer.cpp
+    ${sourceDirectory}/app/measurementSubsystem/sensors/sensorSimulator/sensorSimulatorConsumer.cpp
 )
 
 add_executable(${this} 

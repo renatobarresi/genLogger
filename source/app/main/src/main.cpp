@@ -26,7 +26,6 @@
 #include "main.h"
 #include "config_manager.hpp"
 #include "internalStorage_component.hpp"
-#include "loggerMetadata.hpp"
 #include "logger_manager.hpp"
 #include "processing_manager.hpp"
 #include "serialHandler.hpp"
@@ -39,12 +38,12 @@
 #include "init.h"
 #endif
 
-virtualRTC				 rtc;
-terminalStateMachine	 terminalOutput(&rtc);
-internalStorageComponent internalStorage;
-configManager			 loggerConfig(&terminalOutput, &internalStorage);
-processingManager		 myProcessingManager(rtc);
-loggerManager			 myLoggerManager(&myProcessingManager);
+virtualRTC															 rtc;
+terminalStateMachine												 terminalOutput(&rtc);
+internalStorageComponent											 internalStorage;
+configManager														 loggerConfig(&terminalOutput, &internalStorage);
+processingManager<sensor::davisPluviometer, sensor::anemometerDavis> myProcessingManager(rtc);
+loggerManager														 myLoggerManager;
 
 bool flagKey_I	   = false;
 bool flagKey_C	   = false;
@@ -54,24 +53,25 @@ bool flagKey_T	   = false;
 bool flagKey_S	   = false;
 bool flagKey_Enter = false;
 
+static bool		runMeasurementTask	  = true;
+static uint16_t measurementTaskPeriod = 10000;
+
 static char configBuff[96];
 
 // TODO: Add RTOS
 static void configurationTask();
 static void loggerTask();
-static void configurationTask();
+static void measurementTask();
 
 #ifndef TARGET_MICRO
-
-#include <iostream>
 
 void myTickHandler()
 {
 	static uint64_t tickCount = 0;
 	tickCount++;
-	if (tickCount % 1000 == 0)
+	if ((tickCount % measurementTaskPeriod) == 0)
 	{
-		//std::cout << "Tick: " << tickCount << " ms elapsed\n";
+		runMeasurementTask = true;
 	}
 }
 #endif
@@ -97,6 +97,8 @@ int main()
 		while (1);
 	}
 
+	measurementTaskPeriod = internalStorage.getMeasurementPeriod();
+
 	terminalOutput.init(terminalState::initState);
 	terminalOutput.handler(terminalSignal::ENTRY, nullptr);
 
@@ -108,6 +110,8 @@ int main()
 	while (1)
 	{
 		configurationTask();
+		measurementTask();
+		loggerTask();
 	}
 
 #ifndef TARGET_MICRO
@@ -171,31 +175,31 @@ void configurationTask()
 		terminalOutput.handler(terminalSignal::pressedKey_Enter, configBuff);
 		flagKey_Enter = false;
 	}
+
+	// If changes in metadata, parse them
+	if (internalStorage.getMetadataUpdatedFlag() == true)
+	{
+		//TODO all metadata relevant parameters
+		measurementTaskPeriod = internalStorage.getMeasurementPeriod();
+	}
 }
 
 void measurementTask()
 {
-#ifndef TARGET_MICRO
-
-#endif
-
-	bool runTask = false;
-
-	if (runTask == true)
+	if (runMeasurementTask == true)
 	{
-		//
+		myProcessingManager.takeMeasurements();
+		myProcessingManager.formatData();
+		myProcessingManager.notifyObservers();
+
+		runMeasurementTask = false;
 	}
 }
 
 void loggerTask()
 {
-	static bool testFlag = true;
-
-	if (testFlag == true)
+	if (true == myLoggerManager.getAvailableDataFlag())
 	{
-		myProcessingManager.processData();
-		testFlag = false;
+		myLoggerManager.handler();
 	}
-
-	myLoggerManager.handler();
 }

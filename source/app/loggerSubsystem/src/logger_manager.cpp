@@ -16,10 +16,10 @@ fileSysWrapper fsHandler(0);
 char		   simulationFileFolder[] = "../../../test/simulationFiles/externalMemory"; // This folder simulates the root path of the external storage device
 #endif
 
-void loggerManager::update(bool infoFlag, const char*& sensorInformation, const char*& timestamp)
+void loggerManager::update(bool infoFlag, const char* sensorInformation, const char* timestamp)
 {
 	this->_availableData = infoFlag;
-	std::sprintf(sensorData, "%s;%s", timestamp, sensorInformation);
+	std::sprintf(this->measurementsBuff.data(), "%s%s", timestamp, sensorInformation);
 }
 
 bool loggerManager::init()
@@ -39,62 +39,73 @@ bool loggerManager::init()
 
 void loggerManager::handler()
 {
-	char fileName[56];
+	std::cout << "Received data: " << this->measurementsBuff.data() << std::endl;
 
-	// Check if new information is available
-	if (false == _availableData)
-	{
-		return;
-	}
+	//
+	// 	char fileName[56];
 
-	switch (_metadata->fileCreationPeriod)
-	{
-		case 0:
-		{
-			// todo
-			// Check if new day
-		}
+	// 	// Check if new information is available
+	// 	if (false == _availableData)
+	// 	{
+	// 		return;
+	// 	}
 
-		case 1:
-		{
-			// todo
-			// Check if new week
-		}
+	// 	switch (_metadata->fileCreationPeriod)
+	// 	{
+	// 		case 0:
+	// 		{
+	// 			// todo
+	// 			// Check if new day
+	// 		}
 
-		case 2:
-		{
-			// todo
-			// Check if new month
-		}
+	// 		case 1:
+	// 		{
+	// 			// todo
+	// 			// Check if new week
+	// 		}
 
-		case 3:
-		{
-			// todo
-			// Check if new year
-		}
+	// 		case 2:
+	// 		{
+	// 			// todo
+	// 			// Check if new month
+	// 		}
 
-		case 4:
-		default:
-		{
-// Define file name
-#ifdef TARGET_MICRO
-			//std::strncpy(fileName, _metadata->loggerName, std::strlen(fileName));
-			std::sprintf(fileName, "%s.txt", _metadata->loggerName);
-#else
-			std::sprintf(fileName, "%s/%s", simulationFileFolder, _metadata->loggerName);
-#endif
-			// Append data
-			if (true == fsHandler.open(fileName, 1))
-			{
-				fsHandler.write(this->sensorData, std::strlen(this->sensorData));
+	// 		case 3:
+	// 		{
+	// 			// todo
+	// 			// Check if new year
+	// 		}
 
-				fsHandler.close();
-			}
-			else
-			{
-				std::cout << "File not opened" << std::endl;
-			}
-		}
-		break;
-	}
+	// 		case 4:
+	// 		default:
+	// 		{
+	// // Define file name
+	// #ifdef TARGET_MICRO
+	// 			//std::strncpy(fileName, _metadata->loggerName, std::strlen(fileName));
+	// 			std::sprintf(fileName, "%s.txt", _metadata->loggerName);
+	// #else
+	// 			std::sprintf(fileName, "%s/%s", simulationFileFolder, _metadata->loggerName);
+	// #endif
+	// 			// Append data
+	// 			if (true == fsHandler.open(fileName, 1))
+	// 			{
+	// 				// fsHandler.write(this->sensorData, std::strlen(this->sensorData));
+
+	// 				fsHandler.close();
+	// 			}
+	// 			else
+	// 			{
+	// 				std::cout << "File not opened" << std::endl;
+	// 			}
+	// 		}
+	// 		break;
+	// 	}
+}
+
+bool loggerManager::getAvailableDataFlag()
+{
+	bool retVal			 = this->_availableData;
+	this->_availableData = false;
+
+	return retVal;
 }

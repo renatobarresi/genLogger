@@ -33,7 +33,7 @@ configManager::configManager(terminalStateMachine* terminal, internalStorageComp
 }
 
 // Description in header file //
-uint8_t configManager::notify(configComponent* sender, mediatorEvents event, const char* data) const
+uint8_t configManager::notify(configComponent* sender, mediatorEvents event, const char* data)
 {
 	if (event == mediatorEvents::UPDATE_METADATA)
 	{

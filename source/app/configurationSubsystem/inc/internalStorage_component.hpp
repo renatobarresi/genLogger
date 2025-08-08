@@ -77,6 +77,11 @@ class internalStorageComponent : public configComponent
 
 	uint16_t getMeasurementPeriod();
 
+	/**
+	 * @brief 
+	 */
+	bool getMetadataUpdatedFlag();
+
   private:
 	/**
    	* @brief pointer to the global @ref metadata structure
@@ -84,5 +89,6 @@ class internalStorageComponent : public configComponent
    	*/
 	struct loggerMetadata* _metadata;
 
-	bool _fileSystemInit = false;
+	bool _metadataUpdatedFlag = false;
+	bool _fileSystemInit	  = false;
 };

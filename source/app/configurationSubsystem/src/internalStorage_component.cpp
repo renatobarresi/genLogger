@@ -133,3 +133,10 @@ uint16_t internalStorageComponent::getMeasurementPeriod()
 {
 	return (this->_metadata->fileTransmissionPeriod) * MS_IN_MINUTE;
 }
+
+bool internalStorageComponent::getMetadataUpdatedFlag()
+{
+	bool retVal				   = this->_metadataUpdatedFlag;
+	this->_metadataUpdatedFlag = false;
+	return retVal;
+}

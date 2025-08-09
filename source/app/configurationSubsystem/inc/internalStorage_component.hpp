@@ -24,6 +24,7 @@
 #include "config_mediator.hpp"
 #include "loggerMetadata.hpp"
 #include <cstdint>
+#include <span>
 
 ////////////////////////////////////////////////////////////////////////
 //							Class definition
@@ -73,9 +74,12 @@ class internalStorageComponent : public configComponent
 	 * @return true 
 	 * @return false 
 	 */
-	bool storeMetadata(const char* pBuff, uint16_t size);
+	bool storeMetadata(const std::span<const char> buff);
 
-	uint16_t getMeasurementPeriod();
+	/**
+	 * 
+	 */
+	uint32_t getMeasurementPeriod();
 
 	/**
 	 * @brief 
@@ -87,8 +91,11 @@ class internalStorageComponent : public configComponent
    	* @brief pointer to the global @ref metadata structure
    	* 
    	*/
-	struct loggerMetadata* _metadata;
+	mutable struct loggerMetadata* _metadata;
 
 	bool _metadataUpdatedFlag = false;
-	bool _fileSystemInit	  = false;
+	char _metadataBuffer[METADATA_BUFFER_SIZE];
+	bool _fileSystemInit = false;
+
+	bool _parseMetadataBuffer(char* buffer, loggerMetadata* metadata);
 };

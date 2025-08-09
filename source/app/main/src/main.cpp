@@ -53,8 +53,8 @@ bool flagKey_T	   = false;
 bool flagKey_S	   = false;
 bool flagKey_Enter = false;
 
-static bool		runMeasurementTask	  = true;
-static uint16_t measurementTaskPeriod = 10000;
+static bool runMeasurementTask	  = true;
+static auto measurementTaskPeriod = 10000;
 
 static char configBuff[96];
 

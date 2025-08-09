@@ -20,6 +20,7 @@
 #include "virtualRTC.hpp"
 #include <cinttypes>
 #include <cstring>
+#include <span>
 
 ////////////////////////////////////////////////////////////////////////
 //					   Public methods implementation
@@ -33,8 +34,9 @@ configManager::configManager(terminalStateMachine* terminal, internalStorageComp
 }
 
 // Description in header file //
-uint8_t configManager::notify(configComponent* sender, mediatorEvents event, const char* data)
+uint8_t configManager::notify(configComponent* sender, mediatorEvents event, std::span<const char> data)
 {
+	//TODO type here shouod be named READ_METADATA, update_metadata is confusing
 	if (event == mediatorEvents::UPDATE_METADATA)
 	{
 		// Notify internal storage
@@ -48,7 +50,7 @@ uint8_t configManager::notify(configComponent* sender, mediatorEvents event, con
 
 	if (event == mediatorEvents::STORE_METADATA)
 	{
-		this->internalStorage->storeMetadata(data, strlen(data));
+		this->internalStorage->storeMetadata(data);
 	}
 
 	return 1;

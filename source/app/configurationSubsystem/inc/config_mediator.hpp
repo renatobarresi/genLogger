@@ -12,6 +12,7 @@
 #pragma once
 
 #include <cstdint>
+#include <span>
 
 ////////////////////////////////////////////////////////////////////////
 //								Types
@@ -58,7 +59,7 @@ class configManagerInterface
 	 * @param event Character representing the type of event.
 	 * @param data Character representing additional data associated with the event.
 	 */
-	virtual uint8_t notify(configComponent* sender, mediatorEvents event, const char* data) = 0;
+	virtual uint8_t notify(configComponent* sender, mediatorEvents event, std::span<const char> data) = 0;
 
 	/**
 	 * @brief Virtual destructor for the mediator interface.

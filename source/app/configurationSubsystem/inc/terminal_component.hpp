@@ -139,7 +139,7 @@ class terminalStateMachine : public configComponent
   private:
 	virtualRTC* _terminalRTC; /// Pointer to the device's RTC, used to get and store RTC's params
 	//char				  _timeBuff[9];
-	struct loggerMetadata _loggerMetadata; /// Pointer to the device's stored metadata, used to modify or get the devices params
+	struct loggerMetadata* _loggerMetadata; /// Pointer to the device's stored metadata, used to modify or get the devices params
 	//void*				  paramToConfig;		///
 	terminalSignal _previousSignal; /// Used to know what configuration option was typed
 

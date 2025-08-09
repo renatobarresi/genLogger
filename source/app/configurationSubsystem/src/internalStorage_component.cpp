@@ -17,7 +17,9 @@
 #include "errorHandler.hpp"
 #include "filesystemWrapper.hpp"
 #include "loggerMetadata.hpp"
+#include <cstdlib>
 #include <cstring>
+#include <span>
 
 ////////////////////////////////////////////////////////////////////////
 //				      Defines
@@ -71,41 +73,36 @@ bool internalStorageComponent::retrieveMetadata()
 {
 	appAssert(this->_fileSystemInit == true);
 
-	bool status;
+	bool retVal;
+	int	 bytesRead;
 
-	// Open the metadata file
-	status = fileSystem.open(simulationFile, 0);
-	if (status != true)
+	retVal = fileSystem.open(simulationFile, 0);
+	if (retVal != true)
 	{
-		// Failed to open the file
-		return status;
+		return retVal;
 	}
 
-	// Read the name from the file into the metadata struct
-	char buffer[loggerNameLenght] = {0};
-	// Leave space for null terminator
-	int bytesRead = fileSystem.read(buffer, sizeof(buffer) - 1);
+	bytesRead = fileSystem.read(this->_metadataBuffer, METADATA_BUFFER_SIZE);
 
 	if (bytesRead > 0)
 	{
-		// Copy the name from the buffer into the metadata struct
-		std::strncpy(this->_metadata->loggerName, buffer, loggerNameLenght - 1);
-		this->_metadata->loggerName[loggerNameLenght - 1] = '\0'; // Ensure null termination
+		// Fill metadata structure
+		_parseMetadataBuffer(this->_metadataBuffer, this->_metadata);
 	}
 	else
 	{
 		// Handle read error or empty file
-		status = -1; // Indicate an error
+		retVal = false; // Indicate an error
 	}
 
 	// Close the file
 	fileSystem.close();
 
-	return status;
+	return retVal;
 }
 
 // Description in header file //
-bool internalStorageComponent::storeMetadata(const char* pBuff, uint16_t size)
+bool internalStorageComponent::storeMetadata(const std::span<const char> buff)
 {
 	appAssert(this->_fileSystemInit == true);
 
@@ -119,7 +116,7 @@ bool internalStorageComponent::storeMetadata(const char* pBuff, uint16_t size)
 		return status;
 	}
 
-	int bytesWrote = fileSystem.write(pBuff, size);
+	int bytesWrote = fileSystem.write(buff.data(), buff.size());
 
 	if (fileSystem.close() == 0 || bytesWrote == 0)
 	{
@@ -129,7 +126,7 @@ bool internalStorageComponent::storeMetadata(const char* pBuff, uint16_t size)
 	return status;
 }
 
-uint16_t internalStorageComponent::getMeasurementPeriod()
+uint32_t internalStorageComponent::getMeasurementPeriod()
 {
 	return (this->_metadata->fileTransmissionPeriod) * MS_IN_MINUTE;
 }
@@ -139,4 +136,59 @@ bool internalStorageComponent::getMetadataUpdatedFlag()
 	bool retVal				   = this->_metadataUpdatedFlag;
 	this->_metadataUpdatedFlag = false;
 	return retVal;
+}
+
+/**
+ * @brief Parses metadata buffer and fills the loggerMetadata structure.
+ * @param buffer The input char buffer (must be null-terminated or contain `;` as delimiter).
+ * @param metadata Reference to the struct to fill.
+ * @return true if parsing was successful, false otherwise.
+ */
+bool internalStorageComponent::_parseMetadataBuffer(char* buffer, loggerMetadata* metadata)
+{
+	if (!buffer)
+		return false;
+
+	// Tokenize with ';' delimiter
+	char* token		 = std::strtok(buffer, ";");
+	int	  fieldIndex = 0;
+
+	while (token != nullptr)
+	{
+		switch (fieldIndex)
+		{
+			case 0: // loggerName
+			{
+				size_t tokenLen = std::strlen(token);
+				if (tokenLen >= loggerNameLenght)
+				{
+					tokenLen = loggerNameLenght - 1; // Reserve space for null-terminator
+				}
+				std::memcpy(metadata->loggerName, token, tokenLen);
+				metadata->loggerName[tokenLen] = '\0'; // Null-terminate properly
+			}
+			break;
+			case 1: // fileCreationPeriod
+				metadata->fileCreationPeriod = static_cast<uint8_t>(std::strtoul(token, nullptr, 10));
+				break;
+			case 2: // fileTransmissionPeriod
+				metadata->fileTransmissionPeriod = static_cast<uint8_t>(std::strtoul(token, nullptr, 10));
+				break;
+			case 3: // generalMeasurementPeriod
+				metadata->generalMeasurementPeriod = static_cast<uint8_t>(std::strtoul(token, nullptr, 10));
+				break;
+			case 4: // restRequestPeriod
+				metadata->restRequestPeriod = static_cast<uint8_t>(std::strtoul(token, nullptr, 10));
+				break;
+			default:
+				// Ignore extra fields
+				break;
+		}
+
+		token = std::strtok(nullptr, ";");
+		++fieldIndex;
+	}
+
+	// Validate: did we get at least 5 fields?
+	return fieldIndex >= 5;
 }

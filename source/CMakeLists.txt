@@ -216,7 +216,7 @@ if (target_type STREQUAL "target")
         -fstack-usage
         -Wno-missing-field-initializers
         $<$<COMPILE_LANGUAGE:CXX>:
-            #-std=gnu++20
+            -std=gnu++20
             -Wconversion
             -Wno-volatile
             -Wold-style-cast

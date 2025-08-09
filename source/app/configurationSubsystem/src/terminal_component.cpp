@@ -19,6 +19,7 @@
 #include "utilities.hpp"
 #include <cstring>
 #include <iostream>
+#include <span>
 #include <streambuf>
 
 ////////////////////////////////////////////////////////////////////////
@@ -65,6 +66,7 @@ void terminalStateMachine::init(terminalState state)
 
 	this->activeState	  = state;
 	this->availableSignal = terminalSignal::ENTRY;
+	this->_loggerMetadata = getLoggerMetadata();
 
 	printBanner();
 }
@@ -226,7 +228,7 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 						case terminalSignal::pressedKey_N:
 						{
 							// Update _configurationBuffer with the device name
-							std::strncpy(_loggerMetadata.loggerName, buff, sizeof(_loggerMetadata.loggerName));
+							std::strncpy(_loggerMetadata->loggerName, buff, sizeof(_loggerMetadata->loggerName));
 							std::cout << "Name copied, input S to save it\r\n";
 						}
 						break;
@@ -283,10 +285,14 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 				case terminalSignal::pressedKey_S:
 				{
 					std::cout << "Storing configuratoin in memory..\r\n";
-					char tempBuff[sizeof(_loggerMetadata)];
-					memcpy(tempBuff, &_loggerMetadata, sizeof(_loggerMetadata));
+					std::array<char, sizeof(loggerMetadata)> buffMetadata{};
+
+					memcpy(buffMetadata.data(), _loggerMetadata, buffMetadata.size());
+
+					std::span<const char> buffMetadataSpan(buffMetadata.data(), buffMetadata.size());
+
 					// Signal mediator to comunicate with internal storage component
-					uint8_t res = this->configManagerInterface_->notify(this, mediatorEvents::STORE_METADATA, tempBuff);
+					uint8_t res = this->configManagerInterface_->notify(this, mediatorEvents::STORE_METADATA, buffMetadataSpan);
 
 					if (res != 1)
 					{
@@ -320,7 +326,8 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 
 bool terminalStateMachine::updateLoggerMetadata()
 {
-	uint8_t res = this->configManagerInterface_->notify(this, mediatorEvents::UPDATE_METADATA, nullptr);
+	std::span<const char> spanBuff("123");
+	uint8_t				  res = this->configManagerInterface_->notify(this, mediatorEvents::UPDATE_METADATA, spanBuff);
 
 	if (res != 1)
 	{
@@ -340,17 +347,20 @@ void terminalStateMachine::printBanner()
 
 void terminalStateMachine::printLoggerMetadata()
 {
-	char				   timBuff[9];
-	char				   dateBuff[15];
-	struct loggerMetadata* metadata = getLoggerMetadata();
+	char timBuff[9];
+	char dateBuff[15];
 
 	_terminalRTC->getTime(&timBuff[0], sizeof(timBuff));
 	_terminalRTC->getDate(&dateBuff[0], sizeof(dateBuff));
 
 	std::cout << "#############################\r\n";
-	std::cout << "Device name: " << metadata->loggerName << "\r\n";
+	std::cout << "Device name: " << _loggerMetadata->loggerName << "\r\n";
 	std::cout << "Device time: " << timBuff << "\r\n";
 	std::cout << "Device date: " << dateBuff << "\r\n";
+	std::cout << "File creation period: " << _loggerMetadata->fileCreationPeriod << "\r\n";
+	std::cout << "File transmission period: " << _loggerMetadata->fileTransmissionPeriod << "\r\n";
+	std::cout << "Measurement period: " << _loggerMetadata->generalMeasurementPeriod << "\r\n";
+	std::cout << "HTTP POST period: " << _loggerMetadata->restRequestPeriod << "\r\n";
 	std::cout << "Firmware version: " << MAJOR << "." << MINOR << "." << PATCH << "." << DEVELOPMENT << "\r\n";
 	std::cout << "B - return\r\n";
 	std::cout << "#############################\r\n";

@@ -37,10 +37,11 @@ fileSysWrapper fileSystem(1);
 char		   simulationFile[] = "metadata.txt";
 #else
 fileSysWrapper fileSystem(0); // Use the non-microcontroller implementation
-char		   simulationFile[] = "/home/renato/renato/CESE_fiuba/proyecto_final/genLogger/firmware/test/simulationFiles/metadata.txt";
+char		   simulationFile[] = "metadata.txt";
 #endif
 
-static char defaultLoggerName[] = "defaultLogger";
+static char			  defaultLoggerName[] = "defaultLogger";
+static constexpr char defaultMetadata[]	  = "defaultLogger;1;1;1;1";
 
 ////////////////////////////////////////////////////////////////////////
 //					   Public methods implementation
@@ -79,7 +80,29 @@ bool internalStorageComponent::retrieveMetadata()
 	retVal = fileSystem.open(simulationFile, 0);
 	if (retVal != true)
 	{
-		return retVal;
+		// Unable to open the file, create it with default values
+		bool status = fileSystem.open(simulationFile, 1); // Open for writing
+		if (status != true)
+		{
+			return false; // Failed to create the file
+		}
+
+		int bytesWrote = fileSystem.write(defaultMetadata, sizeof(defaultMetadata) - 1);
+
+		if (fileSystem.close() == 0 || bytesWrote <= 0)
+		{
+			return false; // Failed to write to file or close it
+		}
+
+		// Now that the file is created with default data, parse that default data.
+		// We need a mutable buffer for strtok.
+		std::strncpy(_metadataBuffer, defaultMetadata, METADATA_BUFFER_SIZE);
+		_metadataBuffer[METADATA_BUFFER_SIZE - 1] = '\0'; // ensure null termination
+		_parseMetadataBuffer(_metadataBuffer, this->_metadata);
+
+		// Notify that metadata was updated with default values
+		this->_metadataUpdatedFlag = true;
+		return true;
 	}
 
 	bytesRead = fileSystem.read(this->_metadataBuffer, METADATA_BUFFER_SIZE);

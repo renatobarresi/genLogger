@@ -22,7 +22,7 @@ static pid_t child_pid;
 
 bool getMemInitFlag()
 {
-	return ptr == nullptr;
+	return ptr != nullptr;
 }
 
 static void cleanup(int signum)

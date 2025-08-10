@@ -13,6 +13,7 @@
 #include <cstring>
 #include <fstream>
 #include <gtest/gtest.h>
+#include <string>
 
 char testFileLocation[] = "testFS.txt";
 
@@ -161,14 +162,17 @@ TEST(loggerSubsystem, testNotification)
 	char																 timeStamp[20];
 	char																 finalTestBuff[100];
 
-	rtc.getTimestamp(timeStamp);
-
 	// Mock measurement here
-	std::sprintf(myProcessingManager.sensorInfoBuff.data(), "%s;%s", timeStamp, testBuff);
+	std::sprintf(myProcessingManager.sensorInfoBuff.data(), "%s", testBuff);
 
 	myProcessingManager.setObserver(&myLoggerManager);
 	myProcessingManager.takeMeasurements();
 	myProcessingManager.notifyObservers();
+
+	rtc.getTimestamp(timeStamp);
+
+	// Mock measurement here
+	std::sprintf(myProcessingManager.sensorInfoBuff.data(), "%s;%s", timeStamp, testBuff);
 
 	EXPECT_STREQ(myProcessingManager.sensorInfoBuff.data(), myLoggerManager.measurementsBuff.data());
 }

@@ -37,6 +37,7 @@ fileSysWrapper		   fileSystem(1);
 static constexpr char* metadataPath = "metadata.txt";
 #else
 #include <filesystem>
+#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <unistd.h>
@@ -45,7 +46,7 @@ std::string	   testFolderPath = "";
 std::string	   getPathMetadata();
 #endif
 
-static char			  defaultLoggerName[] = "defaultLogger";
+static constexpr char defaultLoggerName[] = "defaultLogger";
 static constexpr char defaultMetadata[]	  = "defaultLogger;1;1;1;1";
 
 ////////////////////////////////////////////////////////////////////////
@@ -227,6 +228,7 @@ bool internalStorageComponent::_parseMetadataBuffer(char* buffer, loggerMetadata
 	return fieldIndex >= 5;
 }
 
+#ifndef TARGET_MICRO
 std::string getPathMetadata()
 {
 	char	buf[4096];
@@ -238,7 +240,21 @@ std::string getPathMetadata()
 	buf[len] = '\0';
 
 	std::filesystem::path execDir = std::filesystem::path(buf).parent_path();
-	execDir /= "../../test/simulationFiles/metadata.txt";
+
+	// Convert to string to manipulate
+	std::string execDirStr = execDir.string();
+	size_t		pos		   = execDirStr.find("/build");
+	if (pos != std::string::npos)
+	{
+		execDirStr.erase(pos);
+	}
+
+	// Assign back to path and append metadata path
+	execDir = std::filesystem::path(execDirStr);
+	execDir /= "test/simulationFiles/metadata.txt";
+
+	std::cout << "Path to metadata: " << execDir << std::endl;
 
 	return execDir.string();
 }
+#endif

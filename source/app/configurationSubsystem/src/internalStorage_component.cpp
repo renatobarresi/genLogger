@@ -33,11 +33,16 @@ constexpr uint16_t MS_IN_MINUTE = 60000;
 
 #ifdef TARGET_MICRO
 // Use microcontroller-specific file system
-fileSysWrapper fileSystem(1);
-char		   simulationFile[] = "metadata.txt";
+fileSysWrapper		   fileSystem(1);
+static constexpr char* metadataPath = "metadata.txt";
 #else
+#include <filesystem>
+#include <stdexcept>
+#include <string>
+#include <unistd.h>
 fileSysWrapper fileSystem(0); // Use the non-microcontroller implementation
-char		   simulationFile[] = "metadata.txt";
+std::string	   testFolderPath = "";
+std::string	   getPathMetadata();
 #endif
 
 static char			  defaultLoggerName[] = "defaultLogger";
@@ -61,6 +66,12 @@ bool internalStorageComponent::initFS()
 
 	if (retVal == true)
 	{
+#ifndef TARGET_MICRO
+		testFolderPath = getPathMetadata();
+		this->_pPath   = testFolderPath.c_str();
+#else
+		this->_pPath = this->_pPath;
+#endif
 		this->_fileSystemInit = true;
 
 		retVal = retrieveMetadata();
@@ -77,11 +88,11 @@ bool internalStorageComponent::retrieveMetadata()
 	bool retVal;
 	int	 bytesRead;
 
-	retVal = fileSystem.open(simulationFile, 0);
+	retVal = fileSystem.open(this->_pPath, 0);
 	if (retVal != true)
 	{
 		// Unable to open the file, create it with default values
-		bool status = fileSystem.open(simulationFile, 1); // Open for writing
+		bool status = fileSystem.open(this->_pPath, 1); // Open for writing
 		if (status != true)
 		{
 			return false; // Failed to create the file
@@ -89,7 +100,7 @@ bool internalStorageComponent::retrieveMetadata()
 
 		int bytesWrote = fileSystem.write(defaultMetadata, sizeof(defaultMetadata) - 1);
 
-		if (fileSystem.close() == 0 || bytesWrote <= 0)
+		if (fileSystem.close() != 0 || bytesWrote <= 0)
 		{
 			return false; // Failed to write to file or close it
 		}
@@ -131,7 +142,7 @@ bool internalStorageComponent::storeMetadata(const std::span<const char> buff)
 
 	bool status = false;
 
-	status = fileSystem.open(simulationFile, 1);
+	status = fileSystem.open(this->_pPath, 1);
 
 	if (status != true)
 	{
@@ -214,4 +225,20 @@ bool internalStorageComponent::_parseMetadataBuffer(char* buffer, loggerMetadata
 
 	// Validate: did we get at least 5 fields?
 	return fieldIndex >= 5;
+}
+
+std::string getPathMetadata()
+{
+	char	buf[4096];
+	ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
+	if (len == -1)
+	{
+		throw std::runtime_error("Unable to get executable path");
+	}
+	buf[len] = '\0';
+
+	std::filesystem::path execDir = std::filesystem::path(buf).parent_path();
+	execDir /= "../../test/simulationFiles/metadata.txt";
+
+	return execDir.string();
 }

@@ -93,9 +93,10 @@ class internalStorageComponent : public configComponent
    	*/
 	mutable struct loggerMetadata* _metadata;
 
-	bool _metadataUpdatedFlag = false;
-	char _metadataBuffer[METADATA_BUFFER_SIZE];
-	bool _fileSystemInit = false;
+	const char* _pPath				 = nullptr;
+	bool		_metadataUpdatedFlag = false;
+	char		_metadataBuffer[METADATA_BUFFER_SIZE];
+	bool		_fileSystemInit = false;
 
 	bool _parseMetadataBuffer(char* buffer, loggerMetadata* metadata);
 };

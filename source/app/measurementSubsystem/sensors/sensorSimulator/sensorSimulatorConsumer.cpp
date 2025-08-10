@@ -20,6 +20,11 @@ static int	 shm_fd;
 static void* ptr;
 static pid_t child_pid;
 
+bool getMemInitFlag()
+{
+	return ptr == nullptr;
+}
+
 static void cleanup(int signum)
 {
 	std::cout << "\nReceived Ctrl+C, cleaning up..." << std::endl;
@@ -101,7 +106,7 @@ sensorOutput readSharedMemory(void)
 	if (!ptr)
 	{
 		std::cerr << "Shared memory not initialized." << std::endl;
-		//exit(1);
+		exit(1);
 	}
 
 	std::memcpy(&output, ptr, sizeof(sensorOutput));

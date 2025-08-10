@@ -101,7 +101,7 @@ sensorOutput readSharedMemory(void)
 	if (!ptr)
 	{
 		std::cerr << "Shared memory not initialized." << std::endl;
-		exit(1);
+		//exit(1);
 	}
 
 	std::memcpy(&output, ptr, sizeof(sensorOutput));

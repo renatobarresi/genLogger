@@ -95,7 +95,7 @@ TEST(terminalStateMachine, testChangesInSMState)
 
 	if (false == storage.initFS())
 	{
-		while (1);
+		FAIL() << "Failed to initialize filesystem";
 	}
 
 	// Init terminal
@@ -134,7 +134,7 @@ TEST(terminalStateMachine, testChangeToDeviceConfigState)
 
 	if (false == storage.initFS())
 	{
-		while (1);
+		FAIL() << "Failed to initialize filesystem";
 	}
 
 	terminalOutput.init(terminalState::initState);

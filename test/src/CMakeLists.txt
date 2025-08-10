@@ -30,6 +30,7 @@ set(sources
     ${sourceDirectory}/app/utilities/src/utilities.cpp
     ${sourceDirectory}/app/loggerSubsystem/src/logger_manager.cpp
     ${sourceDirectory}/app/measurementSubsystem/sensors/sensorSimulator/sensorSimulatorConsumer.cpp
+    ${sourceDirectory}/virtualDevices/src/virtualCounter.cpp
 )
 
 add_executable(${this} 

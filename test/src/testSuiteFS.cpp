@@ -139,6 +139,7 @@ TEST(terminalStateMachine, testChangeToDeviceConfigState)
 
 	terminalOutput.init(terminalState::initState);
 	terminalOutput.handler(terminalSignal::ENTRY, nullptr);
+
 	terminalOutput.handler(terminalSignal::pressedKey_C, nullptr);
 	terminalOutput.handler(terminalSignal::pressedKey_N, nullptr);
 	terminalOutput.handler(terminalSignal::pressedKey_Enter, "station1");
@@ -166,6 +167,7 @@ TEST(loggerSubsystem, testNotification)
 	std::sprintf(myProcessingManager.sensorInfoBuff.data(), "%s;%s", timeStamp, testBuff);
 
 	myProcessingManager.setObserver(&myLoggerManager);
+	myProcessingManager.takeMeasurements();
 	myProcessingManager.notifyObservers();
 
 	EXPECT_STREQ(myProcessingManager.sensorInfoBuff.data(), myLoggerManager.measurementsBuff.data());

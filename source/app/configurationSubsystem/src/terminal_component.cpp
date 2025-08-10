@@ -287,9 +287,18 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 					std::cout << "Storing configuratoin in memory..\r\n";
 					std::array<char, sizeof(loggerMetadata)> buffMetadata{};
 
-					memcpy(buffMetadata.data(), _loggerMetadata, buffMetadata.size());
+					// clang-format off
+					snprintf(buffMetadata.data(),
+							 buffMetadata.size(),
+							 "%s;%d;%d;%d;%d\r\n",
+							 _loggerMetadata->loggerName,
+							 _loggerMetadata->fileCreationPeriod,
+							 _loggerMetadata->fileTransmissionPeriod,
+							 _loggerMetadata->generalMeasurementPeriod,
+							 _loggerMetadata->restRequestPeriod);
+					// clang-format on
 
-					std::span<const char> buffMetadataSpan(buffMetadata.data(), buffMetadata.size());
+					std::span<char> buffMetadataSpan(buffMetadata.data(), buffMetadata.size());
 
 					// Signal mediator to comunicate with internal storage component
 					uint8_t res = this->configManagerInterface_->notify(this, mediatorEvents::STORE_METADATA, buffMetadataSpan);

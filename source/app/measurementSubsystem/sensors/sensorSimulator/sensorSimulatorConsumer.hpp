@@ -5,11 +5,11 @@
 
 namespace sensorSimulator
 {
-struct sensorOutput 
+struct sensorOutput
 {
-    uint32_t rain;
-    uint32_t windSpeed;
-    uint32_t windDir;
+	uint32_t rain;
+	uint32_t windSpeed;
+	uint32_t windDir;
 };
 
 // union sharedMemory
@@ -18,7 +18,8 @@ struct sensorOutput
 //     std::byte sensorOutputBuff[sizeof(sensorOutput)];
 // };
 
+bool getMemInitFlag();
 void init(void);
 
 sensorOutput readSharedMemory(void);
-}
+} // namespace sensorSimulator

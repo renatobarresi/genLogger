@@ -14,9 +14,9 @@ set(includes
     ${sourceDirectory}/app/main/inc/
     ${sourceDirectory}/app/utilities/inc/
     ${sourceDirectory}/app/loggerSubsystem/inc/
-    ${sourceDirectory}/app/processingSubsystem/inc/
-    ${sourceDirectory}/app/processingSubsystem/sensors/sensorSimulator/
-    
+    ${sourceDirectory}/app/measurementSubsystem/inc/
+    ${sourceDirectory}/app/measurementSubsystem/sensors/sensorSimulator/
+    ${sourceDirectory}/app/measurementSubsystem/sensors/inc/  
 )
 
 set(sources
@@ -29,7 +29,8 @@ set(sources
     ${sourceDirectory}/app/main/src/errorHandler.cpp
     ${sourceDirectory}/app/utilities/src/utilities.cpp
     ${sourceDirectory}/app/loggerSubsystem/src/logger_manager.cpp
-    ${sourceDirectory}/app/processingSubsystem/sensors/sensorSimulator/sensorSimulatorConsumer.cpp
+    ${sourceDirectory}/app/measurementSubsystem/sensors/sensorSimulator/sensorSimulatorConsumer.cpp
+    ${sourceDirectory}/virtualDevices/src/virtualCounter.cpp
 )
 
 add_executable(${this} 

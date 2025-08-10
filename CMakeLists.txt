@@ -50,12 +50,12 @@ CPMAddPackage(
     DOWNLOAD_ONLY ON 
 )
 
-CPMAddPackage(
-    NAME freeRTOS
-    GITHUB_REPOSITORY FreeRTOS/FreeRTOS-Kernel
-    GIT_TAG V11.1.0
-    DOWNLOAD_ONLY ON 
-)
+# CPMAddPackage(
+#     NAME freeRTOS
+#     GITHUB_REPOSITORY FreeRTOS/FreeRTOS-Kernel
+#     GIT_TAG V11.1.0
+#     DOWNLOAD_ONLY ON 
+# )
 
 CPMAddPackage(
     NAME little-FS
@@ -71,12 +71,12 @@ CPMAddPackage(
     DOWNLOAD_ONLY ON
 )
 
-CPMAddPackage(
-    NAME lwIP
-    GIT_REPOSITORY https://git.savannah.nongnu.org/git/lwip
-    GIT_TAG STABLE-2_2_0_RELEASE
-    DOWNLOAD_ONLY ON 
-)
+# CPMAddPackage(
+#     NAME lwIP
+#     GIT_REPOSITORY https://git.savannah.nongnu.org/git/lwip
+#     GIT_TAG STABLE-2_2_0_RELEASE
+#     DOWNLOAD_ONLY ON 
+# )
 
 ##########################################################
 #                     Documentation                            

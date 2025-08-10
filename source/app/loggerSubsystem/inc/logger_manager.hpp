@@ -19,8 +19,11 @@
 #include "loggerMetadata.hpp"
 #include "processing_manager.hpp"
 
-constexpr uint16_t PROCESS_INFO_BUFF_SIZE = 1024;
+constexpr uint16_t PROCESS_INFO_BUFF_SIZE = 124;
 
+/**
+ * @brief Creation periods of measurement files
+ */
 enum class fileGenerationConf_t
 {
 	DAILY_FILE,
@@ -33,13 +36,6 @@ enum class fileGenerationConf_t
 class loggerManager : public observerInterface
 {
   public:
-	/**
-     * @brief Construct a new logger Manager object
-     * 
-     * @param processingManager 
-     */
-	loggerManager(processingManager* processingManager) : _processingManager(processingManager) {}
-
 	bool init();
 
 	/**
@@ -54,7 +50,7 @@ class loggerManager : public observerInterface
      * @param infoFlag 
      * @param sensorInformation 
      */
-	void update(bool infoFlag, const char*& sensorInformation, const char*& timestamp) override;
+	void update(bool infoFlag, const char* sensorInformation, const char* timestamp) override;
 
 	/**
      * @brief 
@@ -62,13 +58,15 @@ class loggerManager : public observerInterface
      */
 	void handler();
 
-	char sensorData[PROCESS_INFO_BUFF_SIZE];
+	bool getAvailableDataFlag();
+
+	std::array<char, PROCESS_INFO_BUFF_SIZE> measurementsBuff{0};
 
   private:
 	void _fileManagement(uint8_t confNum);
 
-	processingManager*	   _processingManager;
+	//processingManager*	   _processingManager;
 	uint16_t			   _infoDataLen;
 	struct loggerMetadata* _metadata;
-	bool				   _availableData;
+	bool				   _availableData = false;
 };

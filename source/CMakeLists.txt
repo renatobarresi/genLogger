@@ -35,7 +35,9 @@ set(driver_sources)
 
 set(dependencies_sources)
 
-set(virtualDevice_sources)
+set(virtualDevice_sources
+    virtualDevices/src/virtualCounter.cpp
+)
 
 set(middleware_sources)
 
@@ -70,7 +72,7 @@ endif()
 if (target_type STREQUAL "host")
     LIST(APPEND driver_sources
         drivers/rtc/src/host_rtc.cpp
-        app/processingSubsystem/sensors/sensorSimulator/sensorSimulatorConsumer.cpp
+        app/measurementSubsystem/sensors/sensorSimulator/sensorSimulatorConsumer.cpp
     )
 endif()
 
@@ -82,9 +84,10 @@ set(app_includes
     app/configurationSubsystem/inc/
     app/loggerMetadata/
     app/utilities/inc/
-    app/processingSubsystem/inc/
+    app/measurementSubsystem/inc/
     app/loggerSubsystem/inc/
-    app/processingSubsystem/sensors/sensorSimulator/
+    app/measurementSubsystem/sensors/sensorSimulator/
+    app/measurementSubsystem/sensors/inc/
 )
 
 set(platform_includes
@@ -213,7 +216,7 @@ if (target_type STREQUAL "target")
         -fstack-usage
         -Wno-missing-field-initializers
         $<$<COMPILE_LANGUAGE:CXX>:
-            #-std=gnu++20
+            -std=gnu++20
             -Wconversion
             -Wno-volatile
             -Wold-style-cast

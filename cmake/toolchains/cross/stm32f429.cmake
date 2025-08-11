@@ -29,7 +29,7 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 set(CMAKE_SYSTEM_NAME Generic)                                
 set(CMAKE_SYSTEM_PROCESSOR arm)
 set(CPU_NAME cortex-m4)
-set(targetToolChainPath /home/renato/renato/toolchains/arm_bare_metal/arm-gnu-toolchain-13.2.rel1-x86_64-arm-none-eabi/arm-gnu-toolchain-13.2.Rel1-x86_64-arm-none-eabi/bin)
+set(targetToolChainPath /home/renato/renato/toolchains/arm_bare_metal/arm-gnu-toolchain-13.2.rel1-x86_64-arm-none-eabi/arm-gnu-toolchain-14.2.Rel1-x86_64-arm-none-eabi/bin)
 # This path comes from the cmakelists thats using this .cmake file, and should be provided by the user.
 
 #############################

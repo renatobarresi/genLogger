@@ -216,13 +216,12 @@ if (target_type STREQUAL "target")
         -fstack-usage
         -Wno-missing-field-initializers
         $<$<COMPILE_LANGUAGE:CXX>:
-            -std=gnu++20
+            -std=c++20
             -Wconversion
             -Wno-volatile
             -Wold-style-cast
             -Wuseless-cast
             -Wsuggest-override
-            -std=gnu++17
             -fno-exceptions
             -fno-rtti
             -fno-use-cxa-atexit>

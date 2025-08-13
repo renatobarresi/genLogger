@@ -53,8 +53,8 @@ bool flagKey_T	   = false;
 bool flagKey_S	   = false;
 bool flagKey_Enter = false;
 
-static bool runMeasurementTask	  = true;
-static auto measurementTaskPeriod = 10000;
+static bool		runMeasurementTask	  = true;
+static uint32_t measurementTaskPeriod = 10000;
 
 static char configBuff[96];
 
@@ -74,15 +74,23 @@ void myTickHandler()
 		runMeasurementTask = true;
 	}
 }
-#endif
+#else
 
+struct hardwareTimeouts taskMeasurementControl{&measurementTaskPeriod, 0};
+
+std::array<hardwareTimeouts*, 2> taskControlContainer{&taskMeasurementControl, nullptr};
+
+#endif
+// const char buff[] = "hola"
+// fun(const char *pBuff)
+// fun(buff)
 /**
  * 
  */
 int main()
 {
 #ifdef TARGET_MICRO
-	stm32f429_init();
+	stm32f429_init(taskControlContainer.data());
 #else
 	systick::startSystickSimulation(myTickHandler);
 #endif

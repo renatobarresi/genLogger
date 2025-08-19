@@ -24,7 +24,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
-
+#include "init.h"
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN TD */
 
@@ -64,6 +64,7 @@ extern UART_HandleTypeDef huart3;
 
 extern uint16_t					Timer1, Timer2;
 extern struct hardwareTimeouts* pTask_1;
+//struct hardwareTimeouts task_1;
 
 /* USER CODE END EV */
 
@@ -198,7 +199,7 @@ void SysTick_Handler(void)
 	/* USER CODE END SysTick_IRQn 0 */
 	HAL_IncTick();
 	/* USER CODE BEGIN SysTick_IRQn 1 */
-	if ((HAL_GetTick() % pTask_1->taskTimeout) == 0)
+	if ((HAL_GetTick() % *pTask_1->taskTimeout) == 0)
 	{
 		// Set flag to true
 	}

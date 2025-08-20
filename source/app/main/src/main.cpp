@@ -45,11 +45,13 @@ configManager														 loggerConfig(&terminalOutput, &internalStorage);
 processingManager<sensor::davisPluviometer, sensor::anemometerDavis> myProcessingManager(rtc);
 loggerManager														 myLoggerManager;
 
+bool flagKey_F 	   = false;
 bool flagKey_I	   = false;
 bool flagKey_C	   = false;
 bool flagKey_B	   = false;
 bool flagKey_N	   = false;
 bool flagKey_T	   = false;
+bool flagKey_M 	   = false;
 bool flagKey_S	   = false;
 bool flagKey_Enter = false;
 
@@ -145,6 +147,11 @@ void configurationTask()
 		terminalOutput.handler(terminalSignal::pressedKey_I, nullptr);
 		flagKey_I = false;
 	}
+	else if (flagKey_M == true)
+	{
+		terminalOutput.handler(terminalSignal::pressedKey_M, nullptr);
+		flagKey_M = false;
+	}
 	else if (flagKey_C == true)
 	{
 		terminalOutput.handler(terminalSignal::pressedKey_C, nullptr);
@@ -154,6 +161,11 @@ void configurationTask()
 	{
 		terminalOutput.handler(terminalSignal::pressedKey_B, nullptr);
 		flagKey_B = false;
+	}
+	else if (flagKey_F == true)
+	{
+		terminalOutput.handler(terminalSignal::pressedKey_F, nullptr);
+		flagKey_F = false;
 	}
 	else if (flagKey_N == true)
 	{

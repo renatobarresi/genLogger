@@ -37,11 +37,13 @@
 // way of communicating between main task and terminal SM
 // Declare the flag variables as external
 extern bool flagKey_I;
+extern bool flagKey_M;
 extern bool flagKey_C;
 extern bool flagKey_B;
 extern bool flagKey_N;
 extern bool flagKey_T;
 extern bool flagKey_S;
+extern bool flagKey_F;
 extern bool flagKey_Enter;
 
 // For Interrupt simulation in host
@@ -161,7 +163,14 @@ void processSerialBuffer()
 	{
 		flagKey_S = true;
 	}
-
+	else if (serialBuffer == "F")
+	{
+		flagKey_F = true;
+	}
+	else if (serialBuffer == "M")
+	{
+		flagKey_M = true;
+	}
 	else if (serialBuffer.find("\0") != std::string::npos)
 	{
 		flagKey_Enter = true;

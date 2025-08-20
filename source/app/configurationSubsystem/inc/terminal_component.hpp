@@ -76,6 +76,8 @@ enum class terminalSignal
 	pressedKey_N, ///< Signal triggered when the 'N' key is pressed.
 	pressedKey_T,
 	pressedKey_S,
+	pressedKey_F,
+	pressedKey_M,
 	pressedKey_Enter,
 
 	numSignals ///< Number of signals (used for validation or iteration).

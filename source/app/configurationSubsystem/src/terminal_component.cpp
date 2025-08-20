@@ -7,6 +7,7 @@
  *
  * @copyright Copyright (c) 2025
  *
+ * TODO: Refactor to use state pattern
  */
 
 ////////////////////////////////////////////////////////////////////////
@@ -17,7 +18,10 @@
 #include "device_version.hpp"
 #include "loggerMetadata.hpp"
 #include "utilities.hpp"
+#include <cstdio>
 #include <cstring>
+#include <charconv>  
+#include <system_error>
 #include <iostream>
 #include <span>
 #include <streambuf>
@@ -215,6 +219,31 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 					event = terminalEvent::EVENT_HANDLED;
 				}
 				break;
+				case terminalSignal::pressedKey_C:
+				{
+					std::cout << "Please input how often to send the file in minutes\r\n";
+					this->_previousSignal = terminalSignal::pressedKey_C;
+
+					event = terminalEvent::EVENT_HANDLED;	
+				}
+				break;
+				case terminalSignal::pressedKey_F:
+				{
+					std::cout << "Please input the File creation period\r\n";
+					std::cout << "Type 1 for file creation a day\r\nType 2 for file creation only once\r\n";
+					this->_previousSignal = terminalSignal::pressedKey_F;
+
+					event = terminalEvent::EVENT_HANDLED;					
+				}
+				break;
+				case terminalSignal::pressedKey_M:
+				{
+					std::cout << "Please input the measurement period in minutes\r\n";
+					this->_previousSignal = terminalSignal::pressedKey_M;
+
+					event = terminalEvent::EVENT_HANDLED;					
+				}
+				break;
 				case terminalSignal::pressedKey_Enter:
 				{
 					if (nullptr == buff)
@@ -258,6 +287,46 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 							{
 								std::cout << "Error configuring RTC\r\n";
 							}
+						}
+						break;
+						case terminalSignal::pressedKey_F:
+						{
+							if ('1' != buff[0] && '2' != buff[0])
+							{
+								std::cout << "Invalid data\r\n";
+								break;
+							}
+
+							_loggerMetadata->fileCreationPeriod = buff[0];
+							std::cout << "File creation period changed, input S to save it\r\n";
+						}
+						break;
+						case terminalSignal::pressedKey_M:
+						case terminalSignal::pressedKey_C:
+						{
+							// Validate input
+							int value;
+							auto [ptr, ec] = std::from_chars(buff, buff + sizeof(buff) - 1, value);
+
+							if (ec != std::errc())
+							{
+								std::cout << "Invalid data, please type again\r\n";
+							}
+							else
+							{
+								if (terminalSignal::pressedKey_C == this->_previousSignal)
+								{
+									_loggerMetadata->fileTransmissionPeriod = static_cast<uint16_t>(value);
+									std::cout << "File transmission period changed, input S to save it\r\n";
+								}
+								else if (terminalSignal::pressedKey_M == this->_previousSignal)
+								{
+									_loggerMetadata->generalMeasurementPeriod = static_cast<uint16_t>(value);
+									std::cout << "Measurement period changed, input S to save it\r\n";
+								}
+							}
+
+							event = terminalEvent::EVENT_HANDLED;	
 						}
 						break;
 						default:
@@ -396,6 +465,9 @@ static void printConfigHelp()
 	std::cout << "#############################\r\n";
 	std::cout << "T - Set device time and date\r\n";
 	std::cout << "N - set device name\r\n";
+	std::cout << "F - set the device creation period\r\n";
+	std::cout << "C - set the device file transmission period\r\n";
+	std::cout << "M - set the device measurement period\r\n";
 	std::cout << "S - Store configuration in memory\r\n";
 	std::cout << "B - return\r\n";
 	std::cout << "#############################\r\n";

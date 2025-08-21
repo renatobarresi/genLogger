@@ -9,7 +9,7 @@ class httpClient : public observerInterface
   public:
   httpClient(network::networkManager *netManager);
   
-  void update(bool infoFlag, const char*& sensorInformation, const char*& timestamp) override;
+  void update(bool infoFlag, const char* sensorInformation, const char* timestamp) override;
   
   bool connect(const char*& url);
   

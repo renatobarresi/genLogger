@@ -23,13 +23,22 @@
 //							    Includes
 ////////////////////////////////////////////////////////////////////////
 
+#include <array>
 #include <cstdint>
+#include <variant>
 
 ////////////////////////////////////////////////////////////////////////
 //							    Constants
 ////////////////////////////////////////////////////////////////////////
 
-constexpr uint16_t loggerNameLenght = 96;
+constexpr uint16_t METADATA_BUFFER_SIZE = 256;
+constexpr uint16_t loggerNameLenght		= 96;
+
+namespace loggerMetadataConstants
+{
+constexpr uint8_t CREATE_FILE_A_DAY = 1;
+constexpr uint8_t CREATE_ONLY_ONE_FILE = 2;
+}
 
 ////////////////////////////////////////////////////////////////////////
 //							    Structures
@@ -41,11 +50,11 @@ constexpr uint16_t loggerNameLenght = 96;
  */
 struct loggerMetadata
 {
-	char	loggerName[loggerNameLenght];
-	uint8_t fileCreationPeriod = 4;	  // loggerSubsystem has to create files, this parameter indicates how often it does. (for more information, read externalStorage_component.hpp documentation)
-	uint8_t fileTransmissionPeriod;	  // Period (minutes) for sending the current file to the server
-	uint8_t generalMeasurementPeriod; // Period (seconds) for making a measurement and storing it (not all sensors follow this period)
-	uint8_t restRequestPeriod;		  // Period (minutes) for sending last computed data line to the server
+	char	 loggerName[loggerNameLenght];
+	uint8_t  fileCreationPeriod = loggerMetadataConstants::CREATE_ONLY_ONE_FILE;   // loggerSubsystem has to create files, this parameter indicates how often it does.
+	uint16_t fileTransmissionPeriod;   // Period (minutes) for sending the current file to the server
+	uint16_t generalMeasurementPeriod; // Period (minutes) for making a measurement and storing it (not all sensors follow this period)
+	uint16_t restRequestPeriod;		   // Period (minutes) for sending last computed data line to the server
 };
 
 ////////////////////////////////////////////////////////////////////////

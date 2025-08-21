@@ -17,6 +17,9 @@ set(includes
     ${sourceDirectory}/app/processingSubsystem/inc/
     ${sourceDirectory}/app/networkSubsystem/inc/
     ${sourceDirectory}/middleware/mongoose/
+    ${sourceDirectory}/app/measurementSubsystem/inc/
+    ${sourceDirectory}/app/measurementSubsystem/sensors/sensorSimulator/
+    ${sourceDirectory}/app/measurementSubsystem/sensors/inc/  
 )
 
 set(sources
@@ -33,6 +36,8 @@ set(sources
     ${sourceDirectory}/app/networkSubsystem/src/httpClient.cpp
     ${sourceDirectory}/middleware/mongoose/mongoose.c
     ${sourceDirectory}/app/networkSubsystem/src/httpServer.cpp
+    ${sourceDirectory}/app/measurementSubsystem/sensors/sensorSimulator/sensorSimulatorConsumer.cpp
+    ${sourceDirectory}/virtualDevices/src/virtualCounter.cpp
 )
 
 add_executable(${this} 

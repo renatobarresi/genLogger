@@ -42,7 +42,10 @@ void simulatedRTC::getTime(char* buffer, size_t bufferSize) const
 		return;
 	}
 
-	std::snprintf(buffer, bufferSize, "%02d:%02d:%02d", currentTime.tm_hour, currentTime.tm_min, currentTime.tm_sec);
+	std::time_t t			 = std::time(nullptr);
+	std::tm		currentTime_ = *std::localtime(&t);
+
+	std::snprintf(buffer, bufferSize, "%02d:%02d:%02d", currentTime_.tm_hour, currentTime_.tm_min, currentTime_.tm_sec);
 }
 
 bool simulatedRTC::setDate(uint8_t day, uint8_t month, uint16_t year)
@@ -73,7 +76,11 @@ void simulatedRTC::getDate(char* buffer, size_t bufferSize) const
 		}
 		return;
 	}
-	std::snprintf(buffer, bufferSize, "%02d/%02d/%04d", currentTime.tm_mday, currentTime.tm_mon + 1, currentTime.tm_year + 1900);
+
+	std::time_t t			 = std::time(nullptr);
+	std::tm		currentTime_ = *std::localtime(&t);
+
+	std::snprintf(buffer, bufferSize, "%02d/%02d/%04d", currentTime_.tm_mday, currentTime_.tm_mon + 1, currentTime_.tm_year + 1900);
 }
 
 void simulatedRTC::syncSystemTime()

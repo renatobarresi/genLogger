@@ -76,6 +76,8 @@ enum class terminalSignal
 	pressedKey_N, ///< Signal triggered when the 'N' key is pressed.
 	pressedKey_T,
 	pressedKey_S,
+	pressedKey_F,
+	pressedKey_M,
 	pressedKey_Enter,
 
 	numSignals ///< Number of signals (used for validation or iteration).
@@ -137,13 +139,13 @@ class terminalStateMachine : public configComponent
 	void setSignal(terminalSignal sig);
 
   private:
-	virtualRTC* _terminalRTC;					/// Pointer to the device's RTC, used to get and store RTC's params
-	//char				  _timeBuff[9];		
-	struct loggerMetadata _loggerMetadata;		/// Pointer to the device's stored metadata, used to modify or get the devices params 			
-	//void*				  paramToConfig;		/// 
-	terminalSignal		  _previousSignal;		/// Used to know what configuration option was typed 
+	virtualRTC* _terminalRTC; /// Pointer to the device's RTC, used to get and store RTC's params
+	//char				  _timeBuff[9];
+	struct loggerMetadata* _loggerMetadata; /// Pointer to the device's stored metadata, used to modify or get the devices params
+	//void*				  paramToConfig;		///
+	terminalSignal _previousSignal; /// Used to know what configuration option was typed
 
-	terminalSignal availableSignal;				/// Represents a signal that can be passed to the signal dispacher
+	terminalSignal availableSignal; /// Represents a signal that can be passed to the signal dispacher
 	/**
 	 * @brief Dispatch a signal to the appropriate handler based on the current state.
 	 *

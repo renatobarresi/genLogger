@@ -7,7 +7,7 @@ httpClient::httpClient(network::networkManager *netManager)
 	this->_netManager = netManager;
 }
 
-void httpClient::update(bool infoFlag, const char*& sensorInformation, const char*& timestamp)
+void httpClient::update(bool infoFlag, const char* sensorInformation, const char* timestamp)
 {
 	
 }

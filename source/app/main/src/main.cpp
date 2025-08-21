@@ -37,9 +37,9 @@
 // Includes related to the used board
 #ifdef TARGET_MICRO
 #include "init.h"
-#endif
 
 void* operator new(std::size_t count) = delete;               // Make sure no library that uses the heap is being used 
+#endif
 
 virtualRTC															 rtc;
 terminalStateMachine												 terminalOutput(&rtc);

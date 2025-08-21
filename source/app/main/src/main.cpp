@@ -32,10 +32,13 @@
 #include "terminal_component.hpp"
 #include "virtualRTC.hpp"
 #include "virtualTimer.hpp"
+#include <new>
 
 // Includes related to the used board
 #ifdef TARGET_MICRO
 #include "init.h"
+
+void* operator new(std::size_t count) = delete;               // Make sure no library that uses the heap is being used 
 #endif
 
 virtualRTC															 rtc;
@@ -122,6 +125,7 @@ int main()
 
 	return 0;
 }
+
 
 void configurationTask()
 {

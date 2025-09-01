@@ -8,6 +8,7 @@ class networkManager
 {
   public:
 	networkManager(const char* ip, const char* netmask, const char* gateway);
+	networkManager();
 	bool init();
 	bool httpConnectPost(const char *url, const char *postContent);
 	void setIp(const char*& ip);
@@ -23,6 +24,7 @@ class networkManager
 	char _ip[16];
 	char _netmask[16];
 	char _gateway[16];
+	bool _staticIP = true;
 
 	struct mg_mgr mgr;
 	static void mgEventHandler(struct mg_connection *c, int ev, void *ev_data);

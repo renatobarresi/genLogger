@@ -12,7 +12,7 @@ void httpClient::update(bool infoFlag, const char* sensorInformation, const char
 	
 }
 
-bool httpClient::connect(const char*& serverLink)
+bool httpClient::connect(const char* serverLink)
 {
 	//
 

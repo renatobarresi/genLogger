@@ -25,6 +25,8 @@ set(app_sources
     app/loggerMetadata/loggerMetadata.cpp
     app/utilities/src/utilities.cpp
     app/loggerSubsystem/src/logger_manager.cpp
+    app/networkSubsystem/src/networkManager.cpp
+    app/networkSubsystem/src/httpClient.cpp
 )
 
 set(platform_sources
@@ -39,7 +41,9 @@ set(virtualDevice_sources
     virtualDevices/src/virtualCounter.cpp
 )
 
-set(middleware_sources)
+set(middleware_sources
+    middleware/mongoose/mongoose.c
+)
 
 # Special target specific sources
 if (target_type STREQUAL "target")
@@ -88,6 +92,7 @@ set(app_includes
     app/loggerSubsystem/inc/
     app/measurementSubsystem/sensors/sensorSimulator/
     app/measurementSubsystem/sensors/inc/
+    app/networkSubsystem/inc/
 )
 
 set(platform_includes
@@ -108,7 +113,9 @@ set(virtualDevices_includes
     virtualDevices/inc/
 )
 
-set(middleware_includes)
+set(middleware_includes
+    middleware/mongoose/
+)
 
 # Special target specific includes
 if (target_type STREQUAL "target")

@@ -11,7 +11,7 @@ class httpClient : public observerInterface
   
   void update(bool infoFlag, const char* sensorInformation, const char* timestamp) override;
   
-  bool connect(const char*& url);
+  bool connect(const char* url);
   
   void sendData(const char* data);
   

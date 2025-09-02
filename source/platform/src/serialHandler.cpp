@@ -200,6 +200,14 @@ void processSerialBuffer()
 	{
 		flagKey_S = true;
 	}
+	else if (0 == strcmp(serialBuffer, "F"))
+	{
+		flagKey_F = true;
+	}
+	else if (0 == strcmp(serialBuffer, "M"))
+	{
+		flagKey_M = true;
+	}
 	else if (std::strlen(serialBuffer) > 1)
 	{
 		flagKey_Enter = true;

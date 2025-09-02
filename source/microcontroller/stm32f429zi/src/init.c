@@ -21,6 +21,7 @@
 
 #include "init.h"
 #include "stm32f4xx_hal.h"
+#include <stdint.h>
 //#include "i2c_drv.h"
 #include "ethernet.h"
 #include "rtc_drv.h"
@@ -39,11 +40,13 @@ void HAL_MspInit(void);
 //							Private function definitions
 ////////////////////////////////////////////////////////////////////////
 
+struct hardwareTimeouts* pTask_1;
+
 ////////////////////////////////////////////////////////////////////////
 //							Functions declarations
 ////////////////////////////////////////////////////////////////////////
 
-void stm32f429_init()
+void stm32f429_init(struct hardwareTimeouts** taskControlParams)
 {
 	// Init ST Hal if used
 	if (HAL_OK != HAL_Init())
@@ -59,6 +62,8 @@ void stm32f429_init()
 
 	// Init DMA
 	MX_DMA_Init();
+
+	pTask_1 = taskControlParams[0];
 
 	if (-1 == uart_init())
 	{

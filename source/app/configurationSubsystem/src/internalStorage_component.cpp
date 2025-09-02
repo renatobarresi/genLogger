@@ -71,7 +71,7 @@ bool internalStorageComponent::initFS()
 		testFolderPath = getPathMetadata();
 		this->_pPath   = testFolderPath.c_str();
 #else
-		this->_pPath = this->_pPath;
+		this->_pPath = this->_defaultPath;
 #endif
 		this->_fileSystemInit = true;
 

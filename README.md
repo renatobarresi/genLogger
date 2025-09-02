@@ -24,12 +24,11 @@ The build system generator used is CMake, configured to generate makefiles for t
 All dependency source files are automatically downloaded by CMake, except FatFS (included as middleware in source folder)
 
 * LittleFS
-* Mongoose
+* Moongose
 * FatFS
 * STM32F4 HAL
 * CMSIS
 * Googletest
-* FreeRTOS (Not yet used)
 
 ## Build instructions
 
@@ -43,4 +42,4 @@ After making sure all the requirements are met:
     - cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/cross/stm32f429.cmake -DCMAKE_BUILD_TYPE=Debug -Dtarget_type=target
 
 ## Terminal used for testing 
- Picocom
+ Cutecom

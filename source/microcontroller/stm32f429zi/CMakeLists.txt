@@ -48,6 +48,7 @@ set(st_hal_sources
     ${stm32f4_hal_path}/Src/stm32f4xx_hal_rtc.c
     ${stm32f4_hal_path}/Src/stm32f4xx_hal_rcc_ex.c
     ${stm32f4_hal_path}/Src/stm32f4xx_hal_pwr.c
+    ${stm32f4_hal_path}/Src/stm32f4xx_hal_eth.c
 )
 
 # List of source files for initializing and setting up the Nucleo-F429zi board
@@ -63,6 +64,7 @@ set(f429zi_init_sources
     src/spi_drv.c    
     src/uart.c
     src/rtc_drv.c
+    src/ethernet.c
 )
 
 ##########################################################
@@ -131,7 +133,8 @@ target_compile_options(${bsp_nucleo_f429zi_component} PRIVATE
         -std=gnu++17             # Set C++ standard to GNU++17
         -fno-exceptions          # Disable exceptions in C++
         -fno-rtti                # Disable runtime type information in C++
-        -fno-use-cxa-atexit>     # Avoid usage of cxa_atexit
+        -fno-use-cxa-atexit      # Avoid usage of cxa_atexit
+        -fno-threadsafe-statics> # no extra code for thread safe variables initialization
     $<$<CONFIG:Debug>:-g3 -ggdb> # Full debug symbols for Debug configuration
     $<$<CONFIG:Release>:-Og -g0> # Optimize for size and no debugging in Release configuration
 )

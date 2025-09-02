@@ -29,7 +29,6 @@ All dependency source files are automatically downloaded by CMake, except FatFS 
 * STM32F4 HAL
 * CMSIS
 * Googletest
-* FreeRTOS (Not yet used)
 
 ## Build instructions
 

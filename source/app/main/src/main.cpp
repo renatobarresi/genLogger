@@ -32,10 +32,13 @@
 #include "terminal_component.hpp"
 #include "virtualRTC.hpp"
 #include "virtualTimer.hpp"
+#include <new>
 
 // Includes related to the used board
 #ifdef TARGET_MICRO
 #include "init.h"
+
+void* operator new(std::size_t count) = delete;               // Make sure no library that uses the heap is being used 
 #endif
 
 virtualRTC															 rtc;
@@ -45,11 +48,13 @@ configManager														 loggerConfig(&terminalOutput, &internalStorage);
 processingManager<sensor::davisPluviometer, sensor::anemometerDavis> myProcessingManager(rtc);
 loggerManager														 myLoggerManager;
 
+bool flagKey_F 	   = false;
 bool flagKey_I	   = false;
 bool flagKey_C	   = false;
 bool flagKey_B	   = false;
 bool flagKey_N	   = false;
 bool flagKey_T	   = false;
+bool flagKey_M 	   = false;
 bool flagKey_S	   = false;
 bool flagKey_Enter = false;
 
@@ -127,6 +132,7 @@ int main()
 	return 0;
 }
 
+
 void configurationTask()
 {
 	// Check if data is available in serial port
@@ -151,6 +157,11 @@ void configurationTask()
 		terminalOutput.handler(terminalSignal::pressedKey_I, nullptr);
 		flagKey_I = false;
 	}
+	else if (flagKey_M == true)
+	{
+		terminalOutput.handler(terminalSignal::pressedKey_M, nullptr);
+		flagKey_M = false;
+	}
 	else if (flagKey_C == true)
 	{
 		terminalOutput.handler(terminalSignal::pressedKey_C, nullptr);
@@ -160,6 +171,11 @@ void configurationTask()
 	{
 		terminalOutput.handler(terminalSignal::pressedKey_B, nullptr);
 		flagKey_B = false;
+	}
+	else if (flagKey_F == true)
+	{
+		terminalOutput.handler(terminalSignal::pressedKey_F, nullptr);
+		flagKey_F = false;
 	}
 	else if (flagKey_N == true)
 	{

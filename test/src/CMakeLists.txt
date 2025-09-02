@@ -14,6 +14,9 @@ set(includes
     ${sourceDirectory}/app/main/inc/
     ${sourceDirectory}/app/utilities/inc/
     ${sourceDirectory}/app/loggerSubsystem/inc/
+    ${sourceDirectory}/app/processingSubsystem/inc/
+    ${sourceDirectory}/app/networkSubsystem/inc/
+    ${sourceDirectory}/middleware/mongoose/
     ${sourceDirectory}/app/measurementSubsystem/inc/
     ${sourceDirectory}/app/measurementSubsystem/sensors/sensorSimulator/
     ${sourceDirectory}/app/measurementSubsystem/sensors/inc/  
@@ -29,6 +32,10 @@ set(sources
     ${sourceDirectory}/app/main/src/errorHandler.cpp
     ${sourceDirectory}/app/utilities/src/utilities.cpp
     ${sourceDirectory}/app/loggerSubsystem/src/logger_manager.cpp
+    ${sourceDirectory}/app/networkSubsystem/src/networkManager.cpp
+    ${sourceDirectory}/app/networkSubsystem/src/httpClient.cpp
+    ${sourceDirectory}/middleware/mongoose/mongoose.c
+    ${sourceDirectory}/app/networkSubsystem/src/httpServer.cpp
     ${sourceDirectory}/app/measurementSubsystem/sensors/sensorSimulator/sensorSimulatorConsumer.cpp
     ${sourceDirectory}/virtualDevices/src/virtualCounter.cpp
 )

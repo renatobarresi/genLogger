@@ -23,6 +23,7 @@
 #include "stm32f4xx_hal.h"
 #include <stdint.h>
 //#include "i2c_drv.h"
+#include "ethernet.h"
 #include "rtc_drv.h"
 #include "spi_drv.h"
 #include "uart.h"
@@ -78,6 +79,12 @@ void stm32f429_init(struct hardwareTimeouts** taskControlParams)
 	{
 		while (1);
 	}
+
+	if (-1 == eth_init())
+	{
+		while (1);
+	}
+	//stm32f429_i2cInit(&i2c1Device);
 }
 
 void HAL_MspInit(void)

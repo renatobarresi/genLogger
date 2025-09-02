@@ -1,9 +1,11 @@
 #include "anemometer.hpp"
 #include "config_manager.hpp"
 #include "filesystemWrapper.hpp"
+#include "httpClient.hpp"
 #include "internalStorage_component.hpp"
 #include "loggerMetadata.hpp"
 #include "logger_manager.hpp"
+#include "networkManager.hpp"
 #include "pluviometer.hpp"
 #include "processing_manager.hpp"
 #include "terminal_component.hpp"
@@ -13,6 +15,8 @@
 #include <cstring>
 #include <fstream>
 #include <gtest/gtest.h>
+#include "httpServer.hpp"
+#include <thread>
 #include <string>
 
 char testFileLocation[] = "testFS.txt";
@@ -177,6 +181,34 @@ TEST(loggerSubsystem, testNotification)
 	EXPECT_STREQ(myProcessingManager.sensorInfoBuff.data(), myLoggerManager.measurementsBuff.data());
 }
 
+TEST(networkManager, testStablishConn)
+{
+	const char ip[]		 = "123";
+	const char netmask[] = "123";
+	const char gateway[] = "123";
+	bool retVal = false;
+
+    // Prepare promise/future to synchronize server startup
+    std::promise<void> server_ready;
+    std::future<void> server_ready_future = server_ready.get_future();
+
+	network::networkManager myNetwork(ip, netmask, gateway);
+	
+    // Launch server in separate thread
+    std::thread server_thread(httpServer, std::ref(server_ready));
+
+    // Wait for server to be ready
+    server_ready_future.wait();
+
+	myNetwork.init();
+
+	retVal = myNetwork.httpConnectPost("127.0.0.1:8080", "123");
+
+	server_thread.join(); // Wait for server thread to finish
+
+	EXPECT_EQ(true, retVal);
+}
+
 TEST(loggerSubsystem, testWritingExternal)
 {
 	// char			  fileName[56];
@@ -225,5 +257,5 @@ TEST(loggerSubsystem, testWritingExternal)
 	// }
 
 	// EXPECT_STREQ(finalTestBuff, storedData);
-	// //EXPECT_TRUE(true);
+	EXPECT_TRUE(true);
 }

@@ -93,6 +93,7 @@ class internalStorageComponent : public configComponent
    	*/
 	mutable struct loggerMetadata* _metadata;
 
+	const char	_defaultPath[13]	 = "metadata.txt";
 	const char* _pPath				 = nullptr;
 	bool		_metadataUpdatedFlag = false;
 	char		_metadataBuffer[METADATA_BUFFER_SIZE];

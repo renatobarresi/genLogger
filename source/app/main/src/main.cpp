@@ -81,9 +81,7 @@ struct hardwareTimeouts taskMeasurementControl{&measurementTaskPeriod, 0};
 std::array<hardwareTimeouts*, 2> taskControlContainer{&taskMeasurementControl, nullptr};
 
 #endif
-// const char buff[] = "hola"
-// fun(const char *pBuff)
-// fun(buff)
+
 /**
  * 
  */

@@ -29,22 +29,27 @@
 #include <string>
 #include <thread>
 #else
+#include "terminal_component.hpp"
 #include "uart.h"
 #include <cstring>
 #endif
 
-// TODO: this extern global variables are just temporary
-// way of communicating between main task and terminal SM
-// Declare the flag variables as external
-extern bool flagKey_I;
-extern bool flagKey_M;
-extern bool flagKey_C;
-extern bool flagKey_B;
-extern bool flagKey_N;
-extern bool flagKey_T;
-extern bool flagKey_S;
-extern bool flagKey_F;
-extern bool flagKey_Enter;
+// clang-format off
+static terminalKeyMap keyMap[] =
+{
+	{terminalSignal::pressedKey_I, 'I'},
+	{terminalSignal::pressedKey_C, 'C'},
+	{terminalSignal::pressedKey_B, 'B'},
+	{terminalSignal::pressedKey_N, 'N'},
+	{terminalSignal::pressedKey_T, 'T'},
+	{terminalSignal::pressedKey_S, 'S'},
+	{terminalSignal::pressedKey_F, 'F'},
+	{terminalSignal::pressedKey_M, 'M'},
+	{terminalSignal::pressedKey_Enter, '\r'},
+};
+// clang-format on
+
+static bool payload = false;
 
 // For Interrupt simulation in host
 #ifndef TARGET_MICRO
@@ -105,8 +110,7 @@ bool serialHandler(void)
 		std::lock_guard<std::mutex> lock(buffer_mutex);
 		if (new_data_available)
 		{
-			current_input = serialBuffer;
-			//serialBuffer.clear();
+			current_input	   = serialBuffer;
 			new_data_available = false;
 			process_input	   = true;
 		}
@@ -132,89 +136,39 @@ bool serialHandler(void)
 	return process_input;
 }
 
-/**
- * @brief 
- * 
- */
-void processSerialBuffer()
+terminalSignal getTerminalSignal()
 {
-#ifndef TARGET_MICRO
-	if (serialBuffer == "I")
-	{
-		flagKey_I = true;
-	}
-	else if (serialBuffer == "C")
-	{
-		flagKey_C = true;
-	}
-	else if (serialBuffer == "B")
-	{
-		flagKey_B = true;
-	}
-	else if (serialBuffer == "N")
-	{
-		flagKey_N = true;
-	}
-	else if (serialBuffer == "T")
-	{
-		flagKey_T = true;
-	}
-	else if (serialBuffer == "S")
-	{
-		flagKey_S = true;
-	}
-	else if (serialBuffer == "F")
-	{
-		flagKey_F = true;
-	}
-	else if (serialBuffer == "M")
-	{
-		flagKey_M = true;
-	}
-	else if (serialBuffer.find("\0") != std::string::npos)
-	{
-		flagKey_Enter = true;
-	}
-#else
-	if (0 == strcmp(serialBuffer, "I"))
-	{
-		flagKey_I = true;
-	}
-	else if (0 == strcmp(serialBuffer, "C"))
-	{
-		flagKey_C = true;
-	}
-	else if (0 == strcmp(serialBuffer, "B"))
-	{
-		flagKey_B = true;
-	}
-	else if (0 == strcmp(serialBuffer, "N"))
-	{
-		flagKey_N = true;
-	}
-	else if (0 == strcmp(serialBuffer, "T"))
-	{
-		flagKey_T = true;
-	}
-	else if (0 == strcmp(serialBuffer, "S"))
-	{
-		flagKey_S = true;
-	}
-	else if (0 == strcmp(serialBuffer, "F"))
-	{
-		flagKey_F = true;
-	}
-	else if (0 == strcmp(serialBuffer, "M"))
-	{
-		flagKey_M = true;
-	}
-	else if (std::strlen(serialBuffer) > 1)
-	{
-		flagKey_Enter = true;
-	}
-#endif
+	terminalSignal signal = terminalSignal::NONE;
 
-	// std::cout << "Pressed key: " << serialBuffer << std::endl;
+	for (uint8_t index = 0; index < sizeof(keyMap) / sizeof(terminalKeyMap); index++)
+	{
+#ifndef TARGET_MICRO
+		if (serialBuffer.length() < 2)
+		{
+			if (serialBuffer.c_str()[0] == keyMap[index].key)
+			{
+				signal = keyMap[index].signal;
+				break;
+			}
+#else
+		if (strlen(serialBuffer) < 2)
+		{
+			if (serialBuffer[0] == keyMap[index].key)
+			{
+				signal = keyMap[index].signal;
+				break;
+			}
+#endif
+		}
+		else
+		{
+			payload = true;
+			signal	= terminalSignal::pressedKey_Enter;
+			break;
+		}
+	}
+
+	return signal;
 }
 
 /**
@@ -223,8 +177,13 @@ void processSerialBuffer()
  * @param buffer 
  * @param bufferSize 
  */
-void getSerialBuffer(char* buffer, size_t bufferSize)
+char* getSerialBuffer(char* buffer, size_t bufferSize)
 {
+	if (payload == false)
+	{
+		return nullptr;
+	}
+
 #ifndef TARGET_MICRO
 	std::lock_guard<std::mutex> lock(buffer_mutex);
 	std::strncpy(buffer, serialBuffer.c_str(), bufferSize - 1);
@@ -233,6 +192,10 @@ void getSerialBuffer(char* buffer, size_t bufferSize)
 	std::strncpy(buffer, serialBuffer, bufferSize - 1);
 	buffer[bufferSize - 1] = '\0'; // Ensure null termination
 #endif
+
+	payload = false;
+
+	return buffer;
 }
 
 void clearSerialBuffer()

@@ -79,8 +79,15 @@ enum class terminalSignal
 	pressedKey_F,
 	pressedKey_M,
 	pressedKey_Enter,
+	NONE,
 
 	numSignals ///< Number of signals (used for validation or iteration).
+};
+
+struct terminalKeyMap
+{
+	terminalSignal signal;
+	char		   key;
 };
 
 /**

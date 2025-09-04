@@ -18,13 +18,13 @@
 #include "device_version.hpp"
 #include "loggerMetadata.hpp"
 #include "utilities.hpp"
+#include <charconv>
 #include <cstdio>
 #include <cstring>
-#include <charconv>  
-#include <system_error>
 #include <iostream>
 #include <span>
 #include <streambuf>
+#include <system_error>
 
 ////////////////////////////////////////////////////////////////////////
 //				      Private function prototypes
@@ -212,7 +212,7 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 					// Set device time and date
 					if (nullptr == buff)
 					{
-						std::cout << "Please input the time following this format HH:MM:SS-DD/MM/YYYY\r\n";
+						std::cout << "Please input the time following this format HH:MM:SS DD/MM/YYYY\r\n";
 						this->_previousSignal = terminalSignal::pressedKey_T;
 					}
 
@@ -224,7 +224,7 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 					std::cout << "Please input how often to send the file in minutes\r\n";
 					this->_previousSignal = terminalSignal::pressedKey_C;
 
-					event = terminalEvent::EVENT_HANDLED;	
+					event = terminalEvent::EVENT_HANDLED;
 				}
 				break;
 				case terminalSignal::pressedKey_F:
@@ -233,7 +233,7 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 					std::cout << "Type 1 for file creation a day\r\nType 2 for file creation only once\r\n";
 					this->_previousSignal = terminalSignal::pressedKey_F;
 
-					event = terminalEvent::EVENT_HANDLED;					
+					event = terminalEvent::EVENT_HANDLED;
 				}
 				break;
 				case terminalSignal::pressedKey_M:
@@ -241,7 +241,7 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 					std::cout << "Please input the measurement period in minutes\r\n";
 					this->_previousSignal = terminalSignal::pressedKey_M;
 
-					event = terminalEvent::EVENT_HANDLED;					
+					event = terminalEvent::EVENT_HANDLED;
 				}
 				break;
 				case terminalSignal::pressedKey_Enter:
@@ -326,7 +326,7 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 								}
 							}
 
-							event = terminalEvent::EVENT_HANDLED;	
+							event = terminalEvent::EVENT_HANDLED;
 						}
 						break;
 						default:

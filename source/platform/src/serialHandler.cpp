@@ -147,25 +147,26 @@ terminalSignal getTerminalSignal()
 		{
 			if (serialBuffer.c_str()[0] == keyMap[index].key)
 			{
-				signal = keyMap[index].signal;
-				break;
-			}
 #else
 		if (strlen(serialBuffer) < 2)
 		{
 			if (serialBuffer[0] == keyMap[index].key)
 			{
+#endif
 				signal = keyMap[index].signal;
 				break;
 			}
+		}
+	}
+
+#ifndef TARGET_MICRO
+	if (terminalSignal::NONE == signal && serialBuffer.length() > 0)
+#else
+	if (terminalSignal::NONE == signal && strlen(serialBuffer) > 0)
 #endif
-		}
-		else
-		{
-			payload = true;
-			signal	= terminalSignal::pressedKey_Enter;
-			break;
-		}
+	{
+		payload = true;
+		signal	= terminalSignal::pressedKey_Enter;
 	}
 
 	return signal;

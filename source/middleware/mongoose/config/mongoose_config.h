@@ -1,5 +1,6 @@
 #pragma once
 
+#ifdef TARGET_MICRO
 // See https://mongoose.ws/documentation/#build-options
 #define MG_ARCH MG_ARCH_NEWLIB
 #define MG_TLS MG_TLS_BUILTIN
@@ -13,7 +14,6 @@
 #define MG_ENABLE_TCPIP_PRINT_DEBUG_STATS 0
 // use HAL-defined execute-in-ram section
 
-
 // #define MG_DRIVER_MDC_CR 4   // RMII MDC clock divider, from 0 to 4
 // #define MG_TCPIP_PHY_ADDR 0  // PHY address
 
@@ -23,3 +23,4 @@
 // #define MG_TCPIP_IP MG_IPV4(192, 168, 0, 10)
 // #define MG_TCPIP_GW MG_IPV4(192, 168, 0, 1)
 // #define MG_TCPIP_MASK MG_IPV4(255, 255, 255, 0)
+#endif

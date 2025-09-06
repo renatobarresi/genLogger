@@ -25,15 +25,17 @@
 
 #include "main.h"
 #include "config_manager.hpp"
+#include "httpClient.hpp"
 #include "internalStorage_component.hpp"
 #include "logger_manager.hpp"
 // #include "networkManager.hpp"
+#include "httpClient.hpp"
+#include "networkManager.hpp"
 #include "processing_manager.hpp"
 #include "serialHandler.hpp"
 #include "terminal_component.hpp"
 #include "virtualRTC.hpp"
 #include "virtualTimer.hpp"
-#include <new>
 
 // Includes related to the used board
 #ifdef TARGET_MICRO
@@ -43,9 +45,9 @@
 void* operator new(std::size_t count) = delete; // Make sure no library that uses the heap is being used
 #endif
 
-// constexpr char loggerDefaultIP[]	  = "123.123.123.123";
-// constexpr char loggerDefaultNetmask[] = "255.255.255.0";
-// constexpr char loggerDefaultGateway[] = "123.123.123.1";
+constexpr char loggerDefaultIP[]	  = "123.123.123.123";
+constexpr char loggerDefaultNetmask[] = "255.255.255.0";
+constexpr char loggerDefaultGateway[] = "123.123.123.1";
 
 virtualRTC															 rtc;
 terminalStateMachine												 terminalOutput(&rtc);
@@ -53,8 +55,9 @@ internalStorageComponent											 internalStorage;
 configManager														 loggerConfig(&terminalOutput, &internalStorage);
 processingManager<sensor::davisPluviometer, sensor::anemometerDavis> myProcessingManager(rtc);
 loggerManager														 myLoggerManager;
-// network::networkManager												 loggerNetworkManager(loggerDefaultIP, loggerDefaultNetmask, loggerDefaultGateway);
-// network::httpClient													 loggerHttpClient(&loggerNetworkManager);
+
+network::networkManager loggerNetworkManager(loggerDefaultIP, loggerDefaultNetmask, loggerDefaultGateway);
+network::httpClient		loggerHttpClient(&loggerNetworkManager);
 
 static bool		runMeasurementTask	  = true;
 static uint32_t measurementTaskPeriod = 10000;
@@ -65,6 +68,7 @@ static char configBuff[96];
 static void configurationTask();
 static void loggerTask();
 static void measurementTask();
+static void networkTask();
 
 #ifndef TARGET_MICRO
 
@@ -116,11 +120,14 @@ int main()
 
 	myLoggerManager.init();
 
+	loggerNetworkManager.init();
+
 	while (1)
 	{
 		configurationTask();
 		measurementTask();
 		loggerTask();
+		networkTask();
 	}
 
 #ifndef TARGET_MICRO
@@ -184,4 +191,7 @@ void loggerTask()
 	}
 }
 
-// static void networkTask() {}
+static void networkTask()
+{
+	//
+}

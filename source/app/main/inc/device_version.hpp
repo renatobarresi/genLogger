@@ -13,6 +13,6 @@
 #include <cstdint>
 
 constexpr char MAJOR		 = '0';
-constexpr char MINOR		 = '2';
+constexpr char MINOR		 = '3';
 constexpr char PATCH		 = '0';
 constexpr char DEVELOPMENT[] = "alpha1";

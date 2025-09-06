@@ -26,7 +26,7 @@ class davisPluviometer : public IPluviometer<davisPluviometer>
 
   private:
 	virtualDevice::virtualCounter counterObj;
-	static constexpr uint16_t	  pluviometerConstant = 0.2; // maybe this should be possible to write during run time if there's a change in the pluviometer type
+	static constexpr float		  pluviometerConstant = 0.2; // maybe this should be possible to write during run time if there's a change in the pluviometer type
 };
 
 } // namespace sensor

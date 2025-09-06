@@ -15,13 +15,24 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
+/**
+ * @brief Allows bussiness logic to define 
+ */
+struct hardwareTimeouts
+{
+	const uint32_t*	 taskTimeout;
+	volatile uint8_t taskRunFlag;
+};
+
 ////////////////////////////////////////////////////////////////////////
 //							Function definition
 ////////////////////////////////////////////////////////////////////////
 
-void stm32f429_init();
-
 void SysTick_Handler(void);
+
+void stm32f429_init(struct hardwareTimeouts** taskControlParams);
 
 #ifdef __cplusplus
 }

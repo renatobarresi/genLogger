@@ -28,6 +28,7 @@
 #include "httpClient.hpp"
 #include "internalStorage_component.hpp"
 #include "logger_manager.hpp"
+// #include "networkManager.hpp"
 #include "processing_manager.hpp"
 #include "serialHandler.hpp"
 #include "terminal_component.hpp"
@@ -36,17 +37,17 @@
 #include "networkManager.hpp"
 #include "httpClient.hpp"
 
-
 // Includes related to the used board
 #ifdef TARGET_MICRO
 #include "init.h"
 #include <new>
-void* operator new(std::size_t count) = delete;               // Make sure no library that uses the heap is being used 
+
+void* operator new(std::size_t count) = delete; // Make sure no library that uses the heap is being used
 #endif
 
-constexpr char loggerDefaultIP[] = "123.123.123.123";
-constexpr char loggerDefaultNetmask[] = "255.255.255.0";
-constexpr char loggerDefaultGateway[] = "123.123.123.1";
+// constexpr char loggerDefaultIP[]	  = "123.123.123.123";
+// constexpr char loggerDefaultNetmask[] = "255.255.255.0";
+// constexpr char loggerDefaultGateway[] = "123.123.123.1";
 
 virtualRTC															 rtc;
 terminalStateMachine												 terminalOutput(&rtc);
@@ -54,21 +55,12 @@ internalStorageComponent											 internalStorage;
 configManager														 loggerConfig(&terminalOutput, &internalStorage);
 processingManager<sensor::davisPluviometer, sensor::anemometerDavis> myProcessingManager(rtc);
 loggerManager														 myLoggerManager;
+
 network::networkManager 											 loggerNetworkManager(loggerDefaultIP, loggerDefaultNetmask, loggerDefaultGateway);
 network::httpClient												     loggerHttpClient(&loggerNetworkManager);
 
-bool flagKey_F 	   = false;
-bool flagKey_I	   = false;
-bool flagKey_C	   = false;
-bool flagKey_B	   = false;
-bool flagKey_N	   = false;
-bool flagKey_T	   = false;
-bool flagKey_M 	   = false;
-bool flagKey_S	   = false;
-bool flagKey_Enter = false;
-
-static bool runMeasurementTask	  = true;
-static auto measurementTaskPeriod = 10000;
+static bool		runMeasurementTask	  = true;
+static uint32_t measurementTaskPeriod = 10000;
 
 static char configBuff[96];
 
@@ -89,6 +81,12 @@ void myTickHandler()
 		runMeasurementTask = true;
 	}
 }
+#else
+
+struct hardwareTimeouts taskMeasurementControl{&measurementTaskPeriod, 0};
+
+std::array<hardwareTimeouts*, 2> taskControlContainer{&taskMeasurementControl, nullptr};
+
 #endif
 
 /**
@@ -97,7 +95,7 @@ void myTickHandler()
 int main()
 {
 #ifdef TARGET_MICRO
-	stm32f429_init();
+	stm32f429_init(taskControlContainer.data());
 #else
 	systick::startSystickSimulation(myTickHandler);
 #endif
@@ -139,70 +137,30 @@ int main()
 	return 0;
 }
 
-
 void configurationTask()
 {
+	terminalSignal signal;
+	char		   configBuff[96];
+	char*		   pPayload = nullptr;
+
 	// Check if data is available in serial port
 	bool process_input = serialHandler();
 
 	// If data is available, process it and generate signals to terminal SM
 	if (process_input)
 	{
-		processSerialBuffer();
+		// Passing signals to handler
+		signal = getTerminalSignal();
 
-		if (flagKey_Enter == true)
+		if (signal == terminalSignal::NONE)
 		{
-			getSerialBuffer(configBuff, 96);
+			return;
 		}
 
-		clearSerialBuffer();
-	}
+		pPayload = getSerialBuffer(configBuff, 96);
+		terminalOutput.handler(signal, pPayload);
 
-	// Passing signals to handler
-	if (flagKey_I == true)
-	{
-		terminalOutput.handler(terminalSignal::pressedKey_I, nullptr);
-		flagKey_I = false;
-	}
-	else if (flagKey_M == true)
-	{
-		terminalOutput.handler(terminalSignal::pressedKey_M, nullptr);
-		flagKey_M = false;
-	}
-	else if (flagKey_C == true)
-	{
-		terminalOutput.handler(terminalSignal::pressedKey_C, nullptr);
-		flagKey_C = false;
-	}
-	else if (flagKey_B == true)
-	{
-		terminalOutput.handler(terminalSignal::pressedKey_B, nullptr);
-		flagKey_B = false;
-	}
-	else if (flagKey_F == true)
-	{
-		terminalOutput.handler(terminalSignal::pressedKey_F, nullptr);
-		flagKey_F = false;
-	}
-	else if (flagKey_N == true)
-	{
-		terminalOutput.handler(terminalSignal::pressedKey_N, nullptr);
-		flagKey_N = false;
-	}
-	else if (flagKey_T == true)
-	{
-		terminalOutput.handler(terminalSignal::pressedKey_T, nullptr);
-		flagKey_T = false;
-	}
-	else if (flagKey_S == true)
-	{
-		terminalOutput.handler(terminalSignal::pressedKey_S, nullptr);
-		flagKey_S = false;
-	}
-	else if (flagKey_Enter == true)
-	{
-		terminalOutput.handler(terminalSignal::pressedKey_Enter, configBuff);
-		flagKey_Enter = false;
+		clearSerialBuffer();
 	}
 
 	// If changes in metadata, parse them
@@ -235,5 +193,5 @@ void loggerTask()
 
 static void networkTask()
 {
-
+  //
 }

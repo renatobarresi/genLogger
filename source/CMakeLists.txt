@@ -49,6 +49,7 @@ set(middleware_sources
 if (target_type STREQUAL "target")
     LIST(APPEND platform_sources
         platform/src/littleFSInterface.cpp
+        platform/src/mongooseUtilities.c
     )
 
     LIST(APPEND driver_sources
@@ -130,6 +131,7 @@ if (target_type STREQUAL "target")
 
     list(APPEND middleware_includes
         middleware/FatFS/
+        middleware/mongoose/config/
     )
 endif()
 

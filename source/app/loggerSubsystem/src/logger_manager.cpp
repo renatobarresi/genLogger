@@ -16,10 +16,9 @@ fileSysWrapper fsHandler(0);
 char		   simulationFileFolder[] = "../../../test/simulationFiles/externalMemory"; // This folder simulates the root path of the external storage device
 #endif
 
-void loggerManager::update(bool infoFlag, const char* sensorInformation, const char* timestamp)
+void loggerManager::update(bool infoFlag)
 {
 	this->_availableData = infoFlag;
-	std::sprintf(this->measurementsBuff.data(), "%s;%s", timestamp, sensorInformation);
 }
 
 bool loggerManager::init()
@@ -39,7 +38,7 @@ bool loggerManager::init()
 
 void loggerManager::handler()
 {
-	std::cout << "Logger manager-> received data: " << this->measurementsBuff.data() << std::endl;
+	//std::cout << "Logger manager-> received data: " << this->measurementsBuff.data() << std::endl;
 
 	//
 	// 	char fileName[56];

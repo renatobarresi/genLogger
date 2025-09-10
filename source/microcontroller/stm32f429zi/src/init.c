@@ -20,14 +20,13 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "init.h"
-#include "stm32f4xx_hal.h"
-#include <stdint.h>
-//#include "i2c_drv.h"
 #include "ethernet.h"
 #include "rand.h"
 #include "rtc_drv.h"
 #include "spi_drv.h"
+#include "stm32f4xx_hal.h"
 #include "uart.h"
+#include <stdint.h>
 
 ////////////////////////////////////////////////////////////////////////
 //							Functions definitions

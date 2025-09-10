@@ -19,7 +19,7 @@ class networkManager
 	void setIp(const char* ip);
 	void setNetmask(const char* netMask);
 	void setGateway(const char* gateway);
-	void setMacAddress(uint32_t macAddress);
+	void setMacAddress(const uint8_t* macAddress);
 
 	bool done		= false;
 	bool connStatus = false;
@@ -27,11 +27,12 @@ class networkManager
 	char postBuffer[1024];
 
   private:
-	char	 _ip[16];
-	char	 _netmask[16];
-	char	 _gateway[16];
-	bool	 _staticIP	 = true;
-	uint32_t _macAddress = 0;
+	char	_ip[16];
+	char	_netmask[16];
+	char	_gateway[16];
+	bool	_staticIP = true;
+	uint8_t _macAddress[6]{0};
+	bool	_macAddressIsSet = false;
 
 	struct mg_mgr mgr;
 	static void	  mgEventHandler(struct mg_connection* c, int ev, void* ev_data);

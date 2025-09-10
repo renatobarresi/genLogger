@@ -2,6 +2,7 @@
 #include "config_manager.hpp"
 #include "filesystemWrapper.hpp"
 #include "httpClient.hpp"
+#include "httpServer.hpp"
 #include "internalStorage_component.hpp"
 #include "loggerMetadata.hpp"
 #include "logger_manager.hpp"
@@ -11,13 +12,14 @@
 #include "terminal_component.hpp"
 #include "utilities.hpp"
 #include "virtualRTC.hpp"
+#include <chrono>
 #include <cstdio>
 #include <cstring>
 #include <fstream>
+#include <functional>
 #include <gtest/gtest.h>
-#include "httpServer.hpp"
-#include <thread>
 #include <string>
+#include <thread>
 
 char testFileLocation[] = "testFS.txt";
 
@@ -157,105 +159,174 @@ TEST(terminalStateMachine, testChangeToDeviceConfigState)
 	EXPECT_STREQ(pLoggerMetadata->loggerName, "station1") << "Failed to set loggerName";
 }
 
-TEST(loggerSubsystem, testNotification)
-{
-	virtualRTC															 rtc;
-	processingManager<sensor::davisPluviometer, sensor::anemometerDavis> myProcessingManager(rtc);
-	loggerManager														 myLoggerManager;
-	const char*															 testBuff = "123,125y3,23534if";
-	char																 timeStamp[20];
-	char																 finalTestBuff[100];
-
-	// Mock measurement here
-	std::sprintf(myProcessingManager.sensorInfoBuff.data(), "%s", testBuff);
-
-	myProcessingManager.setObserver(&myLoggerManager);
-	myProcessingManager.takeMeasurements();
-	myProcessingManager.notifyObservers();
-
-	rtc.getTimestamp(timeStamp);
-
-	// Mock measurement here
-	std::sprintf(myProcessingManager.sensorInfoBuff.data(), "%s;%s", timeStamp, testBuff);
-
-	EXPECT_STREQ(myProcessingManager.sensorInfoBuff.data(), myLoggerManager.measurementsBuff.data());
-}
-
 TEST(networkManager, testStablishConn)
 {
 	const char ip[]		 = "123";
 	const char netmask[] = "123";
 	const char gateway[] = "123";
-	bool retVal = false;
+	bool	   retVal	 = false;
+	int		   flag		 = 0;
 
-    // Prepare promise/future to synchronize server startup
-    std::promise<void> server_ready;
-    std::future<void> server_ready_future = server_ready.get_future();
+	// Prepare promise/future to synchronize server startup
+	// std::promise<void> server_ready;
+	// std::future<void>  server_ready_future = server_ready.get_future();
 
 	network::networkManager myNetwork(ip, netmask, gateway);
-	
-    // Launch server in separate thread
-    std::thread server_thread(httpServer, std::ref(server_ready));
 
-    // Wait for server to be ready
-    server_ready_future.wait();
+	// Launch server in separate thread
+	std::thread server_thread(httpServer, std::ref(flag));
+
+	// Wait for server to be ready
+	while (flag != 1)
+	{
+		if (flag == 2)
+		{
+			server_thread.join(); // Wait for server thread to finish
+			FAIL() << "Server failed to start";
+		}
+	};
+	//server_ready_future.wait();
+
+	std::cout << "Server is ready" << std::endl;
 
 	myNetwork.init();
 
-	retVal = myNetwork.httpConnectPost("127.0.0.1:8080", "123");
+	std::cout << "Client initialized" << std::endl;
+
+	retVal = myNetwork.httpConnectPost("127.0.0.1:8081", "123");
+
+	std::cout << "Client connection and post done" << std::endl;
 
 	server_thread.join(); // Wait for server thread to finish
 
 	EXPECT_EQ(true, retVal);
 }
 
-TEST(loggerSubsystem, testWritingExternal)
+TEST(httpClient, testHTTPClient)
 {
-	// char			  fileName[56];
-	// fileSysWrapper	  fileSystem(0); // Use the non-microcontroller implementation
-	// loggerMetadata*	  pLoggerMetadata;
-	// virtualRTC		  rtc;
-	// processingManager myProcessingManager(rtc);
-	// loggerManager	  myLoggerManager(&myProcessingManager);
-	// const char*		  testBuff = "123,125y3,23534if";
-	// char			  timeStamp[20];
-	// char			  finalTestBuff[100];
-	// char			  storedData[56]		 = {0};
-	// char			  simulationFileFolder[] = "../../../test/simulationFiles/externalMemory";
+	// 1. Server Setup
+	int			flag = 0;
+	std::thread server_thread(httpServer, std::ref(flag));
 
-	// pLoggerMetadata = getLoggerMetadata();
+	// Wait for server to be ready, with a timeout to prevent infinite loop
+	auto start_time = std::chrono::steady_clock::now();
+	while (flag != 1)
+	{
+		if (flag == 2)
+		{
+			server_thread.join();
+			FAIL() << "Server failed to start";
+		}
+		auto current_time = std::chrono::steady_clock::now();
+		if (std::chrono::duration_cast<std::chrono::seconds>(current_time - start_time).count() > 5)
+		{
+			// This is not a clean shutdown, but it prevents the test from hanging.
+			server_thread.detach();
+			FAIL() << "Server startup timed out.";
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	}
+	std::cout << "Server is ready for httpClient test" << std::endl;
 
-	// std::sprintf(fileName, "%s/%s", simulationFileFolder, pLoggerMetadata->loggerName);
+	// 2. Client-side components setup
+	virtualRTC															 rtc;
+	processingManager<sensor::davisPluviometer, sensor::anemometerDavis> myProcessingManager(rtc);
 
-	// // get timestamp
-	// rtc.getTimestamp(timeStamp);
+	network::networkManager myNetwork("127.0.0.1", "255.255.255.0", "127.0.0.1");
+	myNetwork.init();
 
-	// // create testBuffer
-	// std::sprintf(finalTestBuff, "%s;%s", timeStamp, testBuff);
+	network::httpClient myHttpClient(&myNetwork, "127.0.0.1:8081");
 
-	// // put mock-up buffer into tprocessing manager sensor information buffer
-	// std::strcpy(myProcessingManager.sensorInfoBuff, testBuff);
+	// 3. Connect components using the Observer pattern
+	myProcessingManager.setObserver(&myHttpClient);
 
-	// // Set observer and simulate processing of sensor data
-	// myProcessingManager.setObserver(&myLoggerManager);
-	// myProcessingManager.processData();
+	// 4. Trigger event chain: processing subsystem creates info and notifies observers
+	myProcessingManager.takeMeasurements();
+	myProcessingManager.formatData();
+	myProcessingManager.notifyObservers();
 
-	// // loggerManager handler
-	// myLoggerManager.init();
-	// myLoggerManager.handler();
+	myHttpClient.setMailBox(myProcessingManager.getSensorInfoBuff());
 
-	// // Read simulated file in "external device"
-	// if (true == fileSystem.open(fileName, 0))
-	// {
-	// 	fileSystem.read(storedData, sizeof(storedData));
+	// 5. Execute network task logic, simulating what the main loop would do
+	ASSERT_TRUE(myHttpClient.getAvailableDataFlag()) << "httpClient was not notified by processingManager";
+	bool retVal = myHttpClient.postSensorData(); // contentType is not used
 
-	// 	fileSystem.close();
-	// }
-	// else
-	// {
-	// 	std::cout << "File not opened" << std::endl;
-	// }
-
-	// EXPECT_STREQ(finalTestBuff, storedData);
-	EXPECT_TRUE(true);
+	// 6. Assertions and cleanup
+	server_thread.join();
+	EXPECT_TRUE(retVal) << "HTTP POST failed.";
 }
+
+// TEST(loggerSubsystem, testWritingExternal)
+// {
+// 	// char			  fileName[56];
+// 	// fileSysWrapper	  fileSystem(0); // Use the non-microcontroller implementation
+// 	// loggerMetadata*	  pLoggerMetadata;
+// 	// virtualRTC		  rtc;
+// 	// processingManager myProcessingManager(rtc);
+// 	// loggerManager	  myLoggerManager(&myProcessingManager);
+// 	// const char*		  testBuff = "123,125y3,23534if";
+// 	// char			  timeStamp[20];
+// 	// char			  finalTestBuff[100];
+// 	// char			  storedData[56]		 = {0};
+// 	// char			  simulationFileFolder[] = "../../../test/simulationFiles/externalMemory";
+
+// 	// pLoggerMetadata = getLoggerMetadata();
+
+// 	// std::sprintf(fileName, "%s/%s", simulationFileFolder, pLoggerMetadata->loggerName);
+
+// 	// // get timestamp
+// 	// rtc.getTimestamp(timeStamp);
+
+// 	// // create testBuffer
+// 	// std::sprintf(finalTestBuff, "%s;%s", timeStamp, testBuff);
+
+// 	// // put mock-up buffer into tprocessing manager sensor information buffer
+// 	// std::strcpy(myProcessingManager.sensorInfoBuff, testBuff);
+
+// 	// // Set observer and simulate processing of sensor data
+// 	// myProcessingManager.setObserver(&myLoggerManager);
+// 	// myProcessingManager.processData();
+
+// 	// // loggerManager handler
+// 	// myLoggerManager.init();
+// 	// myLoggerManager.handler();
+
+// 	// // Read simulated file in "external device"
+// 	// if (true == fileSystem.open(fileName, 0))
+// 	// {
+// 	// 	fileSystem.read(storedData, sizeof(storedData));
+
+// 	// 	fileSystem.close();
+// 	// }
+// 	// else
+// 	// {
+// 	// 	std::cout << "File not opened" << std::endl;
+// 	// }
+
+// 	// EXPECT_STREQ(finalTestBuff, storedData);
+// 	EXPECT_TRUE(true);
+// }
+
+// TEST(loggerSubsystem, testNotification)
+// {
+// 	// virtualRTC															 rtc;
+// 	// processingManager<sensor::davisPluviometer, sensor::anemometerDavis> myProcessingManager(rtc);
+// 	// loggerManager														 myLoggerManager;
+// 	// const char*															 testBuff = "123,125y3,23534if";
+// 	// char																 timeStamp[20];
+// 	// char																 finalTestBuff[100];
+
+// 	// // Mock measurement here
+// 	// std::sprintf(myProcessingManager.sensorInfoBuff.data(), "%s", testBuff);
+
+// 	// myProcessingManager.setObserver(&myLoggerManager);
+// 	// myProcessingManager.takeMeasurements();
+// 	// myProcessingManager.notifyObservers();
+
+// 	// rtc.getTimestamp(timeStamp);
+
+// 	// // Mock measurement here
+// 	// std::sprintf(myProcessingManager.sensorInfoBuff.data(), "%s;%s", timeStamp, testBuff);
+
+// 	// EXPECT_STREQ(myProcessingManager.sensorInfoBuff.data(), myLoggerManager.measurementsBuff.data());
+// }

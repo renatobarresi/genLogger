@@ -1,5 +1,6 @@
 #include "ethernet.h"
 #include "stm32f4xx_hal.h"
+#include <string.h>
 
 ETH_TxPacketConfig TxConfig;
 ETH_DMADescTypeDef DMARxDscrTab[ETH_RX_DESC_CNT]; /* Ethernet Rx DMA Descriptors */
@@ -7,6 +8,8 @@ ETH_DMADescTypeDef DMATxDscrTab[ETH_TX_DESC_CNT]; /* Ethernet Tx DMA Descriptors
 
 ETH_HandleTypeDef heth;
 
+/* USER CODE BEGIN EFP */
+#define UUID ((uint8_t*)UID_BASE) // Unique 96-bit chip ID. TRM 39.1
 /**
   * @brief ETH Initialization Function
   * @param None
@@ -127,4 +130,19 @@ int8_t eth_init()
 {
 	MX_ETH_Init();
 	return 1;
+}
+
+void eth_get_mac_address(uint8_t* mac_addr)
+{
+	/*
+	 * Generate a locally administered MAC address from the 96-bit unique chip ID.
+	 * The first byte is 0x02 to indicate a locally administered address.
+	 * The rest of the bytes are a simple XOR combination of the UID bytes.
+	 */
+	mac_addr[0] = 0x02;
+	mac_addr[1] = UUID[0] ^ UUID[1];
+	mac_addr[2] = UUID[2] ^ UUID[3];
+	mac_addr[3] = UUID[4] ^ UUID[5];
+	mac_addr[4] = UUID[6] ^ UUID[7] ^ UUID[8];
+	mac_addr[5] = UUID[9] ^ UUID[10] ^ UUID[11];
 }

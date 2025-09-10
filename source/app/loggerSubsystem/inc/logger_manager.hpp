@@ -50,7 +50,7 @@ class loggerManager : public observerInterface
      * @param infoFlag 
      * @param sensorInformation 
      */
-	void update(bool infoFlag, const char* sensorInformation, const char* timestamp) override;
+	void update(bool infoFlag) override;
 
 	/**
      * @brief 
@@ -60,12 +60,9 @@ class loggerManager : public observerInterface
 
 	bool getAvailableDataFlag();
 
-	std::array<char, PROCESS_INFO_BUFF_SIZE> measurementsBuff{0};
-
   private:
 	void _fileManagement(uint8_t confNum);
 
-	//processingManager*	   _processingManager;
 	uint16_t			   _infoDataLen;
 	struct loggerMetadata* _metadata;
 	bool				   _availableData = false;

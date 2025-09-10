@@ -28,17 +28,17 @@
 #include "httpClient.hpp"
 #include "internalStorage_component.hpp"
 #include "logger_manager.hpp"
-// #include "networkManager.hpp"
-#include "httpClient.hpp"
 #include "networkManager.hpp"
 #include "processing_manager.hpp"
 #include "serialHandler.hpp"
 #include "terminal_component.hpp"
 #include "virtualRTC.hpp"
 #include "virtualTimer.hpp"
+#include <iostream>
 
 // Includes related to the used board
 #ifdef TARGET_MICRO
+#include "ethernet.h"
 #include "init.h"
 #include <new>
 
@@ -57,7 +57,7 @@ processingManager<sensor::davisPluviometer, sensor::anemometerDavis> myProcessin
 loggerManager														 myLoggerManager;
 
 network::networkManager loggerNetworkManager(loggerDefaultIP, loggerDefaultNetmask, loggerDefaultGateway);
-network::httpClient		loggerHttpClient(&loggerNetworkManager);
+network::httpClient		loggerHttpClient(&loggerNetworkManager, "127.0.0.1:8080");
 
 static bool		runMeasurementTask	  = true;
 static uint32_t measurementTaskPeriod = 10000;
@@ -102,11 +102,25 @@ int main()
 
 	if (false == internalStorage.initFS())
 	{
+		std::cout << "Error initializing internal storage\r\n";
 		while (1);
 	}
 
 	if (false == serialHandlerInit())
 	{
+		std::cout << "Error initializing serial handler\r\n";
+		while (1);
+	}
+
+#ifdef TARGET_MICRO
+	// Get MAC address from the hardware driver and provide it to the network manager
+	uint8_t mac_address[6];
+	eth_get_mac_address(mac_address);
+	loggerNetworkManager.setMacAddress(mac_address);
+#endif
+	if (false == loggerNetworkManager.init())
+	{
+		std::cout << "Error initializing network manager\r\n";
 		while (1);
 	}
 
@@ -117,10 +131,11 @@ int main()
 
 	myProcessingManager.init();
 	myProcessingManager.setObserver(&myLoggerManager);
+	myProcessingManager.setObserver(&loggerHttpClient);
 
 	myLoggerManager.init();
 
-	loggerNetworkManager.init();
+	loggerHttpClient.setMailBox(myProcessingManager.getSensorInfoBuff());
 
 	while (1)
 	{
@@ -193,5 +208,8 @@ void loggerTask()
 
 static void networkTask()
 {
-	//
+	if (true == loggerHttpClient.getAvailableDataFlag())
+	{
+		loggerHttpClient.postSensorData();
+	}
 }

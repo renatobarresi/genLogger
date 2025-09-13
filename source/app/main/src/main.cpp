@@ -210,6 +210,9 @@ static void networkTask()
 {
 	if (true == loggerHttpClient.getAvailableDataFlag())
 	{
-		loggerHttpClient.postSensorData();
+		if (false == loggerHttpClient.postSensorData())
+		{
+			// todo
+		}
 	}
 }

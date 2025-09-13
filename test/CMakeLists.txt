@@ -4,6 +4,7 @@
 
 set(this tests)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_BUILD_TYPE Debug)
 
 set(headers
     test.hpp

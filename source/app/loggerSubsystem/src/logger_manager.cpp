@@ -5,6 +5,11 @@
 #include <cstring>
 #include <iostream>
 
+#ifndef TARGET_MICRO
+#include "utilities.hpp"
+#include <string>
+#endif
+
 /**
  * @brief The logger manager uses a file system to manipulate files and store/retrieve weather information from an external storage
  */
@@ -13,7 +18,7 @@
 fileSysWrapper fsHandler(2);
 #else
 fileSysWrapper fsHandler(0);
-char		   simulationFileFolder[] = "../../../test/simulationFiles/externalMemory"; // This folder simulates the root path of the external storage device
+std::string	   testFolderPath_External = "";
 #endif
 
 void loggerManager::update(bool infoFlag)
@@ -27,10 +32,15 @@ bool loggerManager::init()
 	_metadata = getLoggerMetadata();
 
 #ifdef TARGET_MICRO
+	std::strncpy(this->_pPath, _metadata->loggerName, std::strlen(_metadata->loggerName));
+
 	if (fsHandler.mount() != true)
 	{
 		return false;
 	}
+#else
+	testFolderPath_External = utilities::getPathMetadata(_metadata->loggerName);
+	this->_pPath			= testFolderPath_External.c_str();
 #endif
 
 	return true;
@@ -38,67 +48,41 @@ bool loggerManager::init()
 
 void loggerManager::handler()
 {
-	//std::cout << "Logger manager-> received data: " << this->measurementsBuff.data() << std::endl;
+	switch (_metadata->fileCreationPeriod)
+	{
+		case loggerMetadataConstants::CREATE_ONLY_ONE_FILE:
+		{
+			// Append data
+			if (true == fsHandler.open(this->_pPath, 2))
+			{
+				fsHandler.write(this->_pDataBuff, std::strlen(this->_pDataBuff));
+				fsHandler.close();
+			}
+			else
+			{
+				// If opening for append fails, the file might not exist. Try creating it.
+				if (true == fsHandler.open(this->_pPath, 1))
+				{
+					fsHandler.write(this->_pDataBuff, std::strlen(this->_pDataBuff));
+					fsHandler.close();
+				}
+				else
+				{
+					std::cout << "File could not be opened or created: " << this->_pPath << std::endl;
+				}
+			}
+		}
 
-	//
-	// 	char fileName[56];
-
-	// 	// Check if new information is available
-	// 	if (false == _availableData)
-	// 	{
-	// 		return;
-	// 	}
-
-	// 	switch (_metadata->fileCreationPeriod)
-	// 	{
-	// 		case 0:
-	// 		{
-	// 			// todo
-	// 			// Check if new day
-	// 		}
-
-	// 		case 1:
-	// 		{
-	// 			// todo
-	// 			// Check if new week
-	// 		}
-
-	// 		case 2:
-	// 		{
-	// 			// todo
-	// 			// Check if new month
-	// 		}
-
-	// 		case 3:
-	// 		{
-	// 			// todo
-	// 			// Check if new year
-	// 		}
-
-	// 		case 4:
-	// 		default:
-	// 		{
-	// // Define file name
-	// #ifdef TARGET_MICRO
-	// 			//std::strncpy(fileName, _metadata->loggerName, std::strlen(fileName));
-	// 			std::sprintf(fileName, "%s.txt", _metadata->loggerName);
-	// #else
-	// 			std::sprintf(fileName, "%s/%s", simulationFileFolder, _metadata->loggerName);
-	// #endif
-	// 			// Append data
-	// 			if (true == fsHandler.open(fileName, 1))
-	// 			{
-	// 				// fsHandler.write(this->sensorData, std::strlen(this->sensorData));
-
-	// 				fsHandler.close();
-	// 			}
-	// 			else
-	// 			{
-	// 				std::cout << "File not opened" << std::endl;
-	// 			}
-	// 		}
-	// 		break;
-	// 	}
+		case loggerMetadataConstants::CREATE_FILE_A_DAY:
+		{
+			// todo
+			// Check if new week
+		}
+		default:
+		{
+		}
+		break;
+	}
 }
 
 bool loggerManager::getAvailableDataFlag()
@@ -107,4 +91,9 @@ bool loggerManager::getAvailableDataFlag()
 	this->_availableData = false;
 
 	return retVal;
+}
+
+void loggerManager::setMailBox(const char* pDataBuff)
+{
+	this->_pDataBuff = pDataBuff;
 }

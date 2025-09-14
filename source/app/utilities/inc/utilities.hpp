@@ -19,6 +19,9 @@
 
 namespace utilities
 {
+
+constexpr uint16_t MS_IN_ONE_MINUTE = 60000;
+
 /**
  * @brief Parses a string and sets time and date values according to what's parsed
  *

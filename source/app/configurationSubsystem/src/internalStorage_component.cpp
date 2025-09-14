@@ -25,15 +25,15 @@
 //				      Defines
 ////////////////////////////////////////////////////////////////////////
 
-constexpr uint16_t MS_IN_MINUTE = 60000;
-
 ////////////////////////////////////////////////////////////////////////
 //				      Private variables
 ////////////////////////////////////////////////////////////////////////
 
+/** @brief Filesystem wrapper instance. The implementation is selected at compile time. */
 #ifdef TARGET_MICRO
 // Use microcontroller-specific file system
-fileSysWrapper		   fileSystem(1);
+fileSysWrapper fileSystem(1);
+/** @brief Path to the metadata file on the target device. */
 static constexpr char* metadataPath = "metadata.txt";
 #else
 #include "utilities.hpp"
@@ -43,21 +43,35 @@ static constexpr char* metadataPath = "metadata.txt";
 #include <string>
 #include <unistd.h>
 
+/** @brief Filesystem wrapper instance for host-based execution (testing/simulation). */
 fileSysWrapper fileSystem(0); // Use the non-microcontroller implementation
-std::string	   testFolderPath = "";
+/** @brief Path to the folder containing test files on the host. */
+std::string testFolderPath = "";
 #endif
 
+/** @brief Default name for the logger if not configured. */
 static constexpr char defaultLoggerName[] = "defaultLogger";
-static constexpr char defaultMetadata[]	  = "defaultLogger;1;1;1;1";
+/** @brief Default metadata string used to create the metadata file if it doesn't exist. */
+static constexpr char defaultMetadata[] = "defaultLogger;1;1;1;1";
 
 ////////////////////////////////////////////////////////////////////////
 //					   Public methods implementation
 ////////////////////////////////////////////////////////////////////////
 
-// Description in header file //
+/**
+ * @brief Construct a new internal Storage Component object.
+ *
+ */
 internalStorageComponent::internalStorageComponent() {}
 
-// Description in header file //
+/**
+ * @brief Initializes the internal filesystem and loads metadata.
+ * @details This function mounts the filesystem, determines the path for the metadata file,
+ * and attempts to retrieve the existing metadata. If retrieval fails (e.g., file not found),
+ * it creates a default metadata file.
+ * @return true if the filesystem was initialized and metadata was loaded successfully.
+ * @return false if there was an error mounting the filesystem or handling the metadata file.
+ */
 bool internalStorageComponent::initFS()
 {
 	bool retVal = false;
@@ -82,7 +96,15 @@ bool internalStorageComponent::initFS()
 	return retVal;
 }
 
-// Description in header file //
+/**
+ * @brief Retrieves metadata from the internal storage.
+ * @details This function reads the metadata file from the filesystem. If the file cannot be
+ * opened, it creates a new one with default values. The content of the file is then
+ * parsed to populate the `_metadata` structure.
+ * @return true if metadata was successfully read and parsed.
+ * @return false if the file could not be opened, created, written to, or if the file was
+ * empty or could not be read.
+ */
 bool internalStorageComponent::retrieveMetadata()
 {
 	appAssert(this->_fileSystemInit == true);
@@ -137,7 +159,14 @@ bool internalStorageComponent::retrieveMetadata()
 	return retVal;
 }
 
-// Description in header file //
+/**
+ * @brief Stores the provided metadata buffer into the internal storage.
+ * @details This function opens the metadata file for writing and overwrites its content
+ * with the data provided in the buffer.
+ * @param buff A `std::span` containing the new metadata to be written.
+ * @return true if the metadata was written and the file was closed successfully.
+ * @return false if the file could not be opened or if the write operation failed.
+ */
 bool internalStorageComponent::storeMetadata(const std::span<const char> buff)
 {
 	appAssert(this->_fileSystemInit == true);
@@ -162,11 +191,21 @@ bool internalStorageComponent::storeMetadata(const std::span<const char> buff)
 	return status;
 }
 
+/**
+ * @brief Gets the measurement period from the metadata.
+ *
+ * @return uint32_t The measurement period in milliseconds.
+ */
 uint32_t internalStorageComponent::getMeasurementPeriod()
 {
-	return (this->_metadata->fileTransmissionPeriod) * MS_IN_MINUTE;
+	return (this->_metadata->fileTransmissionPeriod) * utilities::MS_IN_ONE_MINUTE;
 }
 
+/**
+ * @brief Gets the metadata updated flag and resets it.
+ *
+ * @return true if the metadata has been updated since the last check, false otherwise.
+ */
 bool internalStorageComponent::getMetadataUpdatedFlag()
 {
 	bool retVal				   = this->_metadataUpdatedFlag;

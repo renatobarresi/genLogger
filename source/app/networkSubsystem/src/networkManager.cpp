@@ -2,7 +2,6 @@
 #include "debug_log.hpp"
 #include <cstdio>
 #include <cstring>
-#include <iostream>
 
 namespace network
 {

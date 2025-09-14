@@ -18,7 +18,6 @@
 
 #include "serialHandler.hpp"
 #include <cstring>
-#include <iostream>
 
 #ifndef TARGET_MICRO
 

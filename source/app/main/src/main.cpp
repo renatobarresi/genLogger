@@ -40,7 +40,7 @@
 #include "utilities.hpp"
 #include "virtualRTC.hpp"
 #include "virtualTimer.hpp"
-#include <iostream>
+
 // Includes related to the used board
 #ifdef TARGET_MICRO
 #include "ethernet.h"
@@ -142,6 +142,8 @@ int main()
 	systick::startSystickSimulation(myTickHandler);
 #endif
 
+	debug::log<true, debug::logLevel::LOG_ALL>("\r\n\r\n-----> Running logger APP <-----\r\n\r\n");
+
 	if (false == serialHandlerInit())
 	{
 		debug::log<true, debug::logLevel::LOG_ERROR>("Error initializing serial handler\r\n");
@@ -160,11 +162,11 @@ int main()
 	eth_get_mac_address(mac_address);
 	loggerNetworkManager.setMacAddress(mac_address);
 #endif
-	if (false == loggerNetworkManager.init())
-	{
-		debug::log<true, debug::logLevel::LOG_ERROR>("Error initializing network manager\r\n");
-		while (1);
-	}
+	// if (false == loggerNetworkManager.init())
+	// {
+	// 	debug::log<true, debug::logLevel::LOG_ERROR>("Error initializing network manager\r\n");
+	// 	while (1);
+	// }
 
 	/* Configuration */
 	measurementTaskPeriod = internalStorage.getMeasurementPeriod();
@@ -272,7 +274,6 @@ static void networkTask()
 {
 	if (true == loggerHttpClient.getAvailableDataFlag())
 	{
-
 		debug::log<true, debug::logLevel::LOG_ALL>("Running network task\r\n");
 		// if (false == loggerHttpClient.postSensorData())
 		// {

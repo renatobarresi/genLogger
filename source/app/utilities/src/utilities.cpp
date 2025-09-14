@@ -6,7 +6,7 @@
 #ifndef TARGET_MICRO
 #include <filesystem>
 #include <fstream>
-#include <iostream>
+
 #include <stdexcept>
 #include <string>
 #include <unistd.h>
@@ -69,8 +69,6 @@ std::string getPathMetadata(std::string fileName)
 	execDir /= "test/simulationFiles";
 	execDir /= fileName;
 
-	std::cout << "Path to metadata: " << execDir << std::endl;
-
 	return execDir.string();
 }
 
@@ -82,7 +80,6 @@ std::string getLastLine(std::string fileName)
 
 	if (!file.is_open())
 	{
-		std::cout << "Unable to open file for reading: " << fileName << std::endl;
 		return "";
 	}
 

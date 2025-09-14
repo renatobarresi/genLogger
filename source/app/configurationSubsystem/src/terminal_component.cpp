@@ -271,7 +271,7 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 							int	 month;
 							int	 year;
 
-							validData = parseTimeAndDate(buff, &hour, &minute, &seconds, &day, &month, &year);
+							validData = utilities::parseTimeAndDate(buff, &hour, &minute, &seconds, &day, &month, &year);
 
 							if (false == validData)
 							{

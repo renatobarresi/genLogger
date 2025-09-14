@@ -36,14 +36,15 @@ constexpr uint16_t MS_IN_MINUTE = 60000;
 fileSysWrapper		   fileSystem(1);
 static constexpr char* metadataPath = "metadata.txt";
 #else
+#include "utilities.hpp"
 #include <filesystem>
 #include <iostream>
 #include <stdexcept>
 #include <string>
 #include <unistd.h>
+
 fileSysWrapper fileSystem(0); // Use the non-microcontroller implementation
 std::string	   testFolderPath = "";
-std::string	   getPathMetadata();
 #endif
 
 static constexpr char defaultLoggerName[] = "defaultLogger";
@@ -68,7 +69,7 @@ bool internalStorageComponent::initFS()
 	if (retVal == true)
 	{
 #ifndef TARGET_MICRO
-		testFolderPath = getPathMetadata();
+		testFolderPath = utilities::getPathMetadata("metadata.txt");
 		this->_pPath   = testFolderPath.c_str();
 #else
 		this->_pPath = this->_defaultPath;
@@ -227,34 +228,3 @@ bool internalStorageComponent::_parseMetadataBuffer(char* buffer, loggerMetadata
 	// Validate: did we get at least 5 fields?
 	return fieldIndex >= 5;
 }
-
-#ifndef TARGET_MICRO
-std::string getPathMetadata()
-{
-	char	buf[4096];
-	ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
-	if (len == -1)
-	{
-		throw std::runtime_error("Unable to get executable path");
-	}
-	buf[len] = '\0';
-
-	std::filesystem::path execDir = std::filesystem::path(buf).parent_path();
-
-	// Convert to string to manipulate
-	std::string execDirStr = execDir.string();
-	size_t		pos		   = execDirStr.find("/build");
-	if (pos != std::string::npos)
-	{
-		execDirStr.erase(pos);
-	}
-
-	// Assign back to path and append metadata path
-	execDir = std::filesystem::path(execDirStr);
-	execDir /= "test/simulationFiles/metadata.txt";
-
-	std::cout << "Path to metadata: " << execDir << std::endl;
-
-	return execDir.string();
-}
-#endif

@@ -13,6 +13,12 @@
 
 #include <cstdint>
 
+#ifndef TARGET_MICRO
+#include <string>
+#endif
+
+namespace utilities
+{
 /**
  * @brief Parses a string and sets time and date values according to what's parsed
  *
@@ -32,3 +38,10 @@
  * @return false wrong format
  */
 bool parseTimeAndDate(const char* buff, int* hour, int* minute, int* seconds, int* day, int* month, int* year);
+
+#ifndef TARGET_MICRO
+std::string getPathMetadata(std::string fileName);
+
+std::string getLastLine(std::string fileName);
+#endif
+}

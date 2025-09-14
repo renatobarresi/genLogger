@@ -30,7 +30,7 @@ TEST(utilities, testTimeDateParsing)
 	int year;
 
 	// Test case 1: Valid format "HH:MM:SS DD/MM/YYYY"
-	EXPECT_TRUE(parseTimeAndDate("14:30:45 23/05/2025", &hour, &minute, &seconds, &day, &month, &year));
+	EXPECT_TRUE(utilities::parseTimeAndDate("14:30:45 23/05/2025", &hour, &minute, &seconds, &day, &month, &year));
 	EXPECT_EQ(hour, 14);
 	EXPECT_EQ(minute, 30);
 	EXPECT_EQ(seconds, 45);
@@ -39,7 +39,7 @@ TEST(utilities, testTimeDateParsing)
 	EXPECT_EQ(year, 2025);
 
 	// Test case 2: Valid format with single digits
-	EXPECT_TRUE(parseTimeAndDate("01:05:09 02/03/2024", &hour, &minute, &seconds, &day, &month, &year));
+	EXPECT_TRUE(utilities::parseTimeAndDate("01:05:09 02/03/2024", &hour, &minute, &seconds, &day, &month, &year));
 	EXPECT_EQ(hour, 1);
 	EXPECT_EQ(minute, 5);
 	EXPECT_EQ(seconds, 9);
@@ -48,19 +48,19 @@ TEST(utilities, testTimeDateParsing)
 	EXPECT_EQ(year, 2024);
 
 	// Test case 3: Invalid format - wrong separators
-	EXPECT_FALSE(parseTimeAndDate("14-30-45 23-05-2025", &hour, &minute, &seconds, &day, &month, &year));
+	EXPECT_FALSE(utilities::parseTimeAndDate("14-30-45 23-05-2025", &hour, &minute, &seconds, &day, &month, &year));
 
 	// Test case 4: Invalid format - missing components
-	EXPECT_FALSE(parseTimeAndDate("14:30 23/05/2025", &hour, &minute, &seconds, &day, &month, &year));
+	EXPECT_FALSE(utilities::parseTimeAndDate("14:30 23/05/2025", &hour, &minute, &seconds, &day, &month, &year));
 
 	// Test case 5: Invalid values - out of range
-	EXPECT_FALSE(parseTimeAndDate("25:70:99 32/13/2025", &hour, &minute, &seconds, &day, &month, &year));
+	EXPECT_FALSE(utilities::parseTimeAndDate("25:70:99 32/13/2025", &hour, &minute, &seconds, &day, &month, &year));
 
 	// Test case 6: Null input
-	EXPECT_FALSE(parseTimeAndDate(nullptr, &hour, &minute, &seconds, &day, &month, &year));
+	EXPECT_FALSE(utilities::parseTimeAndDate(nullptr, &hour, &minute, &seconds, &day, &month, &year));
 
 	// Test case 7: Empty string
-	EXPECT_FALSE(parseTimeAndDate("", &hour, &minute, &seconds, &day, &month, &year));
+	EXPECT_FALSE(utilities::parseTimeAndDate("", &hour, &minute, &seconds, &day, &month, &year));
 }
 
 TEST(fileSystemWrapper, testOpen)
@@ -256,56 +256,42 @@ TEST(httpClient, testHTTPClient)
 	EXPECT_TRUE(retVal) << "HTTP POST failed.";
 }
 
-// TEST(loggerSubsystem, testWritingExternal)
-// {
-// 	// char			  fileName[56];
-// 	// fileSysWrapper	  fileSystem(0); // Use the non-microcontroller implementation
-// 	// loggerMetadata*	  pLoggerMetadata;
-// 	// virtualRTC		  rtc;
-// 	// processingManager myProcessingManager(rtc);
-// 	// loggerManager	  myLoggerManager(&myProcessingManager);
-// 	// const char*		  testBuff = "123,125y3,23534if";
-// 	// char			  timeStamp[20];
-// 	// char			  finalTestBuff[100];
-// 	// char			  storedData[56]		 = {0};
-// 	// char			  simulationFileFolder[] = "../../../test/simulationFiles/externalMemory";
+TEST(loggerSubsystem, testWritingExternal)
+{
+	std::string															 fileName;
+	std::string															 lastLine;
+	fileSysWrapper														 fileSystem(0); // Use the non-microcontroller implementation
+	loggerMetadata*														 pLoggerMetadata;
+	virtualRTC															 rtc;
+	processingManager<sensor::davisPluviometer, sensor::anemometerDavis> myProcessingManager(rtc);
+	loggerManager														 myLoggerManager;
+	const char*															 testBuff = "123,125y3,23534if";
+	char																 timeStamp[20];
+	char																 finalTestBuff[100];
+	char																 storedData[56] = {0};
 
-// 	// pLoggerMetadata = getLoggerMetadata();
+	pLoggerMetadata						= getLoggerMetadata();
+	pLoggerMetadata->fileCreationPeriod = loggerMetadataConstants::CREATE_ONLY_ONE_FILE;
 
-// 	// std::sprintf(fileName, "%s/%s", simulationFileFolder, pLoggerMetadata->loggerName);
+	// Set observer and simulate processing of sensor data
+	myProcessingManager.setObserver(&myLoggerManager);
 
-// 	// // get timestamp
-// 	// rtc.getTimestamp(timeStamp);
+	myProcessingManager.takeMeasurements();
+	myProcessingManager.formatData();
+	myProcessingManager.notifyObservers();
 
-// 	// // create testBuffer
-// 	// std::sprintf(finalTestBuff, "%s;%s", timeStamp, testBuff);
+	// loggerManager handler
+	myLoggerManager.init();
+	myLoggerManager.setMailBox(myProcessingManager.getSensorInfoBuff());
+	myLoggerManager.handler();
 
-// 	// // put mock-up buffer into tprocessing manager sensor information buffer
-// 	// std::strcpy(myProcessingManager.sensorInfoBuff, testBuff);
+	// Read simulated file in "external device"
+	fileName = utilities::getPathMetadata(pLoggerMetadata->loggerName);
+	lastLine = utilities::getLastLine(fileName);
 
-// 	// // Set observer and simulate processing of sensor data
-// 	// myProcessingManager.setObserver(&myLoggerManager);
-// 	// myProcessingManager.processData();
-
-// 	// // loggerManager handler
-// 	// myLoggerManager.init();
-// 	// myLoggerManager.handler();
-
-// 	// // Read simulated file in "external device"
-// 	// if (true == fileSystem.open(fileName, 0))
-// 	// {
-// 	// 	fileSystem.read(storedData, sizeof(storedData));
-
-// 	// 	fileSystem.close();
-// 	// }
-// 	// else
-// 	// {
-// 	// 	std::cout << "File not opened" << std::endl;
-// 	// }
-
-// 	// EXPECT_STREQ(finalTestBuff, storedData);
-// 	EXPECT_TRUE(true);
-// }
+	EXPECT_STREQ(myProcessingManager.getSensorInfoBuff(), lastLine.c_str());
+	EXPECT_TRUE(true);
+}
 
 // TEST(loggerSubsystem, testNotification)
 // {

@@ -61,7 +61,7 @@ class processingManager
 	void formatData()
 	{
 		// Append measurements with time they were taken
-		sprintf(_sensorInfoBuff.data(), "%d;%d;%s", _rainInMm, _windSpeedInMPS, _timestamp.data());
+		sprintf(_sensorInfoBuff.data(), "%d;%d;%s\n", _rainInMm, _windSpeedInMPS, _timestamp.data());
 	}
 
 	void notifyObservers()

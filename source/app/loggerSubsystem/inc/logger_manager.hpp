@@ -19,8 +19,6 @@
 #include "loggerMetadata.hpp"
 #include "processing_manager.hpp"
 
-constexpr uint16_t PROCESS_INFO_BUFF_SIZE = 124;
-
 /**
  * @brief Creation periods of measurement files
  */
@@ -60,10 +58,15 @@ class loggerManager : public observerInterface
 
 	bool getAvailableDataFlag();
 
+	void setMailBox(const char* pDataBuff);
+
   private:
 	void _fileManagement(uint8_t confNum);
 
 	uint16_t			   _infoDataLen;
 	struct loggerMetadata* _metadata;
 	bool				   _availableData = false;
+	const char*			   _pPath		  = nullptr;
+
+	const char* _pDataBuff = nullptr; /// Pointer to the buffer that has the sensors measurements and time measurements were taken
 };

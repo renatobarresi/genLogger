@@ -19,7 +19,7 @@
 
 namespace utilities
 {
-
+  
 constexpr uint16_t MS_IN_ONE_MINUTE = 60000;
 
 /**

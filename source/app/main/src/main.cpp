@@ -272,6 +272,7 @@ static void networkTask()
 {
 	if (true == loggerHttpClient.getAvailableDataFlag())
 	{
+
 		debug::log<true, debug::logLevel::LOG_ALL>("Running network task\r\n");
 		// if (false == loggerHttpClient.postSensorData())
 		// {

@@ -43,11 +43,11 @@ static constexpr char* metadataPath = "metadata.txt";
 #include <string>
 #include <unistd.h>
 
+
 /** @brief Filesystem wrapper instance for host-based execution (testing/simulation). */
 fileSysWrapper fileSystem(0); // Use the non-microcontroller implementation
 /** @brief Path to the folder containing test files on the host. */
 std::string testFolderPath = "";
-#endif
 
 /** @brief Default name for the logger if not configured. */
 static constexpr char defaultLoggerName[] = "defaultLogger";

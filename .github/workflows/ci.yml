@@ -9,20 +9,31 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v3
 
-      - name: Create build directory
-        run: mkdir -p build
+      - name: Create build_host directory
+        run: mkdir -p build_host
 
-      - name: Configure CMake
+      - name: Create build_target directory
+        run: mkdir -p build_target
+
+      - name: Configure CMake (target)
+        run: cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/cross/stm32f429.cmake -DCMAKE_BUILD_TYPE=Debug -Dtarget_type=target
+        working-directory: build_target
+
+      - name: Build project (target)
+        run: make -j$(nproc)
+        working-directory: build_target
+
+      - name: Configure CMake (host)
         run: cmake .. -Dtarget_type=host
-        working-directory: build
+        working-directory: build_host
 
       - name: Build project
         run: make -j$(nproc)
-        working-directory: build
+        working-directory: build_host
 
       - name: Run unit tests
         run: ./generalTests
-        working-directory: build/test/src
+        working-directory: build_host/test/src
 
       - name: Check test results
         run: |

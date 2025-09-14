@@ -15,6 +15,8 @@ class httpClient : public observerInterface
 
 	bool getAvailableDataFlag();
 
+	void setRunTaskFlag(bool val);
+
 	void handle();
 
 	void setURL(const char* url);

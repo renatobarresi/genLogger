@@ -41,6 +41,9 @@ bool parseTimeAndDate(const char* buff, int* hour, int* minute, int* seconds, in
 }
 
 #ifndef TARGET_MICRO
+
+// TODO, even though this is only used when build is for host,
+// This can be calculated at compile time using source_location
 std::string getPathMetadata(std::string fileName)
 {
 	char	buf[4096];

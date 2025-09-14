@@ -1,10 +1,13 @@
 #include "networkManager.hpp"
+#include "debug_log.hpp"
 #include <cstdio>
 #include <cstring>
 #include <iostream>
 
 namespace network
 {
+
+static constexpr uint32_t HTTP_SERVER_TIMEOUT_IN_MS = 5000;
 
 void networkManager::mgEventHandler(struct mg_connection* c, int ev, void* ev_data)
 {
@@ -31,19 +34,25 @@ void networkManager::mgEventHandler(struct mg_connection* c, int ev, void* ev_da
 
 bool networkManager::httpConnectPost(const char* url, const char* postContent)
 {
+	// todo this should only be called once
 	strncpy(this->url, url, sizeof(this->url));
 	strncpy(this->postBuffer, postContent, sizeof(this->postBuffer));
 
 	mg_http_connect(&mgr, url, networkManager::mgEventHandler, this);
 
+	// TODO
+	// Make this method not blocking.
+
 	uint64_t start = mg_millis();
-	while (!this->done && mg_millis() - start < 5000)
+	while (!this->done && mg_millis() - start < HTTP_SERVER_TIMEOUT_IN_MS)
 	{
 		mg_mgr_poll(&this->mgr, 100);
 	}
 
 	if (this->done == false)
 	{
+		debug::log<true, debug::logLevel::LOG_ERROR>("Coudn't connect to server\r\n");
+
 		return false;
 	}
 

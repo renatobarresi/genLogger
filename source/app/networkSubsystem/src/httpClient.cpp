@@ -28,6 +28,11 @@ bool httpClient::getAvailableDataFlag()
 	return this->_availableDataFlag;
 }
 
+void httpClient::setRunTaskFlag(bool val)
+{
+	this->_availableDataFlag = val;
+}
+
 void httpClient::setMailBox(const char* pDataBuff)
 {
 	this->_pDataBuff = pDataBuff;

@@ -416,7 +416,7 @@ bool terminalStateMachine::updateLoggerMetadata()
 void terminalStateMachine::printBanner()
 {
 	printf("#############################\r\n");
-	printf("genLogger version: %d.%d.%d.%s\r\n", MAJOR, MINOR, PATCH, DEVELOPMENT);
+	printf("genLogger version: %c.%c.%c.%s\r\n", MAJOR, MINOR, PATCH, DEVELOPMENT);
 	printf("#############################\r\n");
 }
 
@@ -436,7 +436,7 @@ void terminalStateMachine::printLoggerMetadata()
 	printf("File transmission period: %u\r\n", _loggerMetadata->fileTransmissionPeriod);
 	printf("Measurement period: %u\r\n", _loggerMetadata->generalMeasurementPeriod);
 	printf("HTTP POST period: %u\r\n", _loggerMetadata->restRequestPeriod);
-	printf("Firmware version: %d.%d.%d.%d\r\n", MAJOR, MINOR, PATCH, DEVELOPMENT);
+	printf("Firmware version: %c.%c.%c.%s\r\n", MAJOR, MINOR, PATCH, DEVELOPMENT);
 	printf("B - return\r\n");
 	printf("#############################\r\n");
 }

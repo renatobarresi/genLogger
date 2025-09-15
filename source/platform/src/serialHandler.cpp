@@ -18,13 +18,12 @@
 
 #include "serialHandler.hpp"
 #include <cstring>
-#include <iostream>
 
 #ifndef TARGET_MICRO
 
 #include <atomic>
 #include <condition_variable>
-
+#include <iostream>
 #include <mutex>
 #include <string>
 #include <thread>

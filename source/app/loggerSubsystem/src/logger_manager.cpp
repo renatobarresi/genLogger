@@ -1,4 +1,5 @@
 #include "logger_manager.hpp"
+#include "debug_log.hpp"
 #include "filesystemWrapper.hpp"
 #include "loggerMetadata.hpp"
 #include <cstdio>
@@ -32,8 +33,8 @@ bool loggerManager::init()
 	_metadata = getLoggerMetadata();
 
 #ifdef TARGET_MICRO
-	std::strncpy(this->_pPath, _metadata->loggerName, std::strlen(_metadata->loggerName));
-
+	//std::strncpy(this->_pPath, _metadata->loggerName, std::strlen(_metadata->loggerName));
+	this->_pPath = _metadata->loggerName;
 	if (fsHandler.mount() != true)
 	{
 		return false;
@@ -68,7 +69,7 @@ void loggerManager::handler()
 				}
 				else
 				{
-					std::cout << "File could not be opened or created: " << this->_pPath << std::endl;
+					debug::log<true, debug::logLevel::LOG_ALL>("LoggerManager: file could not be opened or created\r\n");
 				}
 			}
 		}

@@ -1,6 +1,6 @@
 #include "httpServer.hpp"
-#include <cstring>		// strlen, memset (C string ops)
-#include <iostream>		// std::cout
+#include <cstring> // strlen, memset (C string ops)
+#include <iostream>
 #include <netinet/in.h> // socket structures
 #include <sys/socket.h> // socket functions (socket, bind, listen, accept)
 #include <unistd.h>		// close, read, write

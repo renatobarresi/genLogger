@@ -29,7 +29,7 @@ int8_t uart_init();
 
 void MX_DMA_Init(void);
 
-void uart_tx(char pBuff, int buffSize);
+void uart_tx(const char* pBuff, int buffSize);
 
 void uart_start_rx_dma();
 

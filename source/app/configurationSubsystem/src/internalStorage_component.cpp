@@ -17,10 +17,17 @@
 #include "errorHandler.hpp"
 #include "filesystemWrapper.hpp"
 #include "loggerMetadata.hpp"
+#include "utilities.hpp"
 #include <cstdlib>
 #include <cstring>
 #include <span>
 
+#ifndef TARGET_MICRO
+#include <filesystem>
+#include <stdexcept>
+#include <string>
+#include <unistd.h>
+#endif
 ////////////////////////////////////////////////////////////////////////
 //				      Defines
 ////////////////////////////////////////////////////////////////////////
@@ -36,12 +43,6 @@ fileSysWrapper fileSystem(1);
 /** @brief Path to the metadata file on the target device. */
 static constexpr char* metadataPath = "metadata.txt";
 #else
-#include "utilities.hpp"
-#include <filesystem>
-#include <iostream>
-#include <stdexcept>
-#include <string>
-#include <unistd.h>
 
 /** @brief Filesystem wrapper instance for host-based execution (testing/simulation). */
 fileSysWrapper fileSystem(0); // Use the non-microcontroller implementation
@@ -198,7 +199,7 @@ bool internalStorageComponent::storeMetadata(const std::span<const char> buff)
  */
 uint32_t internalStorageComponent::getMeasurementPeriod()
 {
-	return (this->_metadata->fileTransmissionPeriod) * utilities::MS_IN_ONE_MINUTE;
+	return (this->_metadata->generalMeasurementPeriod) * (utilities::MS_IN_ONE_MINUTE);
 }
 
 /**

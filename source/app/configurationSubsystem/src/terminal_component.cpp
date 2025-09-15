@@ -21,9 +21,7 @@
 #include <charconv>
 #include <cstdio>
 #include <cstring>
-#include <iostream>
 #include <span>
-#include <streambuf>
 #include <system_error>
 
 ////////////////////////////////////////////////////////////////////////
@@ -39,22 +37,22 @@ static void printConfigHelp();
 
 #ifdef TARGET_MICRO
 #include "uart.h"
+// #include <streambuf>
+// class UartStreamBuf : public std::streambuf
+// {
+//   protected:
+// 	int overflow(int c) override
+// 	{
+// 		if (c != EOF)
+// 		{
+// 			uart_tx(static_cast<char>(c), 1);
+// 		}
+// 		return c;
+// 	}
+// };
 
-class UartStreamBuf : public std::streambuf
-{
-  protected:
-	int overflow(int c) override
-	{
-		if (c != EOF)
-		{
-			uart_tx(static_cast<char>(c), 1);
-		}
-		return c;
-	}
-};
-
-UartStreamBuf uartStreamBuf;
-std::ostream  uartOut(&uartStreamBuf);
+// UartStreamBuf uartStreamBuf;
+// std::ostream  uartOut(&uartStreamBuf);
 #endif
 
 ////////////////////////////////////////////////////////////////////////
@@ -64,8 +62,8 @@ std::ostream  uartOut(&uartStreamBuf);
 void terminalStateMachine::init(terminalState state)
 {
 #ifdef TARGET_MICRO
-	// Redirect std::cout to UART
-	std::cout.rdbuf(&uartStreamBuf);
+	// TODO Redirect std::cout to UART
+
 #endif
 
 	this->activeState	  = state;
@@ -127,7 +125,7 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 				case terminalSignal::EXIT:
 				{
 					// Clean Terminal
-					std::cout << "\033[2J\033[H"; // ANSI escape sequence to clear the screen and reset cursor to top-left
+					printf("\033[2J\033[H"); // ANSI escape sequence to clear the screen and reset cursor to top-left
 					event = terminalEvent::EVENT_HANDLED;
 				}
 				break;
@@ -167,7 +165,7 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 				case terminalSignal::EXIT:
 				{
 					// Clean Terminal
-					std::cout << "\033[2J\033[H"; // ANSI escape sequence to clear the screen and reset cursor to top-left
+					printf("\033[2J\033[H"); // ANSI escape sequence to clear the screen and reset cursor to top-left
 					event = terminalEvent::EVENT_HANDLED;
 				}
 				break;
@@ -197,7 +195,7 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 				break;
 				case terminalSignal::EXIT:
 				{
-					std::cout << "\033[2J\033[H"; // ANSI escape sequence to clear the screen and reset cursor to top-left
+					printf("\033[2J\033[H"); // ANSI escape sequence to clear the screen and reset cursor to top-left
 					event = terminalEvent::EVENT_HANDLED;
 				}
 				break;
@@ -212,7 +210,7 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 					// Set device time and date
 					if (nullptr == buff)
 					{
-						std::cout << "Please input the time following this format HH:MM:SS DD/MM/YYYY\r\n";
+						printf("Please input the time following this format HH:MM:SS DD/MM/YYYY\r\n");
 						this->_previousSignal = terminalSignal::pressedKey_T;
 					}
 
@@ -221,7 +219,7 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 				break;
 				case terminalSignal::pressedKey_C:
 				{
-					std::cout << "Please input how often to send the file in minutes\r\n";
+					printf("Please input how often to send the file in minutes\r\n");
 					this->_previousSignal = terminalSignal::pressedKey_C;
 
 					event = terminalEvent::EVENT_HANDLED;
@@ -229,8 +227,8 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 				break;
 				case terminalSignal::pressedKey_F:
 				{
-					std::cout << "Please input the File creation period\r\n";
-					std::cout << "Type 1 for file creation a day\r\nType 2 for file creation only once\r\n";
+					printf("Please input the File creation period\r\n");
+					printf("Type 1 for file creation a day\r\nType 2 for file creation only once\r\n");
 					this->_previousSignal = terminalSignal::pressedKey_F;
 
 					event = terminalEvent::EVENT_HANDLED;
@@ -238,7 +236,7 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 				break;
 				case terminalSignal::pressedKey_M:
 				{
-					std::cout << "Please input the measurement period in minutes\r\n";
+					printf("Please input the measurement period in minutes\r\n");
 					this->_previousSignal = terminalSignal::pressedKey_M;
 
 					event = terminalEvent::EVENT_HANDLED;
@@ -248,7 +246,7 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 				{
 					if (nullptr == buff)
 					{
-						std::cout << "Invalid data, please type again\r\n";
+						printf("Invalid data, please type again\r\n");
 						break;
 					}
 
@@ -258,7 +256,7 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 						{
 							// Update _configurationBuffer with the device name
 							std::strncpy(_loggerMetadata->loggerName, buff, sizeof(_loggerMetadata->loggerName));
-							std::cout << "Name copied, input S to save it\r\n";
+							printf("Name copied, input S to save it\r\n");
 						}
 						break;
 						case terminalSignal::pressedKey_T:
@@ -275,17 +273,17 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 
 							if (false == validData)
 							{
-								std::cout << "Invalid data, please type again\r\n";
+								printf("Invalid data, please type again\r\n");
 								break;
 							}
 
 							if (true == this->_terminalRTC->setTime(static_cast<uint8_t>(hour), static_cast<uint8_t>(minute), static_cast<uint8_t>(seconds)) && true == this->_terminalRTC->setDate(static_cast<uint8_t>(day), static_cast<uint8_t>(month), static_cast<uint16_t>(year)))
 							{
-								std::cout << "RTC configured\r\n";
+								printf("RTC configured\r\n");
 							}
 							else
 							{
-								std::cout << "Error configuring RTC\r\n";
+								printf("Error configuring RTC\r\n");
 							}
 						}
 						break;
@@ -293,12 +291,12 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 						{
 							if ('1' != buff[0] && '2' != buff[0])
 							{
-								std::cout << "Invalid data\r\n";
+								printf("Invalid data\r\n");
 								break;
 							}
 
 							_loggerMetadata->fileCreationPeriod = buff[0];
-							std::cout << "File creation period changed, input S to save it\r\n";
+							printf("File creation period changed, input S to save it\r\n");
 						}
 						break;
 						case terminalSignal::pressedKey_M:
@@ -310,19 +308,19 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 
 							if (ec != std::errc())
 							{
-								std::cout << "Invalid data, please type again\r\n";
+								printf("Invalid data, please type again\r\n");
 							}
 							else
 							{
 								if (terminalSignal::pressedKey_C == this->_previousSignal)
 								{
 									_loggerMetadata->fileTransmissionPeriod = static_cast<uint16_t>(value);
-									std::cout << "File transmission period changed, input S to save it\r\n";
+									printf("File transmission period changed, input S to save it\r\n");
 								}
 								else if (terminalSignal::pressedKey_M == this->_previousSignal)
 								{
 									_loggerMetadata->generalMeasurementPeriod = static_cast<uint16_t>(value);
-									std::cout << "Measurement period changed, input S to save it\r\n";
+									printf("Measurement period changed, input S to save it\r\n");
 								}
 							}
 
@@ -344,7 +342,7 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 					// Set device name
 					if (nullptr == buff)
 					{
-						std::cout << "Please input the device name\r\n";
+						printf("Please input the device name\r\n");
 						this->_previousSignal = terminalSignal::pressedKey_N;
 					}
 
@@ -353,7 +351,7 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 				break;
 				case terminalSignal::pressedKey_S:
 				{
-					std::cout << "Storing configuratoin in memory..\r\n";
+					printf("Storing configuratoin in memory..\r\n");
 					std::array<char, sizeof(loggerMetadata)> buffMetadata{};
 
 					// clang-format off
@@ -374,11 +372,11 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 
 					if (res != 1)
 					{
-						std::cout << "Error trying to store in memory\r\n";
+						printf("Error trying to store in memory\r\n");
 					}
 					else
 					{
-						std::cout << "Configuration saved!\r\n";
+						printf("Configuration saved!\r\n");
 					}
 
 					event = terminalEvent::EVENT_HANDLED;
@@ -417,10 +415,9 @@ bool terminalStateMachine::updateLoggerMetadata()
 
 void terminalStateMachine::printBanner()
 {
-	std::cout << "#############################\r\n";
-	std::cout << "genLogger version: ";
-	std::cout << MAJOR << "." << MINOR << "." << PATCH << "." << DEVELOPMENT << "\r\n";
-	std::cout << "#############################\r\n";
+	printf("#############################\r\n");
+	printf("genLogger version: %c.%c.%c.%s\r\n", MAJOR, MINOR, PATCH, DEVELOPMENT);
+	printf("#############################\r\n");
 }
 
 void terminalStateMachine::printLoggerMetadata()
@@ -431,17 +428,17 @@ void terminalStateMachine::printLoggerMetadata()
 	_terminalRTC->getTime(&timBuff[0], sizeof(timBuff));
 	_terminalRTC->getDate(&dateBuff[0], sizeof(dateBuff));
 
-	std::cout << "#############################\r\n";
-	std::cout << "Device name: " << _loggerMetadata->loggerName << "\r\n";
-	std::cout << "Device time: " << timBuff << "\r\n";
-	std::cout << "Device date: " << dateBuff << "\r\n";
-	std::cout << "File creation period: " << _loggerMetadata->fileCreationPeriod << "\r\n";
-	std::cout << "File transmission period: " << _loggerMetadata->fileTransmissionPeriod << "\r\n";
-	std::cout << "Measurement period: " << _loggerMetadata->generalMeasurementPeriod << "\r\n";
-	std::cout << "HTTP POST period: " << _loggerMetadata->restRequestPeriod << "\r\n";
-	std::cout << "Firmware version: " << MAJOR << "." << MINOR << "." << PATCH << "." << DEVELOPMENT << "\r\n";
-	std::cout << "B - return\r\n";
-	std::cout << "#############################\r\n";
+	printf("#############################\r\n");
+	printf("Device name: %s\r\n", _loggerMetadata->loggerName);
+	printf("Device time: %s\r\n", timBuff);
+	printf("Device date: %s\r\n", dateBuff);
+	printf("File creation period: %c\r\n", _loggerMetadata->fileCreationPeriod);
+	printf("File transmission period: %u\r\n", _loggerMetadata->fileTransmissionPeriod);
+	printf("Measurement period: %u\r\n", _loggerMetadata->generalMeasurementPeriod);
+	printf("HTTP POST period: %u\r\n", _loggerMetadata->restRequestPeriod);
+	printf("Firmware version: %c.%c.%c.%s\r\n", MAJOR, MINOR, PATCH, DEVELOPMENT);
+	printf("B - return\r\n");
+	printf("#############################\r\n");
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -450,25 +447,25 @@ void terminalStateMachine::printLoggerMetadata()
 
 static void printHelp()
 {
-	std::cout << "#############################\r\n";
-	std::cout << "Help Menu:\r\n";
-	std::cout << "#############################\r\n";
-	std::cout << "I - Print Device Info\r\n";
-	std::cout << "C - Configure Device\r\n";
-	std::cout << "#############################\r\n";
+	printf("#############################\r\n");
+	printf("Help Menu:\r\n");
+	printf("#############################\r\n");
+	printf("I - Print Device Info\r\n");
+	printf("C - Configure Device\r\n");
+	printf("#############################\r\n");
 }
 
 static void printConfigHelp()
 {
-	std::cout << "#############################\r\n";
-	std::cout << "Configure menu\r\n";
-	std::cout << "#############################\r\n";
-	std::cout << "T - Set device time and date\r\n";
-	std::cout << "N - set device name\r\n";
-	std::cout << "F - set the device creation period\r\n";
-	std::cout << "C - set the device file transmission period\r\n";
-	std::cout << "M - set the device measurement period\r\n";
-	std::cout << "S - Store configuration in memory\r\n";
-	std::cout << "B - return\r\n";
-	std::cout << "#############################\r\n";
+	printf("#############################\r\n");
+	printf("Configure menu\r\n");
+	printf("#############################\r\n");
+	printf("T - Set device time and date\r\n");
+	printf("N - set device name\r\n");
+	printf("F - set the device creation period\r\n");
+	printf("C - set the device file transmission period\r\n");
+	printf("M - set the device measurement period\r\n");
+	printf("S - Store configuration in memory\r\n");
+	printf("B - return\r\n");
+	printf("#############################\r\n");
 }

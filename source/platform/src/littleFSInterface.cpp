@@ -8,7 +8,7 @@
  */
 
 #include "W25Qx_module.h"
-#include <iostream>
+#include <cstdint>
 #include <littleFSInterface.h>
 
 W25Q64 myFlash; // F13 is Pin D7 on the nucleo board
@@ -22,7 +22,7 @@ int flash_init()
 {
 	if (!myFlash.init())
 	{
-		std::cout << "Error initializing flash" << std::endl;
+		printf("ERROR initializing flash!\r\n");
 		while (1);
 	}
 

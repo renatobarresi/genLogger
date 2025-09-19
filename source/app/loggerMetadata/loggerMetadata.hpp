@@ -36,8 +36,11 @@ constexpr uint16_t loggerNameLenght		= 96;
 
 namespace loggerMetadataConstants
 {
-constexpr uint8_t CREATE_FILE_A_DAY	   = 1;
-constexpr uint8_t CREATE_ONLY_ONE_FILE = 2;
+constexpr uint8_t CREATE_FILE_A_DAY		 = 1;
+constexpr uint8_t CREATE_ONLY_ONE_FILE	 = 2;
+constexpr char	  loggerDefaultIP[]		 = "192.168.1.2";
+constexpr char	  loggerDefaultNetmask[] = "255.255.255.0";
+constexpr char	  loggerDefaultGateway[] = "192.168.1.1";
 } // namespace loggerMetadataConstants
 
 ////////////////////////////////////////////////////////////////////////
@@ -55,6 +58,9 @@ struct loggerMetadata
 	uint16_t fileTransmissionPeriod;													   // Period (minutes) for sending the current file to the server
 	uint16_t generalMeasurementPeriod;													   // Period (minutes) for making a measurement and storing it (not all sensors follow this period)
 	uint16_t restRequestPeriod;															   // Period (minutes) for sending last computed data line to the server
+	char	 pIP[16]	  = {'\0'};
+	char	 pNetmask[16] = {'\0'};
+	char	 pGateway[16] = {'\0'};
 };
 
 ////////////////////////////////////////////////////////////////////////

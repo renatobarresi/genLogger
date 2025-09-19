@@ -39,6 +39,7 @@ set(dependencies_sources)
 
 set(virtualDevice_sources
     virtualDevices/src/virtualCounter.cpp
+    virtualDevices/src/virtualTimer.cpp
 )
 
 set(middleware_sources

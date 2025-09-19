@@ -27,10 +27,10 @@
 ////////////////////////////////////////////////////////////////////////
 
 // Description in header file //
-configManager::configManager(terminalStateMachine* terminal, internalStorageComponent* storage) : outputTerminal(terminal), internalStorage(storage)
+configManager::configManager(terminalStateMachine& terminal, internalStorageComponent& storage) : _outputTerminal(terminal), _internalStorage(storage)
 {
-	this->outputTerminal->setMediator(this);
-	this->internalStorage->setMediator(this);
+	_outputTerminal.setMediator(this);
+	_internalStorage.setMediator(this);
 }
 
 // Description in header file //
@@ -40,7 +40,7 @@ uint8_t configManager::notify(configComponent* sender, mediatorEvents event, std
 	if (event == mediatorEvents::UPDATE_METADATA)
 	{
 		// Notify internal storage
-		this->internalStorage->retrieveMetadata();
+		_internalStorage.retrieveMetadata();
 	}
 
 	if (event == mediatorEvents::METADATA_UPDATED)
@@ -50,7 +50,7 @@ uint8_t configManager::notify(configComponent* sender, mediatorEvents event, std
 
 	if (event == mediatorEvents::STORE_METADATA)
 	{
-		this->internalStorage->storeMetadata(data);
+		_internalStorage.storeMetadata(data);
 	}
 
 	return 1;

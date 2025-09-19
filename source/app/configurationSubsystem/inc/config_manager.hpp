@@ -33,8 +33,8 @@
 class configManager : public configManagerInterface
 {
   private:
-	terminalStateMachine*	  outputTerminal;  ///< Pointer to the terminal state machine component.
-	internalStorageComponent* internalStorage; ///< Pointer to the internal storage component.
+	terminalStateMachine&	  _outputTerminal;	///< Reference to the terminal state machine component.
+	internalStorageComponent& _internalStorage; ///< Reference to the internal storage component.
 
   public:
 	/**
@@ -46,7 +46,7 @@ class configManager : public configManagerInterface
 	 * @param[in] terminal Pointer to the terminal state machine component.
 	 * @param[in] storage Pointer to the internal storage component.
 	 */
-	configManager(terminalStateMachine* terminal, internalStorageComponent* storage);
+	configManager(terminalStateMachine& terminal, internalStorageComponent& storage);
 
 	/**
 	 * @brief Notify the mediator about an event from a specific component.

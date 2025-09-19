@@ -8,8 +8,17 @@
 //							Global variables
 ////////////////////////////////////////////////////////////////////////
 
-//todo maybe extern this?
 static struct loggerMetadata metadata;
+static struct loggerMetadata defaultMetadata = {
+	.loggerName				  = "defaultLogger",
+	.fileCreationPeriod		  = loggerMetadataConstants::CREATE_FILE_A_DAY,
+	.fileTransmissionPeriod	  = 1,
+	.generalMeasurementPeriod = 1,
+	.restRequestPeriod		  = 1,
+	.pIP					  = "192.168.1.2",
+	.pNetmask				  = "255.255.255.0",
+	.pGateway				  = "192.168.1.1",
+};
 
 ////////////////////////////////////////////////////////////////////////
 //					 Public functions implementation
@@ -18,4 +27,9 @@ static struct loggerMetadata metadata;
 struct loggerMetadata* getLoggerMetadata()
 {
 	return &metadata;
+}
+
+struct loggerMetadata* getDefaultLoggerMetadata()
+{
+	return &defaultMetadata;
 }

@@ -38,6 +38,7 @@ set(sources
     ${sourceDirectory}/app/networkSubsystem/src/httpServer.cpp
     ${sourceDirectory}/app/measurementSubsystem/sensors/sensorSimulator/sensorSimulatorConsumer.cpp
     ${sourceDirectory}/virtualDevices/src/virtualCounter.cpp
+    ${sourceDirectory}/virtualDevices/src/virtualTimer.cpp
 )
 
 add_executable(${this} 

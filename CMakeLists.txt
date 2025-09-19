@@ -17,7 +17,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #              Project main definitions                  #
 ##########################################################
 project(${projectName}
-        DESCRIPTION "genLogger is a generic datalogger. FIUBA CESE final project."
+        DESCRIPTION "genLogger is a generic datalogger"
         VERSION 1.0.0
         LANGUAGES C CXX ASM)   
 

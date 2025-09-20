@@ -157,9 +157,9 @@ int main()
 	eth_get_mac_address(mac_address);
 
 	loggerNetworkManager.setMacAddress(mac_address);
-	loggerNetworkManager.setIp(loggerMetadata::loggerDefaultIP);
-	loggerNetworkManager.setNetmask(loggerMetadata::loggerDefaultNetmask);
-	loggerNetworkManager.setGateway(loggerMetadata::loggerDefaultGateway);
+	loggerNetworkManager.setIp(loggerMetadataConstants::loggerDefaultIP);
+	loggerNetworkManager.setNetmask(loggerMetadataConstants::loggerDefaultNetmask);
+	loggerNetworkManager.setGateway(loggerMetadataConstants::loggerDefaultGateway);
 #endif
 	if (false == loggerNetworkManager.init())
 	{

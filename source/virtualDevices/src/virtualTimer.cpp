@@ -1,6 +1,5 @@
-#pragma once
-
 #include "virtualTimer.hpp"
+#include "timer.h"
 
 namespace systick
 {
@@ -33,6 +32,7 @@ void myTickHandler()
 	}
 }
 #endif
+
 uint64_t getTicks()
 {
 	uint64_t ticks;

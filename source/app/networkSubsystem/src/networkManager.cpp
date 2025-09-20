@@ -51,6 +51,7 @@ bool networkManager::httpConnectPost(const char** url, const char** postContent)
 		_firstCall		= false;
 
 		debug::log<true, debug::logLevel::LOG_ALL>("Network Manager: Performing HTTP connect for the first time\r\n");
+
 		mg_http_connect(&mgr, *url, networkManager::mgEventHandler, this);
 	}
 
@@ -77,6 +78,20 @@ networkManager::networkManager()
 	// this->_macAddressIsSet = false;
 }
 
+// TODO zero copy buffer
+void networkManager::setIp(const char* ip)
+{
+	strncpy(this->_ip, ip, sizeof(_ip));
+}
+void networkManager::setNetmask(const char* netMask)
+{
+	strncpy(this->_netmask, netMask, sizeof(_netmask));
+}
+void networkManager::setGateway(const char* gateway)
+{
+	strncpy(this->_gateway, gateway, sizeof(_gateway));
+}
+
 networkManager::~networkManager()
 {
 	debug::log<true, debug::logLevel::LOG_ALL>("Network Manager: releasing resources\r\n");
@@ -92,8 +107,8 @@ void networkManager::setMacAddress(const uint8_t* macAddress)
 bool networkManager::init()
 {
 #ifdef TARGET_MICRO
-	struct mg_tcpip_driver_stm32f_data driver_data = {.mdc_cr = 4};
-	struct mg_tcpip_if				   mif		   = {0};
+	driver_data = {.mdc_cr = 4};
+	mif			= {0};
 
 	mg_log_set(MG_LL_DEBUG);
 	mg_mgr_init(&mgr); // Initialise event manager
@@ -130,6 +145,7 @@ bool networkManager::init()
 
 	mg_tcpip_init(&mgr, &mif);
 
+	// TODO add timeout
 	while (mif.state != MG_TCPIP_STATE_READY)
 	{
 		mg_mgr_poll(&mgr, 0);

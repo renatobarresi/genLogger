@@ -1,14 +1,13 @@
 #pragma once
 
+#include <cstdint>
+
 #ifndef TARGET_MICRO
 #include <atomic>
 #include <chrono>
-#include <cstdint>
 #include <functional>
 #include <thread>
 #include <utility> // for std::declval
-#else
-#include "timer.h"
 #endif
 
 #ifndef TARGET_MICRO

@@ -16,22 +16,25 @@ void networkManager::mgEventHandler(struct mg_connection* c, int ev, void* ev_da
 	{
 		struct mg_str host = mg_url_host(*objInfo->_pURL);
 
-		// mg_printf(c,
-		// 		  "POST %s HTTP/1.1\r\n"
-		// 		  "Host: %.*s\r\n"
-		// 		  "Content-Length: %d\r\n"
-		// 		  "\r\n"
-		// 		  "%s",
-		// 		  mg_url_uri(*objInfo->_pURL), (int)host.len, host.buf, (int)strlen(*objInfo->_pPayload), objInfo->_pPayload);
+		debug::log<true, debug::logLevel::LOG_ALL>("Network Manager: mongoose MG_EVENT_CONNECT action\r\n");
+		// printf("POST %s HTTP/1.1\r\n"
+		// 	   "Host: %.*s\r\n"
+		// 	   "Content-Length: %d\r\n"
+		// 	   "\r\n"
+		// 	   "%s",
+		// 	   mg_url_uri(*objInfo->_pURL), (int)host.len, host.buf, strlen(*objInfo->_pPayload), *objInfo->_pPayload);
 		mg_printf(c,
-				  "GET %s HTTP/1.0\r\n"
+				  "POST %s HTTP/1.1\r\n"
 				  "Host: %.*s\r\n"
-				  "\r\n",
-				  mg_url_uri(*objInfo->_pURL), (int)host.len, host.buf);
+				  "Content-Length: %d\r\n"
+				  "\r\n"
+				  "%s",
+				  mg_url_uri(*objInfo->_pURL), (int)host.len, host.buf, strlen(*objInfo->_pPayload), *objInfo->_pPayload);
 	}
 
 	if (ev == MG_EV_HTTP_MSG)
 	{
+		debug::log<true, debug::logLevel::LOG_ALL>("Network Manager: mongoose MG_EV_HTTP_MSG action\r\n");
 		struct mg_http_message* hm = (struct mg_http_message*)ev_data;
 		printf("%.*s", (int)hm->message.len, hm->message.buf);
 		objInfo->done		= true;
@@ -47,6 +50,7 @@ bool networkManager::httpConnectPost(const char** url, const char** postContent)
 		this->_pURL		= url;
 		_firstCall		= false;
 
+		debug::log<true, debug::logLevel::LOG_ALL>("Network Manager: Performing HTTP connect for the first time\r\n");
 		mg_http_connect(&mgr, *url, networkManager::mgEventHandler, this);
 	}
 
@@ -54,7 +58,6 @@ bool networkManager::httpConnectPost(const char** url, const char** postContent)
 
 	if (this->done == false)
 	{
-		//_firstCall = true;
 		return false;
 	}
 
@@ -76,7 +79,7 @@ networkManager::networkManager()
 
 networkManager::~networkManager()
 {
-	debug::log<true, debug::logLevel::LOG_ERROR>("Network Manager: releasing resources\r\n");
+	debug::log<true, debug::logLevel::LOG_ALL>("Network Manager: releasing resources\r\n");
 	mg_mgr_free(&this->mgr);
 }
 

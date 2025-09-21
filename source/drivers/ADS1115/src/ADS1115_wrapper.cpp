@@ -31,7 +31,7 @@ bool ADS1115::initImpl()
 	return true;
 }
 
-float ADS1115::readVoltageImpl()
+float ADS1115::readVoltageImpl(uint8_t channel)
 {
 	float retVal = 0;
 

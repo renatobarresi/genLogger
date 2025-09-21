@@ -7,6 +7,6 @@ class ADS1115 : public ADC::IADC<ADS1115>
 {
   public:
 	bool  initImpl();
-	float readVoltageImpl();
+	float readVoltageImpl(uint8_t channel);
 };
 }

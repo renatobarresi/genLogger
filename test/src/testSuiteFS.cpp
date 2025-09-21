@@ -12,6 +12,7 @@
 #include "terminal_component.hpp"
 #include "utilities.hpp"
 #include "virtualRTC.hpp"
+#include <ADS1115_wrapper.hpp>
 #include <chrono>
 #include <cstdio>
 #include <cstring>
@@ -21,8 +22,6 @@
 #include <optional>
 #include <string>
 #include <thread>
-
-char testFileLocation[] = "testFS.txt";
 
 TEST(utilities, testTimeDateParsing)
 {
@@ -62,36 +61,6 @@ TEST(utilities, testTimeDateParsing)
 
 	// Test case 7: Empty string
 	EXPECT_FALSE(utilities::parseTimeAndDate("", &hour, &minute, &seconds, &day, &month, &year));
-}
-
-TEST(fileSystemWrapper, testOpen)
-{
-	// Create a file to be able to test
-	std::ofstream testFile(testFileLocation);
-	testFile << "thisFile";
-	testFile.close();
-
-	fileSysWrapper fileSystem(0); // Use the non-microcontroller implementation
-
-	bool status = fileSystem.open(testFileLocation, 0);
-	fileSystem.close();
-
-	ASSERT_TRUE(status) << "File open failed, path: " << testFileLocation;
-}
-
-TEST(filesystemWrapper, testRead)
-{
-	fileSysWrapper fileSystem(0); // Use the non-microcontroller implementation
-
-	fileSystem.open(testFileLocation, 0);
-
-	char buffer[8];
-
-	int bytesRead = fileSystem.read(buffer, 8);
-
-	fileSystem.close();
-
-	EXPECT_STREQ(buffer, "thisFile") << "File read failed";
 }
 
 TEST(terminalStateMachine, testChangesInSMState)
@@ -187,8 +156,18 @@ TEST(httpClient, testHTTPClient)
 	std::cout << "Server is ready for httpClient test" << std::endl;
 
 	// 2. Client-side components setup
-	virtualRTC															 rtc;
-	processingManager<sensor::davisPluviometer, sensor::anemometerDavis> myProcessingManager(rtc);
+	virtualRTC							rtc;
+	ADC::ADS1115						loggerADC;
+	sensor::davisPluviometer			loggerPluviometer;
+	sensor::anemometerDavis				loggerAnemometer;
+	sensor::windVaneDavis<ADC::ADS1115> loggerWindVane(loggerADC);
+
+	// clang-format off
+	processingManager myProcessingManager(rtc, 
+										  loggerPluviometer, 
+										  loggerAnemometer, 
+										  loggerWindVane);
+	// clang-format on
 
 	network::networkManager myNetwork("127.0.0.1", "255.255.255.0", "127.0.0.1");
 	myNetwork.init();
@@ -221,17 +200,28 @@ TEST(httpClient, testHTTPClient)
 
 TEST(loggerSubsystem, testWritingExternal)
 {
-	std::string															 fileName;
-	std::string															 lastLine;
-	fileSysWrapper														 fileSystem(0); // Use the non-microcontroller implementation
-	loggerMetadata*														 pLoggerMetadata;
-	virtualRTC															 rtc;
-	processingManager<sensor::davisPluviometer, sensor::anemometerDavis> myProcessingManager(rtc);
-	loggerManager														 myLoggerManager;
-	const char*															 testBuff = "123,125y3,23534if";
-	char																 timeStamp[20];
-	char																 finalTestBuff[100];
-	char																 storedData[56] = {0};
+	std::string							fileName;
+	std::string							lastLine;
+	fileSysWrapper						fileSystem(0); // Use the non-microcontroller implementation
+	loggerMetadata*						pLoggerMetadata;
+	virtualRTC							rtc;
+	ADC::ADS1115						loggerADC;
+	sensor::davisPluviometer			loggerPluviometer;
+	sensor::anemometerDavis				loggerAnemometer;
+	sensor::windVaneDavis<ADC::ADS1115> loggerWindVane(loggerADC);
+
+	// clang-format off
+	processingManager myProcessingManager(rtc, 
+										  loggerPluviometer, 
+										  loggerAnemometer, 
+										  loggerWindVane);
+	// clang-format on
+
+	loggerManager myLoggerManager;
+	const char*	  testBuff = "123,125y3,23534if";
+	char		  timeStamp[20];
+	char		  finalTestBuff[100];
+	char		  storedData[56] = {0};
 
 	pLoggerMetadata						= getLoggerMetadata();
 	pLoggerMetadata->fileCreationPeriod = loggerMetadataConstants::CREATE_ONLY_ONE_FILE;
@@ -255,27 +245,3 @@ TEST(loggerSubsystem, testWritingExternal)
 	EXPECT_STREQ(myProcessingManager.getSensorInfoBuff(), lastLine.c_str());
 	EXPECT_TRUE(true);
 }
-
-// TEST(loggerSubsystem, testNotification)
-// {
-// 	// virtualRTC															 rtc;
-// 	// processingManager<sensor::davisPluviometer, sensor::anemometerDavis> myProcessingManager(rtc);
-// 	// loggerManager														 myLoggerManager;
-// 	// const char*															 testBuff = "123,125y3,23534if";
-// 	// char																 timeStamp[20];
-// 	// char																 finalTestBuff[100];
-
-// 	// // Mock measurement here
-// 	// std::sprintf(myProcessingManager.sensorInfoBuff.data(), "%s", testBuff);
-
-// 	// myProcessingManager.setObserver(&myLoggerManager);
-// 	// myProcessingManager.takeMeasurements();
-// 	// myProcessingManager.notifyObservers();
-
-// 	// rtc.getTimestamp(timeStamp);
-
-// 	// // Mock measurement here
-// 	// std::sprintf(myProcessingManager.sensorInfoBuff.data(), "%s;%s", timeStamp, testBuff);
-
-// 	// EXPECT_STREQ(myProcessingManager.sensorInfoBuff.data(), myLoggerManager.measurementsBuff.data());
-// }

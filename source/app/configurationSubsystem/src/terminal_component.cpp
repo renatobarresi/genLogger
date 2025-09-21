@@ -300,7 +300,9 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 						}
 						break;
 						case terminalSignal::pressedKey_M:
-						[[fallthrough]]
+							//clang-format off
+							[[fallthrough]];
+						// clang-format on
 						case terminalSignal::pressedKey_C:
 						{
 							// Validate input

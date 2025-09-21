@@ -14,9 +14,9 @@ class IADC
 		return static_cast<T*>(this)->initImpl();
 	}
 
-	float readVoltage()
+	float readVoltage(uint8_t channel)
 	{
-		return static_cast<T*>(this)->readVoltageImpl();
+		return static_cast<T*>(this)->readVoltageImpl(channel);
 	}
 };
 

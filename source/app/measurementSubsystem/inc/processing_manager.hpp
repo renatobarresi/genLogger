@@ -18,8 +18,8 @@ constexpr uint16_t MSRD_DATA_BUFF_SIZE = 1024;
 class observerInterface // change class name, maybe processingMngObserver or IProcessing
 {
   public:
-	virtual void update(bool infoFlag) = 0;
-	virtual ~observerInterface()	   = default;
+	virtual void update()		 = 0;
+	virtual ~observerInterface() = default;
 };
 
 /**
@@ -28,15 +28,23 @@ class observerInterface // change class name, maybe processingMngObserver or IPr
  * @tparam TPluviometer 
  * @tparam TAnemometer 
  */
-template<typename TPluviometer, typename TAnemometer>
+template<typename TPluviometer, typename TAnemometer, typename TWindVane>
 class processingManager
 {
   public:
 	/**
 	 * @brief constructor
 	 */
-	processingManager(virtualRTC& rtc) : _loggerRTC(rtc) {}
-
+	// clang-format off
+	processingManager(virtualRTC& rtc,
+					  TPluviometer& pluviometer,
+					  TAnemometer& anemometer,
+					  TWindVane& windVane) :
+					  _loggerRTC(rtc), 
+					  _loggerPluviometer(pluviometer), 
+					  _loggerAnemometer(anemometer), 
+					  _loggerWindVane(windVane) {}
+	// clang-format on
 	void init(void)
 	{
 #ifndef TARGET_MICRO
@@ -56,6 +64,7 @@ class processingManager
 		// TODO all sensors
 		_rainInMm		= _loggerPluviometer.getRain();
 		_windSpeedInMPS = _loggerAnemometer.getWindSpeed();
+		_windDir		= _loggerWindVane.getWindDir();
 	}
 
 	void formatData()
@@ -80,10 +89,13 @@ class processingManager
 	uint8_t											  _activeObservers = 0; /// How many components are listening for notifications
 	virtualRTC&										  _loggerRTC;
 	std::array<char, 50>							  _timestamp{};		  /// Used to store the time and date of when the measurements were made
-	TPluviometer									  _loggerPluviometer; ///
-	TAnemometer										  _loggerAnemometer;
-	uint16_t										  _rainInMm;
-	uint16_t										  _windSpeedInMPS;
+	TPluviometer&									  _loggerPluviometer; ///
+	TAnemometer&									  _loggerAnemometer;
+	TWindVane&										  _loggerWindVane;
+
+	uint16_t _rainInMm;
+	uint16_t _windSpeedInMPS;
+	uint16_t _windDir;
 
 	/**
      * @brief iterates through array of listeners 
@@ -92,10 +104,11 @@ class processingManager
      */
 	void notify(const char* pBuff)
 	{
+		(void)pBuff;
 		// no range loop because not all pointers in _listOfObservers are valid
 		for (uint8_t i = 0; i < _activeObservers; i++)
 		{
-			_listOfObservers[i]->update(true);
+			_listOfObservers[i]->update();
 		}
 	}
 };

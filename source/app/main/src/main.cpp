@@ -28,6 +28,7 @@
 //							    Includes
 ////////////////////////////////////////////////////////////////////////
 #include "main.h"
+#include "ADS1115_wrapper.hpp"
 #include "config_manager.hpp"
 #include "debug_log.hpp"
 #include "httpClient.hpp"
@@ -89,7 +90,16 @@ internalStorageComponent internalStorage;
 /** @brief Mediator for the configuration subsystem, connecting terminal and storage. */
 configManager loggerConfig(terminalOutput, internalStorage);
 /** @brief Manager for processing data from various sensors. */
-processingManager<sensor::davisPluviometer, sensor::anemometerDavis> myProcessingManager(rtc);
+ADC::ADS1115			 loggerADC;
+sensor::davisPluviometer loggerPluviometer;
+sensor::anemometerDavis	 loggerAnemometer;
+sensor::windVaneDavis	 loggerWindVane(loggerADC);
+// clang-format off
+processingManager myProcessingManager(rtc, 
+								   	  loggerPluviometer, 
+								      loggerAnemometer, 
+								      loggerWindVane);
+// clang-format on
 /** @brief Manager for logging processed data to files. */
 loggerManager myLoggerManager;
 /** @brief Manager for network connectivity. */

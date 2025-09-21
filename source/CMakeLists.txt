@@ -81,6 +81,7 @@ if (target_type STREQUAL "host")
     LIST(APPEND driver_sources
         drivers/rtc/src/host_rtc.cpp
         app/measurementSubsystem/sensors/sensorSimulator/sensorSimulatorConsumer.cpp
+        drivers/ADS1115/src/ADS1115_mock.cpp
     )
 endif()
 

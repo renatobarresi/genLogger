@@ -10,6 +10,7 @@ set(includes
     ${sourceDirectory}/virtualDevices/inc/
     ${sourceDirectory}/app/configurationSubsystem/inc/
     ${sourceDirectory}/drivers/rtc/inc/
+    ${sourceDirectory}/drivers/ADS1115/inc/
     ${sourceDirectory}/app/loggerMetadata/
     ${sourceDirectory}/app/main/inc/
     ${sourceDirectory}/app/utilities/inc/
@@ -39,6 +40,7 @@ set(sources
     ${sourceDirectory}/app/measurementSubsystem/sensors/sensorSimulator/sensorSimulatorConsumer.cpp
     ${sourceDirectory}/virtualDevices/src/virtualCounter.cpp
     ${sourceDirectory}/virtualDevices/src/virtualTimer.cpp
+    ${sourceDirectory}/drivers/ADS1115/src/ADS1115_mock.cpp
 )
 
 add_executable(${this} 

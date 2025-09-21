@@ -48,7 +48,7 @@ class loggerManager : public observerInterface
      * @param infoFlag 
      * @param sensorInformation 
      */
-	void update(bool infoFlag) override;
+	void update() override;
 
 	/**
      * @brief 

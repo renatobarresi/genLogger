@@ -13,7 +13,7 @@ class httpClient : public observerInterface
 
 	httpClient(network::networkManager& netManager);
 
-	void update(bool infoFlag) override;
+	void update() override;
 
 	bool runTaskFlag();
 

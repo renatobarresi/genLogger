@@ -14,44 +14,51 @@ void networkManager::mgEventHandler(struct mg_connection* c, int ev, void* ev_da
 
 	if (ev == MG_EV_CONNECT)
 	{
-		struct mg_str host = mg_url_host(objInfo->url);
+		struct mg_str host = mg_url_host(*objInfo->_pURL);
 
+		debug::log<true, debug::logLevel::LOG_ALL>("Network Manager: mongoose MG_EVENT_CONNECT action\r\n");
+		// printf("POST %s HTTP/1.1\r\n"
+		// 	   "Host: %.*s\r\n"
+		// 	   "Content-Length: %d\r\n"
+		// 	   "\r\n"
+		// 	   "%s",
+		// 	   mg_url_uri(*objInfo->_pURL), (int)host.len, host.buf, strlen(*objInfo->_pPayload), *objInfo->_pPayload);
 		mg_printf(c,
 				  "POST %s HTTP/1.1\r\n"
 				  "Host: %.*s\r\n"
 				  "Content-Length: %d\r\n"
 				  "\r\n"
 				  "%s",
-				  mg_url_uri(objInfo->url), (int)host.len, host.buf, (int)strlen(objInfo->postBuffer), objInfo->postBuffer);
+				  mg_url_uri(*objInfo->_pURL), (int)host.len, host.buf, strlen(*objInfo->_pPayload), *objInfo->_pPayload);
 	}
 
 	if (ev == MG_EV_HTTP_MSG)
 	{
-		objInfo->done = true;
+		debug::log<true, debug::logLevel::LOG_ALL>("Network Manager: mongoose MG_EV_HTTP_MSG action\r\n");
+		struct mg_http_message* hm = (struct mg_http_message*)ev_data;
+		printf("%.*s", (int)hm->message.len, hm->message.buf);
+		objInfo->done		= true;
+		objInfo->_firstCall = true;
 	}
 }
 
-bool networkManager::httpConnectPost(const char* url, const char* postContent)
+bool networkManager::httpConnectPost(const char** url, const char** postContent)
 {
-	// todo this should only be called once
-	strncpy(this->url, url, sizeof(this->url));
-	strncpy(this->postBuffer, postContent, sizeof(this->postBuffer));
-
-	mg_http_connect(&mgr, url, networkManager::mgEventHandler, this);
-
-	// TODO
-	// Make this method not blocking.
-
-	uint64_t start = mg_millis();
-	while (!this->done && mg_millis() - start < HTTP_SERVER_TIMEOUT_IN_MS)
+	if (true == _firstCall)
 	{
-		mg_mgr_poll(&this->mgr, 100);
+		this->_pPayload = postContent;
+		this->_pURL		= url;
+		_firstCall		= false;
+
+		debug::log<true, debug::logLevel::LOG_ALL>("Network Manager: Performing HTTP connect for the first time\r\n");
+
+		mg_http_connect(&mgr, *url, networkManager::mgEventHandler, this);
 	}
+
+	mg_mgr_poll(&this->mgr, 100);
 
 	if (this->done == false)
 	{
-		debug::log<true, debug::logLevel::LOG_ERROR>("Coudn't connect to server\r\n");
-
 		return false;
 	}
 
@@ -67,8 +74,28 @@ networkManager::networkManager(const char* ip, const char* netmask, const char* 
 
 networkManager::networkManager()
 {
-	this->_staticIP		   = false;
-	this->_macAddressIsSet = false;
+	// this->_staticIP		   = false;
+	// this->_macAddressIsSet = false;
+}
+
+// TODO zero copy buffer
+void networkManager::setIp(const char* ip)
+{
+	strncpy(this->_ip, ip, sizeof(_ip));
+}
+void networkManager::setNetmask(const char* netMask)
+{
+	strncpy(this->_netmask, netMask, sizeof(_netmask));
+}
+void networkManager::setGateway(const char* gateway)
+{
+	strncpy(this->_gateway, gateway, sizeof(_gateway));
+}
+
+networkManager::~networkManager()
+{
+	debug::log<true, debug::logLevel::LOG_ALL>("Network Manager: releasing resources\r\n");
+	mg_mgr_free(&this->mgr);
 }
 
 void networkManager::setMacAddress(const uint8_t* macAddress)
@@ -80,8 +107,8 @@ void networkManager::setMacAddress(const uint8_t* macAddress)
 bool networkManager::init()
 {
 #ifdef TARGET_MICRO
-	struct mg_tcpip_driver_stm32f_data driver_data = {.mdc_cr = 4}; // STM32F specific
-	struct mg_tcpip_if				   mif		   = {0};
+	driver_data = {.mdc_cr = 4};
+	mif			= {0};
 
 	mg_log_set(MG_LL_DEBUG);
 	mg_mgr_init(&mgr); // Initialise event manager
@@ -118,6 +145,7 @@ bool networkManager::init()
 
 	mg_tcpip_init(&mgr, &mif);
 
+	// TODO add timeout
 	while (mif.state != MG_TCPIP_STATE_READY)
 	{
 		mg_mgr_poll(&mgr, 0);

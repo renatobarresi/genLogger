@@ -18,6 +18,7 @@
 #include <fstream>
 #include <functional>
 #include <gtest/gtest.h>
+#include <optional>
 #include <string>
 #include <thread>
 
@@ -98,7 +99,7 @@ TEST(terminalStateMachine, testChangesInSMState)
 	virtualRTC				 rtc;
 	terminalStateMachine	 terminalOutput(&rtc);
 	internalStorageComponent storage;
-	configManager			 loggerConfig(&terminalOutput, &storage);
+	configManager			 loggerConfig(terminalOutput, storage);
 
 	if (false == storage.initFS())
 	{
@@ -137,7 +138,7 @@ TEST(terminalStateMachine, testChangeToDeviceConfigState)
 	virtualRTC				 rtc;
 	terminalStateMachine	 terminalOutput(&rtc);
 	internalStorageComponent storage;
-	configManager			 loggerConfig(&terminalOutput, &storage);
+	configManager			 loggerConfig(terminalOutput, storage);
 
 	if (false == storage.initFS())
 	{
@@ -157,49 +158,6 @@ TEST(terminalStateMachine, testChangeToDeviceConfigState)
 	pLoggerMetadata = getLoggerMetadata();
 
 	EXPECT_STREQ(pLoggerMetadata->loggerName, "station1") << "Failed to set loggerName";
-}
-
-TEST(networkManager, testStablishConn)
-{
-	const char ip[]		 = "123";
-	const char netmask[] = "123";
-	const char gateway[] = "123";
-	bool	   retVal	 = false;
-	int		   flag		 = 0;
-
-	// Prepare promise/future to synchronize server startup
-	// std::promise<void> server_ready;
-	// std::future<void>  server_ready_future = server_ready.get_future();
-
-	network::networkManager myNetwork(ip, netmask, gateway);
-
-	// Launch server in separate thread
-	std::thread server_thread(httpServer, std::ref(flag));
-
-	// Wait for server to be ready
-	while (flag != 1)
-	{
-		if (flag == 2)
-		{
-			server_thread.join(); // Wait for server thread to finish
-			FAIL() << "Server failed to start";
-		}
-	};
-	//server_ready_future.wait();
-
-	std::cout << "Server is ready" << std::endl;
-
-	myNetwork.init();
-
-	std::cout << "Client initialized" << std::endl;
-
-	retVal = myNetwork.httpConnectPost("127.0.0.1:8081", "123");
-
-	std::cout << "Client connection and post done" << std::endl;
-
-	server_thread.join(); // Wait for server thread to finish
-
-	EXPECT_EQ(true, retVal);
 }
 
 TEST(httpClient, testHTTPClient)
@@ -235,7 +193,7 @@ TEST(httpClient, testHTTPClient)
 	network::networkManager myNetwork("127.0.0.1", "255.255.255.0", "127.0.0.1");
 	myNetwork.init();
 
-	network::httpClient myHttpClient(&myNetwork, "127.0.0.1:8081");
+	network::httpClient myHttpClient(myNetwork);
 
 	// 3. Connect components using the Observer pattern
 	myProcessingManager.setObserver(&myHttpClient);
@@ -246,14 +204,19 @@ TEST(httpClient, testHTTPClient)
 	myProcessingManager.notifyObservers();
 
 	myHttpClient.setMailBox(myProcessingManager.getSensorInfoBuff());
-
+	myHttpClient.setURL("127.0.0.1:8081");
 	// 5. Execute network task logic, simulating what the main loop would do
-	ASSERT_TRUE(myHttpClient.getAvailableDataFlag()) << "httpClient was not notified by processingManager";
-	bool retVal = myHttpClient.postSensorData(); // contentType is not used
+	ASSERT_TRUE(myHttpClient.runTaskFlag()) << "httpClient was not notified by processingManager";
+
+	std::optional<bool> retVal;
+	do
+	{
+		retVal = myHttpClient.postSensorData();
+	} while (!retVal.has_value());
 
 	// 6. Assertions and cleanup
 	server_thread.join();
-	EXPECT_TRUE(retVal) << "HTTP POST failed.";
+	EXPECT_TRUE(retVal.value()) << "HTTP POST failed.";
 }
 
 TEST(loggerSubsystem, testWritingExternal)

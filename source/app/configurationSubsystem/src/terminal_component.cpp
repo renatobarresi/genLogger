@@ -300,6 +300,7 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 						}
 						break;
 						case terminalSignal::pressedKey_M:
+						[[fallthrough]]
 						case terminalSignal::pressedKey_C:
 						{
 							// Validate input

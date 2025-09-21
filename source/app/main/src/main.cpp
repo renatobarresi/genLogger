@@ -54,10 +54,11 @@ void* operator new(std::size_t count) = delete; // Make sure no library that use
 //							Constants/Macros
 ////////////////////////////////////////////////////////////////////////
 
-constexpr char loggerDefaultIP[]	  = "123.123.123.123";
-constexpr char loggerDefaultNetmask[] = "255.255.255.0";
-constexpr char loggerDefaultGateway[] = "123.123.123.1";
-constexpr char httpServerIP[]		  = "127.0.0.1:8080";
+#ifndef TARGET_MICRO
+constexpr char httpServerIP[] = "http://127.0.0.0:8080/api/hello";
+#else
+constexpr char httpServerIP[] = "http://192.168.1.100:8080/api/hello";
+#endif
 
 ////////////////////////////////////////////////////////////////////////
 //					       Private variables
@@ -67,16 +68,14 @@ constexpr char httpServerIP[]		  = "127.0.0.1:8080";
  * @brief Flag to signal the execution of the measurement task.
  * @details This flag is set by a timer (or simulated SysTick) and cleared after the task runs.
  */
-static bool runMeasurementTask = true;
+static volatile uint8_t runMeasurementTask = 1;
 /**
  * @brief Period for the measurement task in milliseconds.
  */
 static uint32_t measurementTaskPeriod = utilities::MS_IN_ONE_MINUTE;
 
-#ifdef TARGET_MICRO
-struct hardwareTimeouts			 taskMeasurementControl{&measurementTaskPeriod, 0};
+struct hardwareTimeouts			 taskMeasurementControl{&measurementTaskPeriod, &runMeasurementTask};
 std::array<hardwareTimeouts*, 2> taskControlContainer{&taskMeasurementControl, nullptr};
-#endif
 
 ////////////////////////////////////////////////////////////////////////
 //							    Classes
@@ -88,15 +87,15 @@ terminalStateMachine terminalOutput(&rtc);
 /** @brief Component for handling metadata storage on the internal filesystem. */
 internalStorageComponent internalStorage;
 /** @brief Mediator for the configuration subsystem, connecting terminal and storage. */
-configManager loggerConfig(&terminalOutput, &internalStorage);
+configManager loggerConfig(terminalOutput, internalStorage);
 /** @brief Manager for processing data from various sensors. */
 processingManager<sensor::davisPluviometer, sensor::anemometerDavis> myProcessingManager(rtc);
 /** @brief Manager for logging processed data to files. */
 loggerManager myLoggerManager;
 /** @brief Manager for network connectivity. */
-network::networkManager loggerNetworkManager(loggerDefaultIP, loggerDefaultNetmask, loggerDefaultGateway);
+network::networkManager loggerNetworkManager;
 /** @brief HTTP client for sending data to a remote server. */
-network::httpClient loggerHttpClient(&loggerNetworkManager, httpServerIP);
+network::httpClient loggerHttpClient(loggerNetworkManager);
 
 ////////////////////////////////////////////////////////////////////////
 //							Functions definitions
@@ -139,7 +138,7 @@ int main()
 #ifdef TARGET_MICRO
 	stm32f429_init(taskControlContainer.data());
 #else
-	systick::startSystickSimulation(myTickHandler);
+	systick::startSystickSimulation(taskControlContainer.data());
 #endif
 
 	debug::log<true, debug::logLevel::LOG_ALL>("\r\n\r\n-----> Running logger APP <-----\r\n\r\n");
@@ -157,16 +156,20 @@ int main()
 	}
 
 #ifdef TARGET_MICRO
-	// Get MAC address from the hardware driver and provide it to the network manager
 	uint8_t mac_address[6];
+
 	eth_get_mac_address(mac_address);
+
 	loggerNetworkManager.setMacAddress(mac_address);
+	loggerNetworkManager.setIp(loggerMetadataConstants::loggerDefaultIP);
+	loggerNetworkManager.setNetmask(loggerMetadataConstants::loggerDefaultNetmask);
+	loggerNetworkManager.setGateway(loggerMetadataConstants::loggerDefaultGateway);
 #endif
-	// if (false == loggerNetworkManager.init())
-	// {
-	// 	debug::log<true, debug::logLevel::LOG_ERROR>("Error initializing network manager\r\n");
-	// 	while (1);
-	// }
+	if (false == loggerNetworkManager.init())
+	{
+		debug::log<true, debug::logLevel::LOG_ERROR>("Error initializing network manager\r\n");
+		while (1);
+	}
 
 	/* Configuration */
 	measurementTaskPeriod = internalStorage.getMeasurementPeriod();
@@ -180,6 +183,7 @@ int main()
 
 	myLoggerManager.init();
 
+	loggerHttpClient.setURL(httpServerIP);
 	loggerHttpClient.setMailBox(myProcessingManager.getSensorInfoBuff());
 
 	/* Super loop | TODO RTOS */
@@ -192,6 +196,7 @@ int main()
 	}
 
 #ifndef TARGET_MICRO
+	debug::log<true, debug::logLevel::LOG_ERROR>("APP: releasing resources\r\n");
 	systick::stopSystickSimulation();
 #endif
 
@@ -243,13 +248,15 @@ void configurationTask()
  */
 void measurementTask()
 {
-	if (runMeasurementTask == true)
+	if (1 == runMeasurementTask)
 	{
+		debug::log<true, debug::logLevel::LOG_ALL>("Running measurement task\r\n");
+
 		myProcessingManager.takeMeasurements();
 		myProcessingManager.formatData();
 		myProcessingManager.notifyObservers();
 
-		runMeasurementTask = false;
+		runMeasurementTask = 0;
 	}
 }
 
@@ -272,31 +279,33 @@ void loggerTask()
  */
 static void networkTask()
 {
-	if (true == loggerHttpClient.getAvailableDataFlag())
-	{
-		debug::log<true, debug::logLevel::LOG_ALL>("Running network task\r\n");
-		// if (false == loggerHttpClient.postSensorData())
-		// {
-		// 	// todo
-		// }
+	static bool firstCall = true;
 
-		loggerHttpClient.setRunTaskFlag(false);
+	if (true == loggerHttpClient.runTaskFlag())
+	{
+		if (true == firstCall)
+		{
+			debug::log<true, debug::logLevel::LOG_ALL>("Running network task\r\n");
+			firstCall = false;
+		}
+
+		auto postResult = loggerHttpClient.postSensorData();
+		if (postResult.has_value())
+		{
+			if (false == postResult.value())
+			{
+				debug::log<true, debug::logLevel::LOG_WARNING>("Unable to send data to server\r\n");
+			}
+			else
+			{
+				debug::log<true, debug::logLevel::LOG_ALL>("Data sent to server\r\n");
+			}
+
+			loggerHttpClient.setRunTaskFlag(false);
+		}
+	}
+	else
+	{
+		firstCall = true;
 	}
 }
-
-#ifndef TARGET_MICRO
-/**
- * @brief Simulates a microcontroller SysTick Handler for non-target builds.
- * @details This function is called periodically by a simulated systick timer. It increments a
- * tick counter and sets the `runMeasurementTask` flag when the measurement period elapses.
- */
-void myTickHandler()
-{
-	static uint64_t tickCount = 0;
-	tickCount++;
-	if ((tickCount % measurementTaskPeriod) == 0)
-	{
-		runMeasurementTask = true;
-	}
-}
-#endif

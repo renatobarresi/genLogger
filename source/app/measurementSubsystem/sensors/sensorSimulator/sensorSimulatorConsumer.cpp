@@ -27,14 +27,14 @@ bool getMemInitFlag()
 
 static void cleanup(int signum)
 {
-	std::cout << "\nReceived Ctrl+C, cleaning up..." << std::endl;
+	std::cout << "\nSENSOR SIMULATOR: Received Ctrl+C, cleaning up..." << std::endl;
 
 	// Kill Python child process
 	if (child_pid > 0)
 	{
 		kill(child_pid, SIGTERM);		// Graceful termination
 		waitpid(child_pid, nullptr, 0); // Wait for child to exit
-		std::cout << "Python sensor simulator terminated." << std::endl;
+		std::cout << "SENSOR SIMULATOR: Python sensor simulator terminated." << std::endl;
 	}
 
 	// Unmap and close shared memory
@@ -50,7 +50,7 @@ static void cleanup(int signum)
 
 void init(void)
 {
-	std::cout << "Running producer..." << std::endl;
+	std::cout << "SENSOR SIMULATOR: Running producer..." << std::endl;
 
 	shm_fd = shm_open(name, O_CREAT | O_RDWR, 0666);
 	if (shm_fd == -1)
@@ -84,7 +84,7 @@ void init(void)
 	else if (child_pid > 0)
 	{
 		// Parent process: wait for Ctrl+C
-		std::cout << "Python consumer launched. Press Ctrl+C to stop." << std::endl;
+		std::cout << "SENSOR SIMULATOR: Python consumer launched. Press Ctrl+C to stop." << std::endl;
 
 		// Infinite loop until signal
 		// while (true)
@@ -105,7 +105,7 @@ sensorOutput readSharedMemory(void)
 
 	if (!ptr)
 	{
-		std::cerr << "Shared memory not initialized." << std::endl;
+		std::cerr << "SENSOR SIMULATOR: Shared memory not initialized." << std::endl;
 		exit(1);
 	}
 

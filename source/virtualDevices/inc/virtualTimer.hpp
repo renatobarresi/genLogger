@@ -1,13 +1,26 @@
 #pragma once
 
+#include <cstdint>
+
 #ifndef TARGET_MICRO
 #include <atomic>
 #include <chrono>
-#include <cstdint>
 #include <functional>
 #include <thread>
 #include <utility> // for std::declval
 #endif
+
+#ifndef TARGET_MICRO
+/**
+ * @brief Allows bussiness logic to define 
+ */
+struct hardwareTimeouts
+{
+	const uint32_t*	  taskTimeout;
+	volatile uint8_t* taskRunFlag;
+};
+#endif
+
 namespace systick
 {
 
@@ -23,8 +36,12 @@ class Timer1msSimulator
 	void start(const Callback& cb)
 	{
 		if (_running.load())
+		{
 			return; // Prevent multiple starts
+		}
+
 		_running.store(true);
+
 		_timerThread = std::thread([this, cb]() {
 			while (_running.load())
 			{
@@ -38,8 +55,11 @@ class Timer1msSimulator
 	void stop()
 	{
 		_running.store(false);
+
 		if (_timerThread.joinable())
+		{
 			_timerThread.join();
+		}
 	}
 
 	~Timer1msSimulator()
@@ -52,22 +72,20 @@ class Timer1msSimulator
 	std::atomic<bool> _running;
 };
 
-// Internal static instance for simulation
-static Timer1msSimulator _simulator;
+/**
+ * @brief Simulates a microcontroller SysTick Handler for non-target builds.
+ * @details This function is called periodically by a simulated systick timer. It increments a
+ * tick counter and sets the `runMeasurementTask` flag when the measurement period elapses.
+ */
+void myTickHandler();
 
 // Externally callable function to start simulation
-inline void startSystickSimulation(const Timer1msSimulator::Callback& cb)
-{
-	_simulator.start(cb);
-}
-
+void startSystickSimulation(struct hardwareTimeouts** taskControlParams);
 // Optional stop function
-inline void stopSystickSimulation()
-{
-	_simulator.stop();
-}
-
-#else
-
+void stopSystickSimulation();
+void myTickHandler();
 #endif
+
+uint64_t getTicks();
+
 } // namespace systick

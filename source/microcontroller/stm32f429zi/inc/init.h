@@ -30,8 +30,8 @@ extern "C" {
  */
 struct hardwareTimeouts
 {
-	const uint32_t*	 taskTimeout;
-	volatile uint8_t taskRunFlag;
+	uint32_t* const	  taskTimeout;
+	volatile uint8_t* taskRunFlag;
 };
 
 ////////////////////////////////////////////////////////////////////////

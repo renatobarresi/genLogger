@@ -57,6 +57,8 @@ if (target_type STREQUAL "target")
         drivers/W25Qx/src/W25Qx_module.cpp
         drivers/rtc/src/stm32F429_RTC.cpp
         drivers/SDCard/sd_spi.c
+        drivers/ADS1115/src/ADS1115.c
+        drivers/ADS1115/src/ADS1115_wrapper.cpp
     )
 
     LIST(APPEND dependencies_sources
@@ -107,6 +109,7 @@ set(driver_includes
     # W25Qx driver
     drivers/W25Qx/inc/
     drivers/SDCard/
+    drivers/ADS1115/inc/
 )
 
 set(dependencies_includes)

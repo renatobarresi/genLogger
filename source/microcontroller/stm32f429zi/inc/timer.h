@@ -16,6 +16,7 @@ extern "C" {
 
 uint64_t timer_getTick();
 
+void system_sleep(uint32_t val);
 #ifdef __cplusplus
 }
 #endif

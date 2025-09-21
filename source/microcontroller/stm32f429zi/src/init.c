@@ -21,6 +21,7 @@
 
 #include "init.h"
 #include "ethernet.h"
+#include "i2c_drv.h"
 #include "rand.h"
 #include "rtc_drv.h"
 #include "spi_drv.h"
@@ -81,6 +82,16 @@ void stm32f429_init(struct hardwareTimeouts** taskControlParams)
 	}
 
 	if (-1 == eth_init())
+	{
+		while (1);
+	}
+
+	if (-1 == i2c_init())
+	{
+		while (1);
+	}
+
+	if (-1 == rand_init())
 	{
 		while (1);
 	}

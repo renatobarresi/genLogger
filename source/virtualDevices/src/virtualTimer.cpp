@@ -1,5 +1,8 @@
 #include "virtualTimer.hpp"
+
+#ifdef TARGET_MICRO
 #include "timer.h"
+#endif
 
 namespace systick
 {

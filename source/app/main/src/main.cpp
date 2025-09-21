@@ -54,7 +54,11 @@ void* operator new(std::size_t count) = delete; // Make sure no library that use
 //							Constants/Macros
 ////////////////////////////////////////////////////////////////////////
 
+#ifndef TARGET_MICRO
+constexpr char httpServerIP[] = "http://127.0.0.0:8080/api/hello";
+#else
 constexpr char httpServerIP[] = "http://192.168.1.100:8080/api/hello";
+#endif
 
 ////////////////////////////////////////////////////////////////////////
 //					       Private variables

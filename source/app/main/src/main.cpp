@@ -54,7 +54,7 @@ void* operator new(std::size_t count) = delete; // Make sure no library that use
 //							Constants/Macros
 ////////////////////////////////////////////////////////////////////////
 
-constexpr char httpServerIP[] = "127.0.0.1:8080";
+constexpr char httpServerIP[] = "http://192.168.1.100:8080/api/hello";
 
 ////////////////////////////////////////////////////////////////////////
 //					       Private variables
@@ -179,7 +179,7 @@ int main()
 
 	myLoggerManager.init();
 
-	loggerHttpClient.setURL("http://127.0.0.1:8081/api/hello");
+	loggerHttpClient.setURL(httpServerIP);
 	loggerHttpClient.setMailBox(myProcessingManager.getSensorInfoBuff());
 
 	/* Super loop | TODO RTOS */

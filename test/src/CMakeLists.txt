@@ -20,7 +20,8 @@ set(includes
     ${sourceDirectory}/middleware/mongoose/
     ${sourceDirectory}/app/measurementSubsystem/inc/
     ${sourceDirectory}/app/measurementSubsystem/sensors/sensorSimulator/
-    ${sourceDirectory}/app/measurementSubsystem/sensors/inc/  
+    ${sourceDirectory}/app/measurementSubsystem/sensors/inc/
+      
 )
 
 set(sources

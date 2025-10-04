@@ -275,7 +275,8 @@ if (target_type STREQUAL "target")
         -lstdc++
         -lsupc++
         -Wl,--end-group
-        -Wl,--print-memory-usage
+        -Wl,--print-memory-usage # Print a summary of memory usage
+        -Wl,-u,_printf_float     # Force link of float support for printf
         #-Wl,--verbose
     )
 endif()

@@ -18,6 +18,7 @@
 #include "device_version.hpp"
 #include "loggerMetadata.hpp"
 #include "utilities.hpp"
+#include "virtualTimer.hpp"
 #include <charconv>
 #include <cstdio>
 #include <cstring>
@@ -102,6 +103,11 @@ void terminalStateMachine::setSignal(terminalSignal sig)
 	this->availableSignal = sig;
 }
 
+terminalSignal terminalStateMachine::getSignal()
+{
+	return this->availableSignal;
+}
+
 ////////////////////////////////////////////////////////////////////////
 //					 Private methods implementation
 ////////////////////////////////////////////////////////////////////////
@@ -138,6 +144,64 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 				case terminalSignal::pressedKey_C:
 				{
 					this->activeState = terminalState::basicDeviceConfig;
+					event			  = terminalEvent::EVENT_TRANSITION;
+				}
+				break;
+				case terminalSignal::pressedKey_S:
+				{
+					this->activeState = terminalState::streamADC;
+					event			  = terminalEvent::EVENT_TRANSITION;
+				}
+				break;
+				default:
+				{
+					event = terminalEvent::EVENT_IGNORED;
+				}
+				break;
+			}
+		}
+		break;
+		case terminalState::streamADC:
+		{
+			switch (sig)
+			{
+				case terminalSignal::ENTRY:
+				{
+					printf("Streaming ADC data, press B to go back\r\n");
+					this->availableSignal = terminalSignal::streamData;
+					event				  = terminalEvent::EVENT_HANDLED;
+				}
+				break;
+				case terminalSignal::streamData:
+				{
+					if (false == this->_flagStreamDelay)
+					{
+						this->_ticks		   = systick::getTicks();
+						this->_flagStreamDelay = true;
+					}
+
+					if (systick::getTicks() - _ticks > 1000)
+					{
+						//count++;
+						float voltage = _sensorService.requestADCVoltage();
+						printf("ADC Voltage: %f\r\n", voltage);
+						printf("\033[A\033[2K");
+						this->_flagStreamDelay = false;
+					}
+					//printf("\033[2J\033[H"); // ANSI escape sequence to clear the screen and reset cursor to top-left
+					event = terminalEvent::EVENT_HANDLED;
+				}
+				break;
+				case terminalSignal::EXIT:
+				{
+					// Clean Terminal
+					printf("\033[2J\033[H"); // ANSI escape sequence to clear the screen and reset cursor to top-left
+					event = terminalEvent::EVENT_HANDLED;
+				}
+				break;
+				case terminalSignal::pressedKey_B:
+				{
+					this->activeState = terminalState::initState;
 					event			  = terminalEvent::EVENT_TRANSITION;
 				}
 				break;
@@ -277,7 +341,7 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 								break;
 							}
 
-							if (true == this->_terminalRTC->setTime(static_cast<uint8_t>(hour), static_cast<uint8_t>(minute), static_cast<uint8_t>(seconds)) && true == this->_terminalRTC->setDate(static_cast<uint8_t>(day), static_cast<uint8_t>(month), static_cast<uint16_t>(year)))
+							if (true == this->_terminalRTC.setTime(static_cast<uint8_t>(hour), static_cast<uint8_t>(minute), static_cast<uint8_t>(seconds)) && true == this->_terminalRTC.setDate(static_cast<uint8_t>(day), static_cast<uint8_t>(month), static_cast<uint16_t>(year)))
 							{
 								printf("RTC configured\r\n");
 							}
@@ -428,8 +492,8 @@ void terminalStateMachine::printLoggerMetadata()
 	char timBuff[9];
 	char dateBuff[15];
 
-	_terminalRTC->getTime(&timBuff[0], sizeof(timBuff));
-	_terminalRTC->getDate(&dateBuff[0], sizeof(dateBuff));
+	_terminalRTC.getTime(&timBuff[0], sizeof(timBuff));
+	_terminalRTC.getDate(&dateBuff[0], sizeof(dateBuff));
 
 	printf("#############################\r\n");
 	printf("Device name: %s\r\n", _loggerMetadata->loggerName);
@@ -455,6 +519,7 @@ static void printHelp()
 	printf("#############################\r\n");
 	printf("I - Print Device Info\r\n");
 	printf("C - Configure Device\r\n");
+	printf("S - Stream RAW ADC data\r\n");
 	printf("#############################\r\n");
 }
 

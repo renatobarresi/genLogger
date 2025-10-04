@@ -9,7 +9,7 @@ bool ADS1115::initImpl()
 
 float ADS1115::readVoltageImpl(uint8_t channel)
 {
-	return 0;
+	return 3.3f;
 }
 
 } // namespace ADC

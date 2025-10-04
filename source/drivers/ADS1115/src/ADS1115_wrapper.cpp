@@ -18,7 +18,7 @@ bool ADS1115::initImpl()
 		return false;
 	}
 
-	if (0 == ADS1115_Set_Volt_Range(&ADS1115_1, ADS1115_RANGE_4096))
+	if (0 == ADS1115_Set_Volt_Range(&ADS1115_1, ADS1115_RANGE_6144))
 	{
 		return false;
 	}

@@ -1,13 +1,9 @@
-/*
- * ADS1115.c
- *
- *  Created on: Jun 13, 2022
- *      Author: renato
- */
-
 #include "ADS1115.h"
 #include "i2c_drv.h"
 #include "timer.h"
+
+// TODO deal with magic numbers
+#define FS_CONSTANT
 
 /*******************Private global variables***************************/
 
@@ -21,13 +17,21 @@ static const uint8_t ADS1115RegHiThresh	  = 0x03;
 static uint8_t ADS1115DefRegConfigLSB = 0b10000011;
 static uint8_t ADS1115DefRegConfigMSB = 0b00000101;
 
+/* Function pointers for I2C operations */
+typedef int8_t (*_i2c_tx)(uint16_t devAddr, uint16_t memAddr, uint8_t* pData, uint16_t size);
+typedef int8_t (*_i2c_rx)(uint16_t devAddr, uint16_t memAddr, uint8_t* pData, uint16_t size);
+
+/* I2C function pointer objects */
+_i2c_tx _i2c_write;
+_i2c_rx _i2c_read;
+
 /**********************Private functions**********************/
 
 static uint8_t _ADS1115_I2C_reg_write(uint16_t devAddr, uint16_t memAddr, uint8_t* pData, uint16_t size)
 {
 	int8_t retVal;
 
-	retVal = i2c_write(devAddr, memAddr, pData, 2);
+	retVal = _i2c_write(devAddr, memAddr, pData, 2);
 
 	if (retVal == -1)
 	{
@@ -45,7 +49,7 @@ static uint8_t _ADS1115_I2C_reg_read(uint16_t devAddr, uint16_t memAddr, uint8_t
 {
 	int8_t retVal;
 
-	retVal = i2c_read(devAddr, memAddr, pData, 2);
+	retVal = _i2c_read(devAddr, memAddr, pData, 2);
 
 	if (retVal == -1)
 	{
@@ -63,10 +67,12 @@ static uint8_t _ADS1115_write_config_reg(ADS1115_handler* ads)
 {
 	uint8_t retVal;
 	uint8_t tempBuff[2];
+
 	tempBuff[1] = ads->configReg[1]; //LSB
 	tempBuff[0] = ads->configReg[0]; //MSB
 
 	retVal = _ADS1115_I2C_reg_write((uint16_t)ads->address, (uint16_t)ADS1115RegConfig, tempBuff, 2);
+
 	return retVal;
 }
 
@@ -75,6 +81,7 @@ static uint8_t _ADS1115_read_conversion_reg(ADS1115_handler* ads)
 	uint8_t retVal;
 
 	retVal = _ADS1115_I2C_reg_read((uint16_t)ads->address, (uint16_t)ADS1115RegConversion, ads->conversionRegBuff, 2);
+
 	return retVal;
 }
 
@@ -94,6 +101,10 @@ uint8_t ADS1115_init(ADS1115_handler* ads, uint8_t address)
 	ads->conversionRegBuff[0] = 0;
 	ads->conversionRegBuff[1] = 0;
 	ads->FS					  = 2.048;
+
+	// assign the i2c callbacks
+	_i2c_write = i2c_write;
+	_i2c_read  = i2c_read;
 
 	return 1;
 }

@@ -36,6 +36,7 @@
 #include "logger_manager.hpp"
 #include "networkManager.hpp"
 #include "processing_manager.hpp"
+#include "sensorService.hpp"
 #include "serialHandler.hpp"
 #include "terminal_component.hpp"
 #include "utilities.hpp"
@@ -56,10 +57,12 @@ void* operator new(std::size_t count) = delete; // Make sure no library that use
 ////////////////////////////////////////////////////////////////////////
 
 #ifndef TARGET_MICRO
-constexpr char httpServerIP[] = "http://127.0.0.0:8080/api/hello";
+static constexpr char httpServerIP[] = "http://127.0.0.0:8080/api/hello";
 #else
-constexpr char httpServerIP[] = "http://192.168.1.100:8080/api/hello";
+static constexpr char httpServerIP[] = "http://192.168.1.100:8080/api/hello";
 #endif
+
+static constexpr uint8_t CONFIG_BUFF_SIZE = 96;
 
 ////////////////////////////////////////////////////////////////////////
 //					       Private variables
@@ -82,15 +85,17 @@ std::array<hardwareTimeouts*, 2> taskControlContainer{&taskMeasurementControl, n
 //							    Classes
 ////////////////////////////////////////////////////////////////////////
 
-virtualRTC rtc;
+virtualRTC	  rtc;
+ADC::ADS1115  loggerADC;
+sensorService loggerSensorService(loggerADC);
 /** @brief Terminal state machine for user configuration via serial interface. */
-terminalStateMachine terminalOutput(&rtc);
+terminalStateMachine terminalOutput(rtc, loggerSensorService);
 /** @brief Component for handling metadata storage on the internal filesystem. */
 internalStorageComponent internalStorage;
 /** @brief Mediator for the configuration subsystem, connecting terminal and storage. */
 configManager loggerConfig(terminalOutput, internalStorage);
 /** @brief Manager for processing data from various sensors. */
-ADC::ADS1115			 loggerADC;
+
 sensor::davisPluviometer loggerPluviometer;
 sensor::anemometerDavis	 loggerAnemometer;
 sensor::windVaneDavis	 loggerWindVane(loggerADC);
@@ -196,6 +201,9 @@ int main()
 	loggerHttpClient.setURL(httpServerIP);
 	loggerHttpClient.setMailBox(myProcessingManager.getSensorInfoBuff());
 
+	/* Init Drivers */
+	loggerADC.init();
+
 	/* Super loop | TODO RTOS */
 	while (1)
 	{
@@ -220,25 +228,31 @@ int main()
  */
 void configurationTask()
 {
-	terminalSignal signal;
-	char		   configBuff[96];
+	terminalSignal signal = terminalSignal::NONE;
+	char		   configBuff[CONFIG_BUFF_SIZE];
 	char*		   pPayload = nullptr;
 
 	// Check if data is available in serial port
 	bool process_input = serialHandler();
-
-	// If data is available, process it and generate signals to terminal SM
+	// Passing signals to handler
 	if (process_input)
-	{
-		// Passing signals to handler
 		signal = getTerminalSignal();
 
+	if (signal == terminalSignal::NONE)
+	{
+		// Check for SM internal signal
+		signal = terminalOutput.getSignal();
+	}
+
+	// If data is available, process it and generate signals to terminal SM
+	if (process_input || signal == terminalSignal::streamData)
+	{
 		if (signal == terminalSignal::NONE)
 		{
 			return;
 		}
 
-		pPayload = getSerialBuffer(configBuff, 96);
+		pPayload = getSerialBuffer(configBuff, CONFIG_BUFF_SIZE);
 		terminalOutput.handler(signal, pPayload);
 
 		clearSerialBuffer();

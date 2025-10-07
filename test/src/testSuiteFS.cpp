@@ -9,6 +9,7 @@
 #include "networkManager.hpp"
 #include "pluviometer.hpp"
 #include "processing_manager.hpp"
+#include "sensorService.hpp"
 #include "terminal_component.hpp"
 #include "utilities.hpp"
 #include "virtualRTC.hpp"
@@ -66,7 +67,9 @@ TEST(utilities, testTimeDateParsing)
 TEST(terminalStateMachine, testChangesInSMState)
 {
 	virtualRTC				 rtc;
-	terminalStateMachine	 terminalOutput(&rtc);
+	ADC::ADS1115			 loggerADC;
+	sensorService			 loggerSensorService(loggerADC);
+	terminalStateMachine	 terminalOutput(rtc, loggerSensorService);
 	internalStorageComponent storage;
 	configManager			 loggerConfig(terminalOutput, storage);
 
@@ -104,8 +107,10 @@ TEST(terminalStateMachine, testChangeToDeviceConfigState)
 {
 	loggerMetadata* pLoggerMetadata;
 
+	ADC::ADS1115			 loggerADC;
+	sensorService			 loggerSensorService(loggerADC);
 	virtualRTC				 rtc;
-	terminalStateMachine	 terminalOutput(&rtc);
+	terminalStateMachine	 terminalOutput(rtc, loggerSensorService);
 	internalStorageComponent storage;
 	configManager			 loggerConfig(terminalOutput, storage);
 

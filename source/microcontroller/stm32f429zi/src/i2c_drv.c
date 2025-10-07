@@ -59,6 +59,15 @@ int8_t i2c_init(void)
 	return 1;
 }
 
+int8_t i2c_deinit(void)
+{
+	if (HAL_I2C_DeInit(&hi2c1) != HAL_OK)
+	{
+		return -1;
+	}
+	return 1;
+}
+
 /**
 * @brief I2C MSP Initialization
 * This function configures the hardware resources used in this example
@@ -93,6 +102,30 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
 		/* USER CODE BEGIN I2C1_MspInit 1 */
 
 		/* USER CODE END I2C1_MspInit 1 */
+	}
+}
+
+/**
+* @brief I2C MSP De-Initialization
+* This function freeze the hardware resources used in this example
+* @param hi2c: I2C handle pointer
+* @retval None
+*/
+void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
+{
+	if (hi2c->Instance == I2C1)
+	{
+		/* Peripheral clock disable */
+		__HAL_RCC_I2C1_CLK_DISABLE();
+
+		/**I2C1 GPIO Configuration
+		PB8     ------> I2C1_SCL
+		PB9     ------> I2C1_SDA
+		*/
+		HAL_GPIO_DeInit(GPIOB, GPIO_PIN_8 | GPIO_PIN_9);
+
+		/* You might want to disable GPIOB clock here if it's not used by other peripherals */
+		/* __HAL_RCC_GPIOB_CLK_DISABLE(); */
 	}
 }
 

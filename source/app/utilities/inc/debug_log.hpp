@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdarg>
 #include <cstdio>
 #include <source_location>
 #include <virtualRTC.hpp>
@@ -31,13 +32,16 @@ constexpr const char* file_basename(const char* path)
 }
 
 template<bool E, logLevel L>
-inline void log(const char* msg)
+inline void log(const char* fmt, ...)
 {
 	if constexpr (E)
 	{
 		if (L <= systemLogLevel)
 		{
-			printf("%s", msg);
+			va_list args;
+			va_start(args, fmt);
+			vprintf(fmt, args);
+			va_end(args);
 		}
 	}
 }

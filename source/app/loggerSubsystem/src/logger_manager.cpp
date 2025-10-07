@@ -22,9 +22,9 @@ fileSysWrapper fsHandler(0);
 std::string	   testFolderPath_External = "";
 #endif
 
-void loggerManager::update(bool infoFlag)
+void loggerManager::update()
 {
-	this->_availableData = infoFlag;
+	this->_availableData = true;
 }
 
 bool loggerManager::init()

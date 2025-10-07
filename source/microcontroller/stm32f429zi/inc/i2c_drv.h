@@ -21,9 +21,7 @@ extern "C" {
 //							    Includes
 ////////////////////////////////////////////////////////////////////////
 
-#include "stdint.h"
-#include "stm32f4xx_hal_dma.h"
-#include <stm32f4xx_hal_i2c.h>
+#include <stdint.h>
 
 ////////////////////////////////////////////////////////////////////////
 //							    Types
@@ -33,15 +31,12 @@ extern "C" {
 //							Function definition
 ////////////////////////////////////////////////////////////////////////
 
-void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c);
+int8_t i2c_init();
 
-int8_t stm32f429_i2cInit(void);
+int8_t i2c_write(uint16_t devAddr, uint16_t memAddr, uint8_t* pData, uint16_t size);
 
-/*
-int8_t stm32f429_mem_i2cTx(i2c_dev_t* i2cDev, uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSize, uint8_t* pData, uint16_t Size, uint32_t Timeout);
+int8_t i2c_read(uint16_t devAddr, uint16_t memAddr, uint8_t* pData, uint16_t size);
 
-int8_t stm32f429_mem_i2cRx(i2c_dev_t* i2cDev, uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSize, uint8_t* pData, uint16_t Size, uint32_t Timeout);
-*/
 #ifdef __cplusplus
 }
 #endif

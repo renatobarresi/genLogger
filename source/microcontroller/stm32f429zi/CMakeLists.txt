@@ -61,7 +61,7 @@ set(f429zi_init_sources
     src/sysmem.c
     src/system_stm32f4xx.c
     src/startup_stm32f429xx.s
-    #src/i2c_drv.c
+    src/i2c_drv.c
     src/spi_drv.c    
     src/uart.c
     src/rtc_drv.c

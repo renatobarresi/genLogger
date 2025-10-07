@@ -57,6 +57,8 @@ if (target_type STREQUAL "target")
         drivers/W25Qx/src/W25Qx_module.cpp
         drivers/rtc/src/stm32F429_RTC.cpp
         drivers/SDCard/sd_spi.c
+        drivers/ADS1115/src/ADS1115.c
+        drivers/ADS1115/src/ADS1115_wrapper.cpp
     )
 
     LIST(APPEND dependencies_sources
@@ -79,6 +81,7 @@ if (target_type STREQUAL "host")
     LIST(APPEND driver_sources
         drivers/rtc/src/host_rtc.cpp
         app/measurementSubsystem/sensors/sensorSimulator/sensorSimulatorConsumer.cpp
+        drivers/ADS1115/src/ADS1115_mock.cpp
     )
 endif()
 
@@ -107,6 +110,7 @@ set(driver_includes
     # W25Qx driver
     drivers/W25Qx/inc/
     drivers/SDCard/
+    drivers/ADS1115/inc/
 )
 
 set(dependencies_includes)
@@ -271,7 +275,8 @@ if (target_type STREQUAL "target")
         -lstdc++
         -lsupc++
         -Wl,--end-group
-        -Wl,--print-memory-usage
+        -Wl,--print-memory-usage # Print a summary of memory usage
+        -Wl,-u,_printf_float     # Force link of float support for printf
         #-Wl,--verbose
     )
 endif()

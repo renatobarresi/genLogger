@@ -6,7 +6,7 @@ namespace network
 {
 httpClient::httpClient(network::networkManager& netManager) : _netManager(netManager) {}
 
-void httpClient::update(bool infoFlag)
+void httpClient::update()
 {
 	this->_availableDataFlag = true;
 }

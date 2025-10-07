@@ -19,3 +19,8 @@ uint64_t timer_getTick()
 {
 	return ticksSinceStart;
 }
+
+void system_sleep(uint32_t val)
+{
+	HAL_Delay(val);
+}

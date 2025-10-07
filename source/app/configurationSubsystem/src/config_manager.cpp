@@ -36,6 +36,8 @@ configManager::configManager(terminalStateMachine& terminal, internalStorageComp
 // Description in header file //
 uint8_t configManager::notify(configComponent* sender, mediatorEvents event, std::span<const char> data)
 {
+	(void)sender;
+
 	//TODO type here shouod be named READ_METADATA, update_metadata is confusing
 	if (event == mediatorEvents::UPDATE_METADATA)
 	{

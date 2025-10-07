@@ -37,8 +37,10 @@
 //							    Includes
 ////////////////////////////////////////////////////////////////////////
 
+#include "ADS1115_wrapper.hpp"
 #include "config_mediator.hpp"
 #include "loggerMetadata.hpp"
+#include "sensorService.hpp"
 #include "virtualRTC.hpp"
 
 ////////////////////////////////////////////////////////////////////////
@@ -56,6 +58,7 @@ enum class terminalState
 	basicDeviceConfig, ///< State for configuring basic device settings.
 	sensorConfig,	   ///< State for configuring sensors.
 	networkConfig,	   ///< State for configuring network settings.
+	streamADC,
 
 	numStates ///< Number of states (used for validation or iteration).
 };
@@ -79,6 +82,7 @@ enum class terminalSignal
 	pressedKey_F,
 	pressedKey_M,
 	pressedKey_Enter,
+	streamData,
 	NONE,
 
 	numSignals ///< Number of signals (used for validation or iteration).
@@ -122,7 +126,7 @@ class terminalStateMachine : public configComponent
 	 * Initializes the terminal state machine object. The initial state must be set separately
 	 * using the init() method.
 	 */
-	terminalStateMachine(virtualRTC* rtc) : _terminalRTC(rtc) {}
+	terminalStateMachine(virtualRTC& rtc, sensorServiceInterface& sensorService) : _terminalRTC(rtc), _sensorService(sensorService) {}
 
 	/**
 	 * @brief Initialize the terminal state machine with a specified initial state.
@@ -145,14 +149,25 @@ class terminalStateMachine : public configComponent
 	 */
 	void setSignal(terminalSignal sig);
 
+	terminalSignal getSignal();
+
+	terminalState getActiveState()
+	{
+		return activeState;
+	}
+
   private:
-	virtualRTC* _terminalRTC; /// Pointer to the device's RTC, used to get and store RTC's params
+	virtualRTC&				_terminalRTC; /// Pointer to the device's RTC, used to get and store RTC's params
+	sensorServiceInterface& _sensorService;
 	//char				  _timeBuff[9];
 	struct loggerMetadata* _loggerMetadata; /// Pointer to the device's stored metadata, used to modify or get the devices params
 	//void*				  paramToConfig;		///
 	terminalSignal _previousSignal; /// Used to know what configuration option was typed
 
 	terminalSignal availableSignal; /// Represents a signal that can be passed to the signal dispacher
+	bool		   _flagStreamDelay = false;
+	uint64_t	   _ticks			= 0;
+	int			   count			= 0;
 	/**
 	 * @brief Dispatch a signal to the appropriate handler based on the current state.
 	 *

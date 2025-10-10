@@ -1,6 +1,6 @@
 #include "aht21_wrapper.hpp"
 
-namespace sensor::termometer
+namespace sensor::thermometer
 {
 
 bool AHT21::initImpl()
@@ -13,4 +13,9 @@ std::optional<float> AHT21::readTemperatureImpl()
 	return 25.5;
 }
 
-} // namespace sensor::termometer
+std::optional<uint8_t> AHT21::readHumidityImpl()
+{
+	return 70;
+}
+
+} // namespace sensor::thermometer

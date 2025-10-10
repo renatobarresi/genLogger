@@ -42,7 +42,7 @@ static uint8_t i2c_write_adapter(uint8_t addr, uint8_t* buf, uint16_t len)
 	return (i2c_write(addr, 0, buf, len) == 0) ? 0 : 1;
 }
 
-namespace sensor::termometer
+namespace sensor::thermometer
 {
 
 static void aht21_print(const char* const fmt, ...)
@@ -85,4 +85,17 @@ std::optional<float> AHT21::readTemperatureImpl()
 	return temperature;
 }
 
-} // namespace sensor::termometer
+std::optional<uint8_t> AHT21::readHumidityImpl()
+{
+	uint32_t humidity_raw;
+	uint8_t	 humidity;
+
+	/* read temperature and humidity */
+	if (0 != aht21_read_humidity(&_gs_handle, &humidity_raw, &humidity))
+	{
+		return std::nullopt;
+	}
+
+	return humidity;
+}
+} // namespace sensor::thermometer

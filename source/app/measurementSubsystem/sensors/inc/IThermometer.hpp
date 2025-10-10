@@ -1,11 +1,11 @@
 #pragma once
 #include <optional>
 
-namespace sensor::termometer
+namespace sensor::thermometer
 {
 
 template<typename T>
-class Itermometer
+class IThermometer
 {
   public:
 	bool init()
@@ -19,4 +19,4 @@ class Itermometer
 	}
 };
 
-} // namespace sensor::termometer
+} // namespace sensor::thermometer

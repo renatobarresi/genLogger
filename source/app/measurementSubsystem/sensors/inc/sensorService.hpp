@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 class sensorServiceInterface
 {
   public:
@@ -7,16 +9,36 @@ class sensorServiceInterface
 	virtual ~sensorServiceInterface() = default;
 };
 
-template<typename ADC>
+template<typename ADC, typename TThermometer, typename THygrometer>
 class sensorService : public sensorServiceInterface
 {
   public:
-	sensorService(ADC& adc) : _adc(adc) {}
+	// clang-format off
+	sensorService(ADC& adc,
+				  TThermometer& thermometer,
+		  		  THygrometer& hygrometer) :
+				  _adc(adc),
+				  _thermometer(thermometer),
+				  _hygrometer(hygrometer) {}
+	// clang-format on
+
 	float requestADCVoltage()
 	{
 		return _adc.readVoltage(0);
 	}
 
+	float requestTemperature()
+	{
+		return _thermometer.readTemperature();
+	}
+
+	uint8_t requestHumidity()
+	{
+		return _hygrometer.readHumidity();
+	}
+
   private:
-	ADC& _adc;
+	ADC&		  _adc;
+	TThermometer& _thermometer;
+	THygrometer&  _hygrometer;
 };

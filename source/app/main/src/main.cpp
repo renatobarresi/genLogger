@@ -29,6 +29,7 @@
 ////////////////////////////////////////////////////////////////////////
 #include "main.h"
 #include "ADS1115_wrapper.hpp"
+#include "aht21_wrapper.hpp"
 #include "config_manager.hpp"
 #include "debug_log.hpp"
 #include "httpClient.hpp"
@@ -85,26 +86,29 @@ std::array<hardwareTimeouts*, 2> taskControlContainer{&taskMeasurementControl, n
 //							    Classes
 ////////////////////////////////////////////////////////////////////////
 
-virtualRTC	  rtc;
-ADC::ADS1115  loggerADC;
-sensorService loggerSensorService(loggerADC);
+virtualRTC	 rtc;
+ADC::ADS1115 loggerADC;
+/** @brief Manager for processing data from various sensors. */
+
+// sensor::davisPluviometer loggerPluviometer;
+// sensor::anemometerDavis	 loggerAnemometer;
+// sensor::windVaneDavis	 loggerWindVane(loggerADC);
+sensor::thermometer::AHT21 loggerThermometerHygrometer;
+// clang-format off
+processingManager myProcessingManager(rtc, 
+								   	  loggerThermometerHygrometer, 
+								      loggerThermometerHygrometer);
+sensorService loggerSensorService(loggerADC,
+								  loggerThermometerHygrometer,
+								  loggerThermometerHygrometer);
+
+// clang-format on
 /** @brief Terminal state machine for user configuration via serial interface. */
 terminalStateMachine terminalOutput(rtc, loggerSensorService);
 /** @brief Component for handling metadata storage on the internal filesystem. */
 internalStorageComponent internalStorage;
 /** @brief Mediator for the configuration subsystem, connecting terminal and storage. */
 configManager loggerConfig(terminalOutput, internalStorage);
-/** @brief Manager for processing data from various sensors. */
-
-sensor::davisPluviometer loggerPluviometer;
-sensor::anemometerDavis	 loggerAnemometer;
-sensor::windVaneDavis	 loggerWindVane(loggerADC);
-// clang-format off
-processingManager myProcessingManager(rtc, 
-								   	  loggerPluviometer, 
-								      loggerAnemometer, 
-								      loggerWindVane);
-// clang-format on
 /** @brief Manager for logging processed data to files. */
 loggerManager myLoggerManager;
 /** @brief Manager for network connectivity. */
@@ -201,7 +205,6 @@ int main()
 	loggerHttpClient.setURL(httpServerIP);
 	loggerHttpClient.setMailBox(myProcessingManager.getSensorInfoBuff());
 
-	/* Init Drivers */
 	loggerADC.init();
 
 	/* Super loop | TODO RTOS */

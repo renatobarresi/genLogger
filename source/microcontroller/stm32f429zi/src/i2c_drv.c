@@ -129,7 +129,7 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
 	}
 }
 
-int8_t i2c_write(uint16_t devAddr, uint16_t memAddr, uint8_t* pData, uint16_t size)
+int8_t i2c_write_mem(uint16_t devAddr, uint16_t memAddr, uint8_t* pData, uint16_t size)
 {
 	HAL_StatusTypeDef halRetVal;
 	int8_t			  retVal;
@@ -148,12 +148,50 @@ int8_t i2c_write(uint16_t devAddr, uint16_t memAddr, uint8_t* pData, uint16_t si
 	return retVal;
 }
 
-int8_t i2c_read(uint16_t devAddr, uint16_t memAddr, uint8_t* pData, uint16_t size)
+int8_t i2c_read_mem(uint16_t devAddr, uint16_t memAddr, uint8_t* pData, uint16_t size)
 {
 	HAL_StatusTypeDef halRetVal;
 	int8_t			  retVal;
 
 	halRetVal = HAL_I2C_Mem_Read(&hi2c1, devAddr, memAddr, sizeof(uint8_t), pData, 2, HAL_MAX_DELAY);
+
+	if (halRetVal == HAL_ERROR)
+	{
+		retVal = -1;
+	}
+	else
+	{
+		retVal = 1;
+	}
+
+	return retVal;
+}
+
+int8_t i2c_write(uint16_t devAddr, uint8_t* pData, uint16_t size)
+{
+	HAL_StatusTypeDef halRetVal;
+	int8_t			  retVal;
+
+	halRetVal = HAL_I2C_Master_Transmit(&hi2c1, devAddr, pData, size, HAL_MAX_DELAY);
+
+	if (halRetVal == HAL_ERROR)
+	{
+		retVal = -1;
+	}
+	else
+	{
+		retVal = 1;
+	}
+
+	return retVal;
+}
+
+int8_t i2c_read(uint16_t devAddr, uint8_t* pData, uint16_t size)
+{
+	HAL_StatusTypeDef halRetVal;
+	int8_t			  retVal;
+
+	halRetVal = HAL_I2C_Master_Receive(&hi2c1, devAddr, pData, size, HAL_MAX_DELAY);
 
 	if (halRetVal == HAL_ERROR)
 	{

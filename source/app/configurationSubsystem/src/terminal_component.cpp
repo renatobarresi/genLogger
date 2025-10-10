@@ -167,7 +167,7 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 			{
 				case terminalSignal::ENTRY:
 				{
-					printf("Streaming ADC data, press B to go back\r\n");
+					printf("Streaming RAW measured data, press B to go back\r\n");
 					this->availableSignal = terminalSignal::streamData;
 					event				  = terminalEvent::EVENT_HANDLED;
 				}
@@ -183,8 +183,11 @@ terminalEvent terminalStateMachine::signalDispacher(terminalState state, termina
 					if (systick::getTicks() - _ticks > 1000)
 					{
 						//count++;
-						float voltage = _sensorService.requestADCVoltage();
-						printf("ADC Voltage: %f\r\n", voltage);
+						float	voltage		= _sensorService.requestADCVoltage();
+						float	temperature = _sensorService.requestTemperature();
+						uint8_t humidity	= _sensorService.requestHumidity();
+
+						printf("ADC Voltage: %f | Temperature: %f | Humidity: %d\r\n", voltage, temperature, humidity);
 						printf("\033[A\033[2K");
 						this->_flagStreamDelay = false;
 					}

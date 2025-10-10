@@ -9,7 +9,7 @@
  */
 static uint8_t i2c_init_adapter()
 {
-	return (i2c_init() == 0) ? 0 : 1;
+	return (i2c_init() != -1) ? 0 : 1;
 }
 /**
  * @brief i2c_deinit_adapter is a wrapper for the i2c_deinit function
@@ -17,7 +17,7 @@ static uint8_t i2c_init_adapter()
  */
 static uint8_t i2c_deinit_adapter()
 {
-	return (i2c_deinit() == 0) ? 0 : 1;
+	return (i2c_deinit() != -1) ? 0 : 1;
 }
 /**
  * @brief i2c_read_adapter is a wrapper for the i2c_read function
@@ -28,7 +28,7 @@ static uint8_t i2c_deinit_adapter()
  */
 static uint8_t i2c_read_adapter(uint8_t addr, uint8_t* buf, uint16_t len)
 {
-	return (i2c_read(addr, 0, buf, len) == 0) ? 0 : 1;
+	return (i2c_read(addr, buf, len) != -1) ? 0 : 1;
 }
 /**
  * @brief i2c_write_adapter is a wrapper for the i2c_write function
@@ -39,7 +39,7 @@ static uint8_t i2c_read_adapter(uint8_t addr, uint8_t* buf, uint16_t len)
  */
 static uint8_t i2c_write_adapter(uint8_t addr, uint8_t* buf, uint16_t len)
 {
-	return (i2c_write(addr, 0, buf, len) == 0) ? 0 : 1;
+	return (i2c_write(addr, buf, len) != -1) ? 0 : 1;
 }
 
 namespace sensor::thermometer
@@ -63,7 +63,7 @@ bool AHT21::initImpl()
 	uint8_t res = aht21_init(&_gs_handle);
 	if (res != 0)
 	{
-		printf("aht21: init failed.\n");
+		printf("aht21: init failed\r\n");
 
 		return false;
 	}

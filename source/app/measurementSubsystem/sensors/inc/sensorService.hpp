@@ -1,12 +1,15 @@
 #pragma once
 
 #include <cstdint>
+#include <optional>
 
 class sensorServiceInterface
 {
   public:
-	virtual float requestADCVoltage() = 0;
-	virtual ~sensorServiceInterface() = default;
+	virtual float	requestADCVoltage()	 = 0;
+	virtual float	requestTemperature() = 0;
+	virtual uint8_t requestHumidity()	 = 0;
+	virtual ~sensorServiceInterface()	 = default;
 };
 
 template<typename ADC, typename TThermometer, typename THygrometer>
@@ -29,12 +32,12 @@ class sensorService : public sensorServiceInterface
 
 	float requestTemperature()
 	{
-		return _thermometer.readTemperature();
+		return _thermometer.readTemperature().value_or(255.0);
 	}
 
 	uint8_t requestHumidity()
 	{
-		return _hygrometer.readHumidity();
+		return _hygrometer.readHumidity().value_or(255);
 	}
 
   private:

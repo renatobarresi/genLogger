@@ -72,7 +72,7 @@ class processingManager
 		_loggerRTC.getTimestamp(_timestamp.data());
 
 		// TODO all sensors
-		_temperature = _thermometer.readTemperature().value_or(255);
+		_temperature = _thermometer.readTemperature().value_or(255.0);
 		_humidity	 = _hygrometer.readHumidity().value_or(255);
 		// _rainInMm		= _loggerPluviometer.getRain();
 		// _windSpeedInMPS = _loggerAnemometer.getWindSpeed();
@@ -82,7 +82,14 @@ class processingManager
 	void formatData()
 	{
 		// Append measurements with time they were taken
-		sprintf(_sensorInfoBuff.data(), "%s;%d;%d\n", _timestamp.data(), _temperature, _humidity);
+		// clang-format off
+		snprintf(_sensorInfoBuff.data(),
+				 _sensorInfoBuff.max_size(),
+				 "%s;%f;%d\n",
+				 _timestamp.data(),
+				 _temperature,
+				 _humidity);
+		// clang-format on
 	}
 
 	void notifyObservers()
@@ -107,8 +114,8 @@ class processingManager
 	// TAnemometer&									  _loggerAnemometer;
 	// TWindVane&									  _loggerWindVane;
 
-	std::optional<float>   _temperature;
-	std::optional<uint8_t> _humidity;
+	float	_temperature;
+	uint8_t _humidity;
 	// uint16_t _rainInMm;
 	// uint16_t _windSpeedInMPS;
 	// uint16_t _windDir;

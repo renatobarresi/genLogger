@@ -522,7 +522,7 @@ static void printHelp()
 	printf("#############################\r\n");
 	printf("I - Print Device Info\r\n");
 	printf("C - Configure Device\r\n");
-	printf("S - Stream RAW ADC data\r\n");
+	printf("S - Stream RAW measured data\r\n");
 	printf("#############################\r\n");
 }
 

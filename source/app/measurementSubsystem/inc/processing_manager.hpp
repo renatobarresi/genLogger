@@ -1,7 +1,9 @@
 #pragma once
 
-#include "anemometer.hpp"
-#include "pluviometer.hpp"
+// #include "anemometer.hpp"
+// #include "pluviometer.hpp"
+#include "IHygrometer.hpp"
+#include "IThermometer.hpp"
 #include "virtualRTC.hpp"
 #include <array>
 #include <cstdint>
@@ -28,7 +30,8 @@ class observerInterface // change class name, maybe processingMngObserver or IPr
  * @tparam TPluviometer 
  * @tparam TAnemometer 
  */
-template<typename TPluviometer, typename TAnemometer, typename TWindVane>
+//template<typename TPluviometer, typename TAnemometer, typename TWindVane>
+template<typename TThermometer, typename THygrometer>
 class processingManager
 {
   public:
@@ -37,19 +40,26 @@ class processingManager
 	 */
 	// clang-format off
 	processingManager(virtualRTC& rtc,
-					  TPluviometer& pluviometer,
+					  TThermometer& thermometer,
+					  THygrometer& hygrometer)
+					  /*TPluviometer& pluviometer,
 					  TAnemometer& anemometer,
-					  TWindVane& windVane) :
-					  _loggerRTC(rtc), 
-					  _loggerPluviometer(pluviometer), 
+					  TWindVane& windVane*/ :
+					  _loggerRTC(rtc),
+					  _thermometer(thermometer),
+					  _hygrometer(hygrometer)
+					  /*_loggerPluviometer(pluviometer), 
 					  _loggerAnemometer(anemometer), 
-					  _loggerWindVane(windVane) {}
+					  _loggerWindVane(windVane)*/ {}
 	// clang-format on
 	void init(void)
 	{
 #ifndef TARGET_MICRO
-		sensorSimulator::init();
+		//sensorSimulator::init();
 #endif
+		/* Init sensors */
+		_thermometer.init();
+		_hygrometer.initHygrometer();
 	}
 
 	void setObserver(observerInterface* ref)
@@ -62,15 +72,24 @@ class processingManager
 		_loggerRTC.getTimestamp(_timestamp.data());
 
 		// TODO all sensors
-		_rainInMm		= _loggerPluviometer.getRain();
-		_windSpeedInMPS = _loggerAnemometer.getWindSpeed();
-		_windDir		= _loggerWindVane.getWindDir();
+		_temperature = _thermometer.readTemperature().value_or(255.0);
+		_humidity	 = _hygrometer.readHumidity().value_or(255);
+		// _rainInMm		= _loggerPluviometer.getRain();
+		// _windSpeedInMPS = _loggerAnemometer.getWindSpeed();
+		// _windDir		= _loggerWindVane.getWindDir();
 	}
 
 	void formatData()
 	{
 		// Append measurements with time they were taken
-		sprintf(_sensorInfoBuff.data(), "%s;%d;%d\n", _timestamp.data(), _rainInMm, _windSpeedInMPS);
+		// clang-format off
+		snprintf(_sensorInfoBuff.data(),
+				 _sensorInfoBuff.max_size(),
+				 "%s;%f;%d\n",
+				 _timestamp.data(),
+				 _temperature,
+				 _humidity);
+		// clang-format on
 	}
 
 	void notifyObservers()
@@ -88,14 +107,18 @@ class processingManager
 	std::array<observerInterface*, MAX_NUM_OBSERVERS> _listOfObservers;		/// components that will be notified with processed data. e.g loggerSubsystem, networkSubsystem
 	uint8_t											  _activeObservers = 0; /// How many components are listening for notifications
 	virtualRTC&										  _loggerRTC;
-	std::array<char, 50>							  _timestamp{};		  /// Used to store the time and date of when the measurements were made
-	TPluviometer&									  _loggerPluviometer; ///
-	TAnemometer&									  _loggerAnemometer;
-	TWindVane&										  _loggerWindVane;
+	std::array<char, 50>							  _timestamp{}; /// Used to store the time and date of when the measurements were made
+	TThermometer&									  _thermometer;
+	THygrometer&									  _hygrometer;
+	// TPluviometer&								  _loggerPluviometer;
+	// TAnemometer&									  _loggerAnemometer;
+	// TWindVane&									  _loggerWindVane;
 
-	uint16_t _rainInMm;
-	uint16_t _windSpeedInMPS;
-	uint16_t _windDir;
+	float	_temperature;
+	uint8_t _humidity;
+	// uint16_t _rainInMm;
+	// uint16_t _windSpeedInMPS;
+	// uint16_t _windDir;
 
 	/**
      * @brief iterates through array of listeners 

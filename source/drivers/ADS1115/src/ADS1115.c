@@ -103,8 +103,8 @@ uint8_t ADS1115_init(ADS1115_handler* ads, uint8_t address)
 	ads->FS					  = 2.048;
 
 	// assign the i2c callbacks
-	_i2c_write = i2c_write;
-	_i2c_read  = i2c_read;
+	_i2c_write = i2c_write_mem;
+	_i2c_read  = i2c_read_mem;
 
 	return 1;
 }

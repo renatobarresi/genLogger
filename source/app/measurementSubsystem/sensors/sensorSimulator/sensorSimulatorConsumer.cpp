@@ -12,9 +12,9 @@
 namespace sensorSimulator
 {
 
-constexpr char*	 producerPath = "/home/renato/renato/CESE_fiuba/proyecto_final/genLogger/firmware/source/app/measurementSubsystem/sensors/sensorSimulator/sensorSimulatorProducer.py";
-constexpr char*	 name		  = "sensors";
-constexpr size_t SIZE		  = 4096;
+constexpr const char* producerPath = "/home/renato/renato/CESE_fiuba/proyecto_final/genLogger/firmware/source/app/measurementSubsystem/sensors/sensorSimulator/sensorSimulatorProducer.py";
+constexpr const char* name		   = "sensors";
+constexpr size_t	  SIZE		   = 4096;
 
 static int	 shm_fd;
 static void* ptr;

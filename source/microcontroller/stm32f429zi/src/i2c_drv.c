@@ -59,6 +59,15 @@ int8_t i2c_init(void)
 	return 1;
 }
 
+int8_t i2c_deinit(void)
+{
+	if (HAL_I2C_DeInit(&hi2c1) != HAL_OK)
+	{
+		return -1;
+	}
+	return 1;
+}
+
 /**
 * @brief I2C MSP Initialization
 * This function configures the hardware resources used in this example
@@ -96,7 +105,31 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
 	}
 }
 
-int8_t i2c_write(uint16_t devAddr, uint16_t memAddr, uint8_t* pData, uint16_t size)
+/**
+* @brief I2C MSP De-Initialization
+* This function freeze the hardware resources used in this example
+* @param hi2c: I2C handle pointer
+* @retval None
+*/
+void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
+{
+	if (hi2c->Instance == I2C1)
+	{
+		/* Peripheral clock disable */
+		__HAL_RCC_I2C1_CLK_DISABLE();
+
+		/**I2C1 GPIO Configuration
+		PB8     ------> I2C1_SCL
+		PB9     ------> I2C1_SDA
+		*/
+		HAL_GPIO_DeInit(GPIOB, GPIO_PIN_8 | GPIO_PIN_9);
+
+		/* You might want to disable GPIOB clock here if it's not used by other peripherals */
+		/* __HAL_RCC_GPIOB_CLK_DISABLE(); */
+	}
+}
+
+int8_t i2c_write_mem(uint16_t devAddr, uint16_t memAddr, uint8_t* pData, uint16_t size)
 {
 	HAL_StatusTypeDef halRetVal;
 	int8_t			  retVal;
@@ -115,12 +148,50 @@ int8_t i2c_write(uint16_t devAddr, uint16_t memAddr, uint8_t* pData, uint16_t si
 	return retVal;
 }
 
-int8_t i2c_read(uint16_t devAddr, uint16_t memAddr, uint8_t* pData, uint16_t size)
+int8_t i2c_read_mem(uint16_t devAddr, uint16_t memAddr, uint8_t* pData, uint16_t size)
 {
 	HAL_StatusTypeDef halRetVal;
 	int8_t			  retVal;
 
 	halRetVal = HAL_I2C_Mem_Read(&hi2c1, devAddr, memAddr, sizeof(uint8_t), pData, 2, HAL_MAX_DELAY);
+
+	if (halRetVal == HAL_ERROR)
+	{
+		retVal = -1;
+	}
+	else
+	{
+		retVal = 1;
+	}
+
+	return retVal;
+}
+
+int8_t i2c_write(uint16_t devAddr, uint8_t* pData, uint16_t size)
+{
+	HAL_StatusTypeDef halRetVal;
+	int8_t			  retVal;
+
+	halRetVal = HAL_I2C_Master_Transmit(&hi2c1, devAddr, pData, size, HAL_MAX_DELAY);
+
+	if (halRetVal == HAL_ERROR)
+	{
+		retVal = -1;
+	}
+	else
+	{
+		retVal = 1;
+	}
+
+	return retVal;
+}
+
+int8_t i2c_read(uint16_t devAddr, uint8_t* pData, uint16_t size)
+{
+	HAL_StatusTypeDef halRetVal;
+	int8_t			  retVal;
+
+	halRetVal = HAL_I2C_Master_Receive(&hi2c1, devAddr, pData, size, HAL_MAX_DELAY);
 
 	if (halRetVal == HAL_ERROR)
 	{

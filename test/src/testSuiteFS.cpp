@@ -1,3 +1,4 @@
+#include "aht21_wrapper.hpp"
 #include "anemometer.hpp"
 #include "config_manager.hpp"
 #include "filesystemWrapper.hpp"
@@ -66,12 +67,13 @@ TEST(utilities, testTimeDateParsing)
 
 TEST(terminalStateMachine, testChangesInSMState)
 {
-	virtualRTC				 rtc;
-	ADC::ADS1115			 loggerADC;
-	sensorService			 loggerSensorService(loggerADC);
-	terminalStateMachine	 terminalOutput(rtc, loggerSensorService);
-	internalStorageComponent storage;
-	configManager			 loggerConfig(terminalOutput, storage);
+	virtualRTC				   rtc;
+	ADC::ADS1115			   loggerADC;
+	sensor::thermometer::AHT21 loggerThermometerHygrometer;
+	sensorService			   loggerSensorService(loggerADC, loggerThermometerHygrometer, loggerThermometerHygrometer);
+	terminalStateMachine	   terminalOutput(rtc, loggerSensorService);
+	internalStorageComponent   storage;
+	configManager			   loggerConfig(terminalOutput, storage);
 
 	if (false == storage.initFS())
 	{
@@ -107,12 +109,13 @@ TEST(terminalStateMachine, testChangeToDeviceConfigState)
 {
 	loggerMetadata* pLoggerMetadata;
 
-	ADC::ADS1115			 loggerADC;
-	sensorService			 loggerSensorService(loggerADC);
-	virtualRTC				 rtc;
-	terminalStateMachine	 terminalOutput(rtc, loggerSensorService);
-	internalStorageComponent storage;
-	configManager			 loggerConfig(terminalOutput, storage);
+	ADC::ADS1115			   loggerADC;
+	sensor::thermometer::AHT21 loggerThermometerHygrometer;
+	sensorService			   loggerSensorService(loggerADC, loggerThermometerHygrometer, loggerThermometerHygrometer);
+	virtualRTC				   rtc;
+	terminalStateMachine	   terminalOutput(rtc, loggerSensorService);
+	internalStorageComponent   storage;
+	configManager			   loggerConfig(terminalOutput, storage);
 
 	if (false == storage.initFS())
 	{
@@ -166,12 +169,12 @@ TEST(httpClient, testHTTPClient)
 	sensor::davisPluviometer			loggerPluviometer;
 	sensor::anemometerDavis				loggerAnemometer;
 	sensor::windVaneDavis<ADC::ADS1115> loggerWindVane(loggerADC);
+	sensor::thermometer::AHT21			loggerThermometerHygrometer;
 
 	// clang-format off
 	processingManager myProcessingManager(rtc, 
-										  loggerPluviometer, 
-										  loggerAnemometer, 
-										  loggerWindVane);
+								   	      loggerThermometerHygrometer, 
+								          loggerThermometerHygrometer);
 	// clang-format on
 
 	network::networkManager myNetwork("127.0.0.1", "255.255.255.0", "127.0.0.1");
@@ -214,12 +217,11 @@ TEST(loggerSubsystem, testWritingExternal)
 	sensor::davisPluviometer			loggerPluviometer;
 	sensor::anemometerDavis				loggerAnemometer;
 	sensor::windVaneDavis<ADC::ADS1115> loggerWindVane(loggerADC);
-
+	sensor::thermometer::AHT21			loggerThermometerHygrometer;
 	// clang-format off
 	processingManager myProcessingManager(rtc, 
-										  loggerPluviometer, 
-										  loggerAnemometer, 
-										  loggerWindVane);
+								   	      loggerThermometerHygrometer, 
+								          loggerThermometerHygrometer);
 	// clang-format on
 
 	loggerManager myLoggerManager;

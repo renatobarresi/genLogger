@@ -59,6 +59,9 @@ if (target_type STREQUAL "target")
         drivers/SDCard/sd_spi.c
         drivers/ADS1115/src/ADS1115.c
         drivers/ADS1115/src/ADS1115_wrapper.cpp
+        drivers/AHT21/src/driver_aht21.c
+        drivers/AHT21/src/aht21_wrapper.cpp
+        drivers/AHT21/src/driver_aht21.c
     )
 
     LIST(APPEND dependencies_sources
@@ -80,8 +83,12 @@ endif()
 if (target_type STREQUAL "host")
     LIST(APPEND driver_sources
         drivers/rtc/src/host_rtc.cpp
-        app/measurementSubsystem/sensors/sensorSimulator/sensorSimulatorConsumer.cpp
         drivers/ADS1115/src/ADS1115_mock.cpp
+        drivers/AHT21/src/aht21_mock.cpp
+    )
+
+    LIST(APPEND app_sources
+        app/measurementSubsystem/sensors/sensorSimulator/sensorSimulatorConsumer.cpp   
     )
 endif()
 
@@ -104,13 +111,12 @@ set(platform_includes
     platform/inc/
 )
 
-set(driver_includes
-    # Real time clock  
+set(driver_includes  
     drivers/rtc/inc/
-    # W25Qx driver
     drivers/W25Qx/inc/
     drivers/SDCard/
     drivers/ADS1115/inc/
+    drivers/AHT21/inc/
 )
 
 set(dependencies_includes)

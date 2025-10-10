@@ -33,9 +33,15 @@ extern "C" {
 
 int8_t i2c_init();
 
-int8_t i2c_write(uint16_t devAddr, uint16_t memAddr, uint8_t* pData, uint16_t size);
+int8_t i2c_deinit();
 
-int8_t i2c_read(uint16_t devAddr, uint16_t memAddr, uint8_t* pData, uint16_t size);
+int8_t i2c_write(uint16_t devAddr, uint8_t* pData, uint16_t size);
+
+int8_t i2c_read(uint16_t devAddr, uint8_t* pData, uint16_t size);
+
+int8_t i2c_write_mem(uint16_t devAddr, uint16_t memAddr, uint8_t* pData, uint16_t size);
+
+int8_t i2c_read_mem(uint16_t devAddr, uint16_t memAddr, uint8_t* pData, uint16_t size);
 
 #ifdef __cplusplus
 }

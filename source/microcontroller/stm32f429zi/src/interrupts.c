@@ -202,7 +202,7 @@ void SysTick_Handler(void)
 	if ((HAL_GetTick() % *pTask_1->taskTimeout) == 0)
 	{
 		// Set flag to true
-		*pTask_1->taskTimeout = 1;
+		*pTask_1->taskRunFlag = 1;
 	}
 	/* USER CODE END SysTick_IRQn 1 */
 }

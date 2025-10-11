@@ -1,12 +1,14 @@
 #include "networkManager.hpp"
 #include "debug_log.hpp"
+#include "virtualTimer.hpp"
 #include <cstdio>
 #include <cstring>
 
 namespace network
 {
 
-static constexpr uint32_t HTTP_SERVER_TIMEOUT_IN_MS = 5000;
+static constexpr uint16_t HTTP_SERVER_TIMEOUT_IN_MS = 3000;
+static constexpr uint16_t INIT_TIMEOUT				= 2000;
 
 void networkManager::mgEventHandler(struct mg_connection* c, int ev, void* ev_data)
 {
@@ -146,7 +148,8 @@ bool networkManager::init()
 	mg_tcpip_init(&mgr, &mif);
 
 	// TODO add timeout
-	while (mif.state != MG_TCPIP_STATE_READY)
+	uint32_t timeout = systick::getTicks();
+	while (mif.state != MG_TCPIP_STATE_READY && (systick::getTicks() - timeout) < INIT_TIMEOUT)
 	{
 		mg_mgr_poll(&mgr, 0);
 	}

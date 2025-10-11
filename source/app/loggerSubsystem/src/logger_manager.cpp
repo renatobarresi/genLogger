@@ -51,11 +51,16 @@ void loggerManager::handler()
 {
 	switch (_metadata->fileCreationPeriod)
 	{
+		default:
+			//clang-format off
+			[[fallthrough]];
+			// clang-format on
 		case loggerMetadataConstants::CREATE_ONLY_ONE_FILE:
 		{
 			// Append data
 			if (true == fsHandler.open(this->_pPath, 2))
 			{
+				debug::log<true, debug::logLevel::LOG_ALL>("LoggerManager: appending data to file\r\n");
 				fsHandler.write(this->_pDataBuff, std::strlen(this->_pDataBuff));
 				fsHandler.close();
 			}
@@ -64,12 +69,13 @@ void loggerManager::handler()
 				// If opening for append fails, the file might not exist. Try creating it.
 				if (true == fsHandler.open(this->_pPath, 1))
 				{
+					debug::log<true, debug::logLevel::LOG_ALL>("LoggerManager: creating file\r\n");
 					fsHandler.write(this->_pDataBuff, std::strlen(this->_pDataBuff));
 					fsHandler.close();
 				}
 				else
 				{
-					debug::log<true, debug::logLevel::LOG_ALL>("LoggerManager: file could not be opened or created\r\n");
+					debug::log<true, debug::logLevel::LOG_ERROR>("LoggerManager: file could not be opened or created\r\n");
 				}
 			}
 		}
@@ -79,10 +85,6 @@ void loggerManager::handler()
 			// todo
 			// Check if new week
 		}
-		default:
-		{
-		}
-		break;
 	}
 }
 

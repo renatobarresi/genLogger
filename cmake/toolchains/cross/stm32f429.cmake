@@ -29,20 +29,19 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 set(CMAKE_SYSTEM_NAME Generic)                                
 set(CMAKE_SYSTEM_PROCESSOR arm)
 set(CPU_NAME cortex-m4)
-set(targetToolChainPath /home/renato/renato/toolchains/arm_bare_metal/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi/bin)
-# This path comes from the cmakelists thats using this .cmake file, and should be provided by the user.
+#set(stm32f4_toolchain_path replace_with_your_toolchain_path)
 
 #############################
 #   binutils definitions    #
 #############################
-set(CMAKE_C_COMPILER ${targetToolChainPath}/arm-none-eabi-gcc)
+set(CMAKE_C_COMPILER ${stm32f4_toolchain_path}/arm-none-eabi-gcc)
 set(CMAKE_ASM_COMPILER ${CMAKE_C_COMPILER})
-set(CMAKE_CXX_COMPILER ${targetToolChainPath}/arm-none-eabi-g++)
-set(as ${targetToolChainPath}/arm-none-eabi-as)
-set(CMAKE_AR ${targetToolChainPath}/arm-none-eabi-ar)
-set(OBJCOPY ${targetToolChainPath}/arm-none-eabi-objcopy)
-set(OBJDUMP ${targetToolChainPath}/arm-none-eabi-objdump)
-set(SIZE ${targetToolChainPath}/arm-none-eabi-size)
+set(CMAKE_CXX_COMPILER ${stm32f4_toolchain_path}/arm-none-eabi-g++)
+set(as ${stm32f4_toolchain_path}/arm-none-eabi-as)
+set(CMAKE_AR ${stm32f4_toolchain_path}/arm-none-eabi-ar)
+set(OBJCOPY ${stm32f4_toolchain_path}/arm-none-eabi-objcopy)
+set(OBJDUMP ${stm32f4_toolchain_path}/arm-none-eabi-objdump)
+set(SIZE ${stm32f4_toolchain_path}/arm-none-eabi-size)
 
 #############################
 #       CMake related       #

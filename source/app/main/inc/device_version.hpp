@@ -15,4 +15,4 @@
 constexpr char MAJOR		 = '1';
 constexpr char MINOR		 = '0';
 constexpr char PATCH		 = '0';
-constexpr char DEVELOPMENT[] = "alpha1";
+constexpr char DEVELOPMENT[] = "alpha2";

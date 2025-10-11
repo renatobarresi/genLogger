@@ -201,6 +201,7 @@ int main()
 	myProcessingManager.setObserver(&loggerHttpClient);
 
 	myLoggerManager.init();
+	myLoggerManager.setMailBox(myProcessingManager.getSensorInfoBuff());
 
 	loggerHttpClient.setURL(httpServerIP);
 	loggerHttpClient.setMailBox(myProcessingManager.getSensorInfoBuff());

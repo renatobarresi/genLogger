@@ -33,8 +33,8 @@ bool loggerManager::init()
 	_metadata = getLoggerMetadata();
 
 #ifdef TARGET_MICRO
-	//std::strncpy(this->_pPath, _metadata->loggerName, std::strlen(_metadata->loggerName));
-	this->_pPath = _metadata->loggerName;
+	snprintf(_fileName.data(), _fileName.size(), "%s.txt", _metadata->loggerName);
+	this->_pPath = _fileName.data();
 	if (fsHandler.mount() != true)
 	{
 		return false;
@@ -58,19 +58,30 @@ void loggerManager::handler()
 		case loggerMetadataConstants::CREATE_ONLY_ONE_FILE:
 		{
 			// Append data
+			size_t len = std::strlen(this->_pDataBuff);
+
 			if (true == fsHandler.open(this->_pPath, 2))
 			{
 				debug::log<true, debug::logLevel::LOG_ALL>("LoggerManager: appending data to file\r\n");
-				fsHandler.write(this->_pDataBuff, std::strlen(this->_pDataBuff));
+
+				if (len != fsHandler.write(this->_pDataBuff, len))
+				{
+					debug::log<true, debug::logLevel::LOG_ERROR>("LoggerManager: unable to append data to file \r\n");
+				}
+
 				fsHandler.close();
 			}
 			else
 			{
-				// If opening for append fails, the file might not exist. Try creating it.
+				debug::log<true, debug::logLevel::LOG_ALL>("LoggerManager: creating file\r\n");
+
 				if (true == fsHandler.open(this->_pPath, 1))
 				{
-					debug::log<true, debug::logLevel::LOG_ALL>("LoggerManager: creating file\r\n");
-					fsHandler.write(this->_pDataBuff, std::strlen(this->_pDataBuff));
+					if (len != fsHandler.write(this->_pDataBuff, len))
+					{
+						debug::log<true, debug::logLevel::LOG_ERROR>("LoggerManager: unable to write data to file \r\n");
+					}
+
 					fsHandler.close();
 				}
 				else

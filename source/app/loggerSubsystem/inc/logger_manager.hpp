@@ -63,6 +63,9 @@ class loggerManager : public observerInterface
   private:
 	void _fileManagement(uint8_t confNum);
 
+#ifdef TARGET_MICRO
+	std::array<char, 256> _fileName{'\0'};
+#endif
 	uint16_t			   _infoDataLen;
 	struct loggerMetadata* _metadata;
 	bool				   _availableData = false;

@@ -207,6 +207,7 @@ class LittleFSHandler : public FileHandler
 				flags = LFS_O_WRONLY | LFS_O_CREAT;
 				break; // Write mode
 			case 2:
+				flags = LFS_O_WRONLY | LFS_O_CREAT | LFS_O_APPEND;
 				break; // Append mode
 			default:
 				return false;
@@ -270,7 +271,7 @@ class fatFSHandler : public FileHandler
 
   public:
 	/**
-		* @brief Mounts the LittleFS filesystem.
+		* @brief Mounts the FatFS filesystem.
 		* @return true if successfully mounted or formatted, false otherwise.
 		*/
 	bool mount() override
@@ -286,7 +287,7 @@ class fatFSHandler : public FileHandler
 	}
 
 	/**
-		* @brief Opens a file on the LittleFS filesystem.
+		* @brief Opens a file on the FatFS filesystem.
 		* @param fileName Name of the file to open.
 		* @param mode Access mode: 0 = read, 1 = write, 2 = append.
 		* @return true if the file was successfully opened, false otherwise.
@@ -301,9 +302,10 @@ class fatFSHandler : public FileHandler
 				flags = FA_READ;
 				break; // Read mode
 			case 1:
-				flags = FA_OPEN_ALWAYS | FA_WRITE;
+				flags = FA_CREATE_NEW | FA_WRITE;
 				break; // Write mode
 			case 2:
+				flags = FA_OPEN_APPEND | FA_WRITE;
 				break; // Append mode
 			default:
 				return false;
@@ -325,9 +327,17 @@ class fatFSHandler : public FileHandler
 		*/
 	int write(const char* buffer, size_t size) override
 	{
-		f_puts(buffer, &fil);
+		UINT	bytesWritten;
+		FRESULT res;
 
-		return 0;
+		res = f_write(&fil, buffer, size, &bytesWritten);
+
+		if (FR_OK != res)
+		{
+			return 0;
+		}
+
+		return bytesWritten;
 	}
 
 	/**
@@ -339,7 +349,7 @@ class fatFSHandler : public FileHandler
 	int read(char* buffer, size_t size) override
 	{
 		f_gets(buffer, size, &fil);
-		return 0;
+		return size;
 	}
 
 	/**

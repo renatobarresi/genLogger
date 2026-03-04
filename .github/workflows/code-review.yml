@@ -17,13 +17,27 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: AI PR Review (OpenAI)
+      # Optional: quick pre-check to fail early with a clear message
+      - name: Verify OpenAI secret is present
+        run: |
+          if [ -z "${{ secrets.OPENAI_API_KEY }}" ]; then
+            echo "OPENAI_API_KEY is not set. Add it under Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+
+      - name: AI PR Review (Standard OpenAI)
         uses: gvasilei/AutoReviewer@0.5.1
+        # Force non-Azure by overriding/neutralizing any Azure env vars that may exist
         env:
           NODE_OPTIONS: '--experimental-fetch'
+          AZURE_OPENAI_API_KEY: ''
+          AZURE_OPENAI_ENDPOINT: ''
+          AZURE_OPENAI_DEPLOYMENT: ''
+          AZURE_OPENAI_API_VERSION: ''
+          OPENAI_API_VERSION: ''   # sometimes toggles Azure mode in some libs
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
-          # Explicitly force non-Azure mode if the action supports the flag
-          use_azure: false
+          openai_api_key: ${{ secrets.OPENAI_API_KEY }}  # standard OpenAI key
+          model_name: gpt-4o-mini                         # pick any model the action supports
+          model_temperature: '0.2'
           exclude_files: '*.json, *.md, *.yml'

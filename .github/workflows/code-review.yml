@@ -20,5 +20,6 @@ jobs:
           NODE_OPTIONS: '--experimental-fetch'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          llm_provider: 'openai'
           openai_api_key: ${{ secrets.OPENAI_API_KEY }}
           exclude_files: '*.json, *.md, *.yml'

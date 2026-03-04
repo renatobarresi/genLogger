@@ -8,16 +8,26 @@ permissions:
   pull-requests: write
 
 jobs:
-  ai-review:
-    runs-on: ubuntu-latest
+  code-review:
+    # Pin to a specific image for reproducibility (ubuntu-latest currently maps to 24.04)
+    runs-on: ubuntu-24.04
+
+    concurrency:
+      group: ai-review-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: false
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # If you want full history for better diff context, set to 0
+          fetch-depth: 2
 
       - name: AI PR Review
-        uses: villesau/ai-code-review-action@v2
+        uses: gvasilei/AutoReviewer@0.5.1
+        env:
+          NODE_OPTIONS: '--experimental-fetch'
         with:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          model_name: gpt-4o-mini
-          model_temperature: 0
-          exclude_files: '*.md,*.json,*.yml'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+          exclude_files: '*.json, *.md, *.yml'

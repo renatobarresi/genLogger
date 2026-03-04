@@ -1,0 +1,24 @@
+name: AI Code Review
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  code-review:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: AI PR Review
+        uses: gvasilei/AutoReviewer@0.5.1
+        env:
+          NODE_OPTIONS: '--experimental-fetch'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+          exclude_files: '*.json, *.md, *.yml'

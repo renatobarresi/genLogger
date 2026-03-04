@@ -9,25 +9,21 @@ permissions:
 
 jobs:
   code-review:
-    # Pin to a specific image for reproducibility (ubuntu-latest currently maps to 24.04)
     runs-on: ubuntu-24.04
-
-    concurrency:
-      group: ai-review-${{ github.event.pull_request.number || github.ref }}
-      cancel-in-progress: false
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          # If you want full history for better diff context, set to 0
           fetch-depth: 2
 
-      - name: AI PR Review
+      - name: AI PR Review (OpenAI)
         uses: gvasilei/AutoReviewer@0.5.1
         env:
           NODE_OPTIONS: '--experimental-fetch'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+          # Explicitly force non-Azure mode if the action supports the flag
+          use_azure: false
           exclude_files: '*.json, *.md, *.yml'

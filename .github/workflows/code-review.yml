@@ -8,18 +8,16 @@ permissions:
   pull-requests: write
 
 jobs:
-  code-review:
+  ai-review:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
 
       - name: AI PR Review
-        uses: gvasilei/AutoReviewer@0.5.1
-        env:
-          NODE_OPTIONS: '--experimental-fetch'
+        uses: villesau/ai-code-review-action@v2
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          llm_provider: 'openai'
-          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
-          exclude_files: '*.json, *.md, *.yml'
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          model_name: gpt-4o-mini
+          model_temperature: 0
+          exclude_files: '*.md,*.json,*.yml'

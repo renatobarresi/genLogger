@@ -1,47 +1,47 @@
-name: AI Review
-
+name: LLM Code Review
 on:
-  workflow_dispatch:
-    inputs:
-      review-command:
-        type: choice
-        default: run
-        options:
-          - run
-          - run-inline
-          - run-context
-          - run-summary
-          - run-inline-reply
-          - run-summary-reply
-          - clear-inline
-          - clear-summary
-      pull-request-number:
-        type: string
-        required: true
+  pull_request:
+    branches:
+      - whichever-branch-you-want-code-review-for
+    types:
+      - opened # when a PR is opened
+      - synchronize # when code is pushed to a pr
+
 jobs:
-  ai-review:
-    runs-on: ubuntu-latest
+  code-review:
+    runs-on:
+      - ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
 
-      - uses: Nikita-Filonov/ai-review@v0.59.0
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          review-command: ${{ inputs.review-command }}
+          node-version: 20
+
+      - name: Get Diff
+        id: diff
         env:
-          # --- LLM configuration ---
-          LLM__PROVIDER: "OPENAI"
-          LLM__META__MODEL: "gpt-4o-mini"
-          LLM__META__MAX_TOKENS: "15000"
-          LLM__META__TEMPERATURE: "0.3"
-          LLM__HTTP_CLIENT__API_URL: "https://api.openai.com/v1"
-          LLM__HTTP_CLIENT__API_TOKEN: ${{ secrets.OPENAI_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "changeset<<EOF" >> $GITHUB_OUTPUT
+          echo "$(gh pr diff ${{ github.event.pull_request.number }} --repo "${{ github.repository }}")" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
-          # --- GitHub integration ---
-          VCS__PROVIDER: "GITHUB"
-          VCS__PIPELINE__OWNER: ${{ github.repository_owner }}
-          VCS__PIPELINE__REPO: ${{ github.event.repository.name }}
-          VCS__PIPELINE__PULL_NUMBER: ${{ inputs.pull-request-number }}
-          VCS__HTTP_CLIENT__API_URL: "https://api.github.com"
-          VCS__HTTP_CLIENT__API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run AI code review
+        uses: daves-dead-simple/open-ai-action@main
+        id: code-review
+        env:
+          OPEN_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        with:
+          prompt: |
+            Please code review the following changeset: ${{ steps.get_diff.outputs.changeset }}
+
+      - name: Comment on PR with AI review
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} \
+            --repo "${{ github.repository }}" \
+            --body "${{ steps.code-review.outputs.completion }}"

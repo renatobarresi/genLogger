@@ -16,5 +16,13 @@ jobs:
         uses: Nikita-Filonov/ai-review@main
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
         with:
           mode: inline
+
+          llm: |
+            provider: openai
+            model: gpt-4o-mini
+
+          vcs: |
+            provider: github

@@ -1,43 +1,47 @@
-name: AI Code Review
+name: AI Review
 
 on:
-  pull_request:
-
-permissions:
-  contents: read
-  pull-requests: write
-
+  workflow_dispatch:
+    inputs:
+      review-command:
+        type: choice
+        default: run
+        options:
+          - run
+          - run-inline
+          - run-context
+          - run-summary
+          - run-inline-reply
+          - run-summary-reply
+          - clear-inline
+          - clear-summary
+      pull-request-number:
+        type: string
+        required: true
 jobs:
-  code-review:
-    runs-on: ubuntu-24.04
-
+  ai-review:
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
-      # Optional: quick pre-check to fail early with a clear message
-      - name: Verify OpenAI secret is present
-        run: |
-          if [ -z "${{ secrets.OPENAI_API_KEY }}" ]; then
-            echo "OPENAI_API_KEY is not set. Add it under Settings → Secrets and variables → Actions."
-            exit 1
-          fi
-
-      - name: AI PR Review (Standard OpenAI)
-        uses: gvasilei/AutoReviewer@0.5.1
-        # Force non-Azure by overriding/neutralizing any Azure env vars that may exist
+      - uses: Nikita-Filonov/ai-review@v0.59.0
+        with:
+          review-command: ${{ inputs.review-command }}
         env:
-          NODE_OPTIONS: '--experimental-fetch'
-          AZURE_OPENAI_API_KEY: ''
-          AZURE_OPENAI_ENDPOINT: ''
-          AZURE_OPENAI_DEPLOYMENT: ''
-          AZURE_OPENAI_API_VERSION: ''
-          OPENAI_API_VERSION: ''   # sometimes toggles Azure mode in some libs
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          openai_api_key: ${{ secrets.OPENAI_API_KEY }}  # standard OpenAI key
-          model_name: gpt-4o-mini                         # pick any model the action supports
-          model_temperature: '0.2'
-          exclude_files: '*.json, *.md, *.yml'
+          # --- LLM configuration ---
+          LLM__PROVIDER: "OPENAI"
+          LLM__META__MODEL: "gpt-4o-mini"
+          LLM__META__MAX_TOKENS: "15000"
+          LLM__META__TEMPERATURE: "0.3"
+          LLM__HTTP_CLIENT__API_URL: "https://api.openai.com/v1"
+          LLM__HTTP_CLIENT__API_TOKEN: ${{ secrets.OPENAI_API_KEY }}
+
+          # --- GitHub integration ---
+          VCS__PROVIDER: "GITHUB"
+          VCS__PIPELINE__OWNER: ${{ github.repository_owner }}
+          VCS__PIPELINE__REPO: ${{ github.event.repository.name }}
+          VCS__PIPELINE__PULL_NUMBER: ${{ inputs.pull-request-number }}
+          VCS__HTTP_CLIENT__API_URL: "https://api.github.com"
+          VCS__HTTP_CLIENT__API_TOKEN: ${{ secrets.GITHUB_TOKEN }}

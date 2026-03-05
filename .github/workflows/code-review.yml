@@ -5,16 +5,16 @@ on:
     types: [opened, synchronize]
 
 jobs:
-  review:
+  ai-review:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
 
-    - name: Run AI Code Review
-      uses: Nikita-Filonov/ai-review@main
-      env:
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      with:
-        mode: inline
+      - name: Run AI Code Review
+        uses: Nikita-Filonov/ai-review@main
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        with:
+          mode: inline

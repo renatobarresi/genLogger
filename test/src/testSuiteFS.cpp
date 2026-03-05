@@ -252,3 +252,5 @@ TEST(loggerSubsystem, testWritingExternal)
 	EXPECT_STREQ(myProcessingManager.getSensorInfoBuff(), lastLine.c_str());
 	EXPECT_TRUE(true);
 }
+
+TEST() {}
